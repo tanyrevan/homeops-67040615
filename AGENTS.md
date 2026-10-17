@@ -19,3 +19,4 @@
 - Provider stars are a pin/priority flag in the `stars` junction table (unique per user+provider, insert only for owned providers); list ordering lives in `src/lib/stars.ts`; why: one tested sort rule.
 - Search/filter/sort runs in the browser over rows already limited by RLS, via pure functions in `src/lib/list-filters.ts`; why: ownership stays enforced by the backend and the rules are unit-tested.
 - Dashboard math (month totals, 6-month grocery buckets, by record date not created_at) lives in `src/lib/dashboard-stats.ts`, summed in cents; why: deterministic and unit-tested.
+- Overdue / Due Soon / Upcoming is computed only from `next_service_date` vs the local calendar date in `src/lib/due-status.ts`; why: no time-of-day drift, unit-tested.
