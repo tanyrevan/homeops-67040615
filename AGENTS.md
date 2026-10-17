@@ -21,3 +21,4 @@
 - Dashboard math (month totals, 6-month grocery buckets, by record date not created_at) lives in `src/lib/dashboard-stats.ts`, summed in cents; why: deterministic and unit-tested.
 - Overdue / Due Soon / Upcoming is computed only from `next_service_date` vs the local calendar date in `src/lib/due-status.ts`; why: no time-of-day drift, unit-tested.
 - Monthly grocery budgets: one `budgets` row per user per month (month = first day, unique user+month, owner-only RLS, no delete); math in `src/lib/budget.ts`; why: tested, no division by zero, prior months preserved.
+- Provider list also filters by the signed-in user via `filterOwnedRecords` in `src/lib/ownership.ts` (on top of RLS); why: a unit-tested data-isolation check.
