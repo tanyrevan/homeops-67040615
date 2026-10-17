@@ -32,3 +32,12 @@ describe("grocery validation", () => {
     expect(splitCategory("Dairy")).toEqual({ categoryChoice: "Dairy", customCategory: "" });
   });
 });
+
+describe("reimbursement status", () => {
+  it("defaults to Not Reimbursed and saves Reimbursed when chosen", () => {
+    const no = validateGrocery(base);
+    expect(no.ok && no.data.reimbursed).toBe(false);
+    const yes = validateGrocery({ ...base, reimbursed: true });
+    expect(yes.ok && yes.data.reimbursed).toBe(true);
+  });
+});
