@@ -17,6 +17,9 @@ import { Route as AuthenticatedProvidersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedProvidersNewRouteImport } from './routes/_authenticated/providers.new'
 import { Route as AuthenticatedProvidersIdIndexRouteImport } from './routes/_authenticated/providers.$id.index'
 import { Route as AuthenticatedProvidersIdEditRouteImport } from './routes/_authenticated/providers.$id.edit'
+import { Route as AuthenticatedVisitsVisitIdIndexRouteImport } from './routes/_authenticated/visits.$visitId.index'
+import { Route as AuthenticatedVisitsVisitIdEditRouteImport } from './routes/_authenticated/visits.$visitId.edit'
+import { Route as AuthenticatedProvidersIdVisitsNewRouteImport } from './routes/_authenticated/providers.$id.visits.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -61,6 +64,24 @@ const AuthenticatedProvidersIdEditRoute =
     path: '/providers/$id/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVisitsVisitIdIndexRoute =
+  AuthenticatedVisitsVisitIdIndexRouteImport.update({
+    id: '/visits/$visitId/',
+    path: '/visits/$visitId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedVisitsVisitIdEditRoute =
+  AuthenticatedVisitsVisitIdEditRouteImport.update({
+    id: '/visits/$visitId/edit',
+    path: '/visits/$visitId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProvidersIdVisitsNewRoute =
+  AuthenticatedProvidersIdVisitsNewRouteImport.update({
+    id: '/providers/$id/visits/new',
+    path: '/providers/$id/visits/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -69,7 +90,10 @@ export interface FileRoutesByFullPath {
   '/providers/new': typeof AuthenticatedProvidersNewRoute
   '/providers/': typeof AuthenticatedProvidersIndexRoute
   '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
   '/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
+  '/visits/$visitId/': typeof AuthenticatedVisitsVisitIdIndexRoute
+  '/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,7 +102,10 @@ export interface FileRoutesByTo {
   '/providers/new': typeof AuthenticatedProvidersNewRoute
   '/providers': typeof AuthenticatedProvidersIndexRoute
   '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
   '/providers/$id': typeof AuthenticatedProvidersIdIndexRoute
+  '/visits/$visitId': typeof AuthenticatedVisitsVisitIdIndexRoute
+  '/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,7 +116,10 @@ export interface FileRoutesById {
   '/_authenticated/providers/new': typeof AuthenticatedProvidersNewRoute
   '/_authenticated/providers/': typeof AuthenticatedProvidersIndexRoute
   '/_authenticated/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/_authenticated/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
   '/_authenticated/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
+  '/_authenticated/visits/$visitId/': typeof AuthenticatedVisitsVisitIdIndexRoute
+  '/_authenticated/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,7 +130,10 @@ export interface FileRouteTypes {
     | '/providers/new'
     | '/providers/'
     | '/providers/$id/edit'
+    | '/visits/$visitId/edit'
     | '/providers/$id/'
+    | '/visits/$visitId/'
+    | '/providers/$id/visits/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,7 +142,10 @@ export interface FileRouteTypes {
     | '/providers/new'
     | '/providers'
     | '/providers/$id/edit'
+    | '/visits/$visitId/edit'
     | '/providers/$id'
+    | '/visits/$visitId'
+    | '/providers/$id/visits/new'
   id:
     | '__root__'
     | '/'
@@ -119,7 +155,10 @@ export interface FileRouteTypes {
     | '/_authenticated/providers/new'
     | '/_authenticated/providers/'
     | '/_authenticated/providers/$id/edit'
+    | '/_authenticated/visits/$visitId/edit'
     | '/_authenticated/providers/$id/'
+    | '/_authenticated/visits/$visitId/'
+    | '/_authenticated/providers/$id/visits/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,6 +225,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProvidersIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/visits/$visitId/': {
+      id: '/_authenticated/visits/$visitId/'
+      path: '/visits/$visitId'
+      fullPath: '/visits/$visitId/'
+      preLoaderRoute: typeof AuthenticatedVisitsVisitIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/visits/$visitId/edit': {
+      id: '/_authenticated/visits/$visitId/edit'
+      path: '/visits/$visitId/edit'
+      fullPath: '/visits/$visitId/edit'
+      preLoaderRoute: typeof AuthenticatedVisitsVisitIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/providers/$id/visits/new': {
+      id: '/_authenticated/providers/$id/visits/new'
+      path: '/providers/$id/visits/new'
+      fullPath: '/providers/$id/visits/new'
+      preLoaderRoute: typeof AuthenticatedProvidersIdVisitsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -194,7 +254,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProvidersNewRoute: typeof AuthenticatedProvidersNewRoute
   AuthenticatedProvidersIndexRoute: typeof AuthenticatedProvidersIndexRoute
   AuthenticatedProvidersIdEditRoute: typeof AuthenticatedProvidersIdEditRoute
+  AuthenticatedVisitsVisitIdEditRoute: typeof AuthenticatedVisitsVisitIdEditRoute
   AuthenticatedProvidersIdIndexRoute: typeof AuthenticatedProvidersIdIndexRoute
+  AuthenticatedVisitsVisitIdIndexRoute: typeof AuthenticatedVisitsVisitIdIndexRoute
+  AuthenticatedProvidersIdVisitsNewRoute: typeof AuthenticatedProvidersIdVisitsNewRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -202,7 +265,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProvidersNewRoute: AuthenticatedProvidersNewRoute,
   AuthenticatedProvidersIndexRoute: AuthenticatedProvidersIndexRoute,
   AuthenticatedProvidersIdEditRoute: AuthenticatedProvidersIdEditRoute,
+  AuthenticatedVisitsVisitIdEditRoute: AuthenticatedVisitsVisitIdEditRoute,
   AuthenticatedProvidersIdIndexRoute: AuthenticatedProvidersIdIndexRoute,
+  AuthenticatedVisitsVisitIdIndexRoute: AuthenticatedVisitsVisitIdIndexRoute,
+  AuthenticatedProvidersIdVisitsNewRoute:
+    AuthenticatedProvidersIdVisitsNewRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
