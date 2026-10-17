@@ -4,7 +4,8 @@ import { AppShell } from "@/components/AppShell";
 import { providersQuery } from "@/lib/providers-api";
 
 export const Route = createFileRoute("/_authenticated/providers/")({
-  validateSearch: (s: Record<string, unknown>) => ({ deleted: s.deleted === true || s.deleted === "1" || s.deleted === 1 ? true : undefined }),
+  validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
+    s["deleted"] === true || s["deleted"] === "1" || s["deleted"] === 1 ? { deleted: true } : {},
   head: () => ({
     meta: [
       { title: "Providers — HomeOps" },
