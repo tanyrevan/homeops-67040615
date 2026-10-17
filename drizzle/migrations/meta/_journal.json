@@ -36,6 +36,13 @@
       "when": 1792273539427,
       "tag": "0004_add_payment_status",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792273981985,
+      "tag": "0005_create_stars",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { providerQuery } from "@/lib/providers-api";
+import { StarButton } from "@/components/StarButton";
 import { VisitHistory } from "@/components/VisitHistory";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/")({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/providers/$id/")({
 
 function ProviderDetail() {
   const { id } = Route.useParams();
+  const { user } = Route.useRouteContext();
   const { visitDeleted } = Route.useSearch();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -48,7 +50,10 @@ function ProviderDetail() {
       {!isLoading && !p && <p className="mt-6 text-foreground">This provider wasn't found.</p>}
       {p && (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
-          <h1 className="text-2xl font-semibold text-foreground">{p.name}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-semibold text-foreground">{p.name}</h1>
+            <StarButton userId={user.id} providerId={p.id} name={p.name} />
+          </div>
           <dl className="mt-5 space-y-4">
             <Field label="Service type" value={p.service_type} />
             <Field label="Phone or contact" value={p.phone_or_contact} />

@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { useState } from "react";
+import { StarButton } from "@/components/StarButton";
 import { providersQuery } from "@/lib/providers-api";
+import { orderByStar, starsQuery } from "@/lib/stars";
 
 export const Route = createFileRoute("/_authenticated/providers/")({
   validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
@@ -19,7 +22,11 @@ export const Route = createFileRoute("/_authenticated/providers/")({
 
 function ProvidersPage() {
   const { deleted } = Route.useSearch();
+  const { user } = Route.useRouteContext();
   const { data, isLoading, error } = useQuery(providersQuery());
+  const stars = useQuery(starsQuery());
+  const [starredOnly, setStarredOnly] = useState(false);
+  const list = data && stars.data ? orderByStar(data, stars.data, starredOnly) : [];
 
   return (
     <AppShell>
@@ -42,13 +49,25 @@ function ProvidersPage() {
         </div>
       )}
       {data && data.length > 0 && (
+        <label className="mb-4 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+          <input type="checkbox" checked={starredOnly} onChange={(e) => setStarredOnly(e.target.checked)} className="h-5 w-5 accent-primary" />
+          Starred only
+        </label>
+      )}
+      {data && data.length > 0 && starredOnly && stars.data && list.length === 0 && (
+        <p className="text-muted-foreground">No starred providers yet. Tap ☆ next to a provider to pin it here.</p>
+      )}
+      {data && data.length > 0 && (
         <ul className="space-y-3">
-          {data.map((p) => (
+          {list.map((p) => (
             <li key={p.id}>
-              <Link to="/providers/$id" params={{ id: p.id }} className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
-                <div className="font-medium text-foreground">{p.name}</div>
-                <div className="text-sm text-muted-foreground">{p.service_type}</div>
-              </Link>
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-card pr-2 hover:bg-accent">
+                <Link to="/providers/$id" params={{ id: p.id }} className="block flex-1 p-4">
+                  <div className="font-medium text-foreground">{p.name}</div>
+                  <div className="text-sm text-muted-foreground">{p.service_type}</div>
+                </Link>
+                <StarButton userId={user.id} providerId={p.id} name={p.name} />
+              </div>
             </li>
           ))}
         </ul>
