@@ -13,6 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedProvidersIndexRouteImport } from './routes/_authenticated/providers.index'
+import { Route as AuthenticatedProvidersNewRouteImport } from './routes/_authenticated/providers.new'
+import { Route as AuthenticatedProvidersIdIndexRouteImport } from './routes/_authenticated/providers.$id.index'
+import { Route as AuthenticatedProvidersIdEditRouteImport } from './routes/_authenticated/providers.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,16 +37,48 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProvidersIndexRoute =
+  AuthenticatedProvidersIndexRouteImport.update({
+    id: '/providers/',
+    path: '/providers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProvidersNewRoute =
+  AuthenticatedProvidersNewRouteImport.update({
+    id: '/providers/new',
+    path: '/providers/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProvidersIdIndexRoute =
+  AuthenticatedProvidersIdIndexRouteImport.update({
+    id: '/providers/$id/',
+    path: '/providers/$id/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProvidersIdEditRoute =
+  AuthenticatedProvidersIdEditRouteImport.update({
+    id: '/providers/$id/edit',
+    path: '/providers/$id/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/providers/': typeof AuthenticatedProvidersIndexRoute
+  '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/providers': typeof AuthenticatedProvidersIndexRoute
+  '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/providers/$id': typeof AuthenticatedProvidersIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +86,40 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/_authenticated/providers/': typeof AuthenticatedProvidersIndexRoute
+  '/_authenticated/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
+  '/_authenticated/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/home'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/home'
+    | '/providers/new'
+    | '/providers/'
+    | '/providers/$id/edit'
+    | '/providers/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/home'
-  id: '__root__' | '/' | '/_authenticated' | '/auth' | '/_authenticated/home'
+  to:
+    | '/'
+    | '/auth'
+    | '/home'
+    | '/providers/new'
+    | '/providers'
+    | '/providers/$id/edit'
+    | '/providers/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/home'
+    | '/_authenticated/providers/new'
+    | '/_authenticated/providers/'
+    | '/_authenticated/providers/$id/edit'
+    | '/_authenticated/providers/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,15 +158,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/providers/': {
+      id: '/_authenticated/providers/'
+      path: '/providers'
+      fullPath: '/providers/'
+      preLoaderRoute: typeof AuthenticatedProvidersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/providers/new': {
+      id: '/_authenticated/providers/new'
+      path: '/providers/new'
+      fullPath: '/providers/new'
+      preLoaderRoute: typeof AuthenticatedProvidersNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/providers/$id/': {
+      id: '/_authenticated/providers/$id/'
+      path: '/providers/$id'
+      fullPath: '/providers/$id/'
+      preLoaderRoute: typeof AuthenticatedProvidersIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/providers/$id/edit': {
+      id: '/_authenticated/providers/$id/edit'
+      path: '/providers/$id/edit'
+      fullPath: '/providers/$id/edit'
+      preLoaderRoute: typeof AuthenticatedProvidersIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedProvidersNewRoute: typeof AuthenticatedProvidersNewRoute
+  AuthenticatedProvidersIndexRoute: typeof AuthenticatedProvidersIndexRoute
+  AuthenticatedProvidersIdEditRoute: typeof AuthenticatedProvidersIdEditRoute
+  AuthenticatedProvidersIdIndexRoute: typeof AuthenticatedProvidersIdIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedProvidersNewRoute: AuthenticatedProvidersNewRoute,
+  AuthenticatedProvidersIndexRoute: AuthenticatedProvidersIndexRoute,
+  AuthenticatedProvidersIdEditRoute: AuthenticatedProvidersIdEditRoute,
+  AuthenticatedProvidersIdIndexRoute: AuthenticatedProvidersIdIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
