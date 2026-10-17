@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { providerQuery } from "@/lib/providers-api";
+import { VisitHistory } from "@/components/VisitHistory";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/")({
+  validateSearch: (s: Record<string, unknown>): { visitDeleted?: boolean } =>
+    s["visitDeleted"] === true || s["visitDeleted"] === "1" ? { visitDeleted: true } : {},
   head: () => ({
     meta: [
       { title: "Provider details — HomeOps" },
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/providers/$id/")({
 
 function ProviderDetail() {
   const { id } = Route.useParams();
+  const { visitDeleted } = Route.useSearch();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: p, isLoading } = useQuery(providerQuery(id));
@@ -39,6 +43,7 @@ function ProviderDetail() {
   return (
     <AppShell>
       <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to providers</Link>
+      {visitDeleted && <p className="mt-4 rounded-md bg-accent p-3 text-sm text-foreground">Visit deleted.</p>}
       {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
       {!isLoading && !p && <p className="mt-6 text-foreground">This provider wasn't found.</p>}
       {p && (
@@ -75,6 +80,7 @@ function ProviderDetail() {
           </div>
         </div>
       )}
+      {p && <VisitHistory providerId={id} />}
     </AppShell>
   );
 }
