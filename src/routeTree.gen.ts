@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAttentionRouteImport } from './routes/_authenticated/attention'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroceriesIndexRouteImport } from './routes/_authenticated/groceries.index'
 import { Route as AuthenticatedGroceriesNewRouteImport } from './routes/_authenticated/groceries.new'
@@ -38,6 +39,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAttentionRoute = AuthenticatedAttentionRouteImport.update({
+  id: '/attention',
+  path: '/attention',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
@@ -114,6 +120,7 @@ const AuthenticatedProvidersIdVisitsNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/attention': typeof AuthenticatedAttentionRoute
   '/home': typeof AuthenticatedHomeRoute
   '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/attention': typeof AuthenticatedAttentionRoute
   '/home': typeof AuthenticatedHomeRoute
   '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/attention': typeof AuthenticatedAttentionRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/_authenticated/providers/new': typeof AuthenticatedProvidersNewRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/attention'
     | '/home'
     | '/groceries/new'
     | '/providers/new'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/attention'
     | '/home'
     | '/groceries/new'
     | '/providers/new'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/attention'
     | '/_authenticated/home'
     | '/_authenticated/groceries/new'
     | '/_authenticated/providers/new'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/attention': {
+      id: '/_authenticated/attention'
+      path: '/attention'
+      fullPath: '/attention'
+      preLoaderRoute: typeof AuthenticatedAttentionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
       id: '/_authenticated/home'
@@ -330,6 +349,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAttentionRoute: typeof AuthenticatedAttentionRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedGroceriesNewRoute: typeof AuthenticatedGroceriesNewRoute
   AuthenticatedProvidersNewRoute: typeof AuthenticatedProvidersNewRoute
@@ -345,6 +365,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAttentionRoute: AuthenticatedAttentionRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedGroceriesNewRoute: AuthenticatedGroceriesNewRoute,
   AuthenticatedProvidersNewRoute: AuthenticatedProvidersNewRoute,

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { groceriesQuery } from "@/lib/groceries-api";
+import { StatusBadge } from "@/components/StatusBadge";
 import { day, money } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/groceries/")({
@@ -53,8 +54,9 @@ function GroceriesPage() {
                   </div>
                   <div className="font-semibold text-foreground">{money(g.amount)}</div>
                 </div>
-                {(g.category || g.receipt_url) && (
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                {(
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                    <StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" />
                     {g.category && <span>{g.category}</span>}
                     {g.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
                   </div>

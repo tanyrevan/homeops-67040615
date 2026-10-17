@@ -32,7 +32,7 @@ function EditGrocery() {
       {!isLoading && !g && <p className="text-foreground">This purchase wasn't found.</p>}
       {g && (
         <GroceryForm
-          initial={{ purchaseDate: g.purchase_date, store: g.store, amount: String(g.amount), ...splitCategory(g.category), notes: g.notes ?? "" }}
+          initial={{ purchaseDate: g.purchase_date, store: g.store, amount: String(g.amount), ...splitCategory(g.category), notes: g.notes ?? "", reimbursed: g.reimbursed }}
           hasReceipt={!!g.receipt_url}
           submitLabel="Save Changes"
           onCancel={() => navigate({ to: "/groceries/$groceryId", params: { groceryId } })}
