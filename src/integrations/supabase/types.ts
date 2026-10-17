@@ -156,6 +156,42 @@ export type Database = {
           },
         ]
       }
+      stars: {
+        Row: {
+          created_at: string
+          id: string
+          service_provider_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          service_provider_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          service_provider_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stars_service_provider_id_fkey"
+            columns: ["service_provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stars_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
