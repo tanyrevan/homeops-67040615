@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GROCERY_CATEGORIES, splitCategory, validateGrocery } from "@/lib/grocery-validation";
 
-const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", categoryChoice: "", customCategory: "", notes: "" };
+const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", categoryChoice: "", customCategory: "", notes: "", reimbursed: false };
 
 describe("grocery validation", () => {
   it("offers the seven categories", () => {

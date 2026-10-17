@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
+import { YesNo } from "@/components/StatusBadge";
 import { RECEIPT_ACCEPT, validateReceipt, validateVisit, type VisitErrors, type VisitFormValues } from "@/lib/visit-validation";
 
 export type VisitSubmit = {
-  data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; next_service_date: string | null };
+  data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; next_service_date: string | null; paid: boolean };
   file: File | null;
   removeReceipt: boolean;
 };
@@ -62,6 +63,7 @@ export function VisitForm({
         <input id="amount" type="number" inputMode="decimal" min="0" step="0.01" className={input} value={v.amount} onChange={set("amount")} placeholder="Optional, e.g. 75.00" />
         {err(errors.amount)}
       </div>
+      <YesNo label="Paid?" name="paid" value={v.paid} onChange={(paid) => setV({ ...v, paid })} />
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
         <textarea id="notes" rows={3} className={input} value={v.notes} onChange={set("notes")} placeholder="Optional" />
