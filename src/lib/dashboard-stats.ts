@@ -13,7 +13,7 @@ export function monthSummary(
   today: Date,
 ) {
   const key = monthKey(today);
-  const g = groceries; // TEMPORARILY BROKEN for red-test evidence: includes all months
+  const g = groceries.filter((x) => x.purchase_date.slice(0, 7) === key);
   const v = visits.filter((x) => x.visit_date.slice(0, 7) === key);
   return {
     groceryTotal: g.reduce((s, x) => s + cents(x.amount), 0) / 100,
