@@ -13,8 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedGroceriesIndexRouteImport } from './routes/_authenticated/groceries.index'
+import { Route as AuthenticatedGroceriesNewRouteImport } from './routes/_authenticated/groceries.new'
 import { Route as AuthenticatedProvidersIndexRouteImport } from './routes/_authenticated/providers.index'
 import { Route as AuthenticatedProvidersNewRouteImport } from './routes/_authenticated/providers.new'
+import { Route as AuthenticatedGroceriesGroceryIdIndexRouteImport } from './routes/_authenticated/groceries.$groceryId.index'
+import { Route as AuthenticatedGroceriesGroceryIdEditRouteImport } from './routes/_authenticated/groceries.$groceryId.edit'
 import { Route as AuthenticatedProvidersIdIndexRouteImport } from './routes/_authenticated/providers.$id.index'
 import { Route as AuthenticatedProvidersIdEditRouteImport } from './routes/_authenticated/providers.$id.edit'
 import { Route as AuthenticatedVisitsVisitIdIndexRouteImport } from './routes/_authenticated/visits.$visitId.index'
@@ -40,6 +44,18 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGroceriesIndexRoute =
+  AuthenticatedGroceriesIndexRouteImport.update({
+    id: '/groceries/',
+    path: '/groceries/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroceriesNewRoute =
+  AuthenticatedGroceriesNewRouteImport.update({
+    id: '/groceries/new',
+    path: '/groceries/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProvidersIndexRoute =
   AuthenticatedProvidersIndexRouteImport.update({
     id: '/providers/',
@@ -50,6 +66,18 @@ const AuthenticatedProvidersNewRoute =
   AuthenticatedProvidersNewRouteImport.update({
     id: '/providers/new',
     path: '/providers/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroceriesGroceryIdIndexRoute =
+  AuthenticatedGroceriesGroceryIdIndexRouteImport.update({
+    id: '/groceries/$groceryId/',
+    path: '/groceries/$groceryId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGroceriesGroceryIdEditRoute =
+  AuthenticatedGroceriesGroceryIdEditRouteImport.update({
+    id: '/groceries/$groceryId/edit',
+    path: '/groceries/$groceryId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProvidersIdIndexRoute =
@@ -87,10 +115,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/groceries/': typeof AuthenticatedGroceriesIndexRoute
   '/providers/': typeof AuthenticatedProvidersIndexRoute
+  '/groceries/$groceryId/edit': typeof AuthenticatedGroceriesGroceryIdEditRoute
   '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
   '/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
+  '/groceries/$groceryId/': typeof AuthenticatedGroceriesGroceryIdIndexRoute
   '/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
   '/visits/$visitId/': typeof AuthenticatedVisitsVisitIdIndexRoute
   '/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
@@ -99,10 +131,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/groceries': typeof AuthenticatedGroceriesIndexRoute
   '/providers': typeof AuthenticatedProvidersIndexRoute
+  '/groceries/$groceryId/edit': typeof AuthenticatedGroceriesGroceryIdEditRoute
   '/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
   '/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
+  '/groceries/$groceryId': typeof AuthenticatedGroceriesGroceryIdIndexRoute
   '/providers/$id': typeof AuthenticatedProvidersIdIndexRoute
   '/visits/$visitId': typeof AuthenticatedVisitsVisitIdIndexRoute
   '/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
@@ -113,10 +149,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/_authenticated/providers/new': typeof AuthenticatedProvidersNewRoute
+  '/_authenticated/groceries/': typeof AuthenticatedGroceriesIndexRoute
   '/_authenticated/providers/': typeof AuthenticatedProvidersIndexRoute
+  '/_authenticated/groceries/$groceryId/edit': typeof AuthenticatedGroceriesGroceryIdEditRoute
   '/_authenticated/providers/$id/edit': typeof AuthenticatedProvidersIdEditRoute
   '/_authenticated/visits/$visitId/edit': typeof AuthenticatedVisitsVisitIdEditRoute
+  '/_authenticated/groceries/$groceryId/': typeof AuthenticatedGroceriesGroceryIdIndexRoute
   '/_authenticated/providers/$id/': typeof AuthenticatedProvidersIdIndexRoute
   '/_authenticated/visits/$visitId/': typeof AuthenticatedVisitsVisitIdIndexRoute
   '/_authenticated/providers/$id/visits/new': typeof AuthenticatedProvidersIdVisitsNewRoute
@@ -127,10 +167,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/home'
+    | '/groceries/new'
     | '/providers/new'
+    | '/groceries/'
     | '/providers/'
+    | '/groceries/$groceryId/edit'
     | '/providers/$id/edit'
     | '/visits/$visitId/edit'
+    | '/groceries/$groceryId/'
     | '/providers/$id/'
     | '/visits/$visitId/'
     | '/providers/$id/visits/new'
@@ -139,10 +183,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/home'
+    | '/groceries/new'
     | '/providers/new'
+    | '/groceries'
     | '/providers'
+    | '/groceries/$groceryId/edit'
     | '/providers/$id/edit'
     | '/visits/$visitId/edit'
+    | '/groceries/$groceryId'
     | '/providers/$id'
     | '/visits/$visitId'
     | '/providers/$id/visits/new'
@@ -152,10 +200,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/home'
+    | '/_authenticated/groceries/new'
     | '/_authenticated/providers/new'
+    | '/_authenticated/groceries/'
     | '/_authenticated/providers/'
+    | '/_authenticated/groceries/$groceryId/edit'
     | '/_authenticated/providers/$id/edit'
     | '/_authenticated/visits/$visitId/edit'
+    | '/_authenticated/groceries/$groceryId/'
     | '/_authenticated/providers/$id/'
     | '/_authenticated/visits/$visitId/'
     | '/_authenticated/providers/$id/visits/new'
@@ -197,6 +249,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/groceries/': {
+      id: '/_authenticated/groceries/'
+      path: '/groceries'
+      fullPath: '/groceries/'
+      preLoaderRoute: typeof AuthenticatedGroceriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groceries/new': {
+      id: '/_authenticated/groceries/new'
+      path: '/groceries/new'
+      fullPath: '/groceries/new'
+      preLoaderRoute: typeof AuthenticatedGroceriesNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/providers/': {
       id: '/_authenticated/providers/'
       path: '/providers'
@@ -209,6 +275,20 @@ declare module '@tanstack/react-router' {
       path: '/providers/new'
       fullPath: '/providers/new'
       preLoaderRoute: typeof AuthenticatedProvidersNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groceries/$groceryId/': {
+      id: '/_authenticated/groceries/$groceryId/'
+      path: '/groceries/$groceryId'
+      fullPath: '/groceries/$groceryId/'
+      preLoaderRoute: typeof AuthenticatedGroceriesGroceryIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/groceries/$groceryId/edit': {
+      id: '/_authenticated/groceries/$groceryId/edit'
+      path: '/groceries/$groceryId/edit'
+      fullPath: '/groceries/$groceryId/edit'
+      preLoaderRoute: typeof AuthenticatedGroceriesGroceryIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/providers/$id/': {
@@ -251,10 +331,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedGroceriesNewRoute: typeof AuthenticatedGroceriesNewRoute
   AuthenticatedProvidersNewRoute: typeof AuthenticatedProvidersNewRoute
+  AuthenticatedGroceriesIndexRoute: typeof AuthenticatedGroceriesIndexRoute
   AuthenticatedProvidersIndexRoute: typeof AuthenticatedProvidersIndexRoute
+  AuthenticatedGroceriesGroceryIdEditRoute: typeof AuthenticatedGroceriesGroceryIdEditRoute
   AuthenticatedProvidersIdEditRoute: typeof AuthenticatedProvidersIdEditRoute
   AuthenticatedVisitsVisitIdEditRoute: typeof AuthenticatedVisitsVisitIdEditRoute
+  AuthenticatedGroceriesGroceryIdIndexRoute: typeof AuthenticatedGroceriesGroceryIdIndexRoute
   AuthenticatedProvidersIdIndexRoute: typeof AuthenticatedProvidersIdIndexRoute
   AuthenticatedVisitsVisitIdIndexRoute: typeof AuthenticatedVisitsVisitIdIndexRoute
   AuthenticatedProvidersIdVisitsNewRoute: typeof AuthenticatedProvidersIdVisitsNewRoute
@@ -262,10 +346,16 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedGroceriesNewRoute: AuthenticatedGroceriesNewRoute,
   AuthenticatedProvidersNewRoute: AuthenticatedProvidersNewRoute,
+  AuthenticatedGroceriesIndexRoute: AuthenticatedGroceriesIndexRoute,
   AuthenticatedProvidersIndexRoute: AuthenticatedProvidersIndexRoute,
+  AuthenticatedGroceriesGroceryIdEditRoute:
+    AuthenticatedGroceriesGroceryIdEditRoute,
   AuthenticatedProvidersIdEditRoute: AuthenticatedProvidersIdEditRoute,
   AuthenticatedVisitsVisitIdEditRoute: AuthenticatedVisitsVisitIdEditRoute,
+  AuthenticatedGroceriesGroceryIdIndexRoute:
+    AuthenticatedGroceriesGroceryIdIndexRoute,
   AuthenticatedProvidersIdIndexRoute: AuthenticatedProvidersIdIndexRoute,
   AuthenticatedVisitsVisitIdIndexRoute: AuthenticatedVisitsVisitIdIndexRoute,
   AuthenticatedProvidersIdVisitsNewRoute:
