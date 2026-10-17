@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { BudgetCard } from "@/components/BudgetCard";
 import { supabase } from "@/integrations/supabase/client";
 import { groceryByMonth, monthKey, monthSummary, usd } from "@/lib/dashboard-stats";
 
@@ -55,6 +56,8 @@ function Dashboard() {
           value={isLoading ? "…" : `${summary.visitCount} ${summary.visitCount === 1 ? "visit" : "visits"}`}
         />
       </div>
+
+      <BudgetCard spent={summary.groceryTotal} loading={isLoading} />
 
       <section className="mt-8 rounded-lg border border-border bg-card p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-foreground">Grocery Spending — Last 6 Months</h2>
