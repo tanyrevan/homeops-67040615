@@ -29,9 +29,24 @@ was changed.
 
 ## 3. Green result
 
-_To be filled in after the correct calculation is restored: the same test is
-expected to pass with the current-month filter back in place, and the full
-test suite should pass._
+The temporary broken line was removed and the correct current-month filtering
+was restored in `src/lib/dashboard-stats.ts`:
+
+```ts
+const g = groceries.filter((x) => x.purchase_date.slice(0, 7) === key);
+```
+
+The same test then passed again:
+
+```
+ ✓ src/test/dashboard-grocery-total.test.ts (1 test) 4ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+```
+
+The full suite also passed: 12 test files, 61 tests, all green (exit code 0).
+No database or security configuration was changed.
 
 ## 4. What would break this test
 
