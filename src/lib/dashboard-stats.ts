@@ -27,15 +27,15 @@ export function groceryByMonth(groceries: { purchase_date: string; amount: numbe
   const months: { key: string; label: string; total: number }[] = [];
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-    months.push({ key: monthKey(d), label: MONTHS[d.getMonth()], total: 0 });
+    months.push({ key: monthKey(d), label: MONTHS[d.getMonth()] ?? "", total: 0 });
   }
   const idx = new Map(months.map((m, i) => [m.key, i]));
   const sums = months.map(() => 0);
   for (const g of groceries) {
     const i = idx.get(g.purchase_date.slice(0, 7));
-    if (i !== undefined) sums[i] += cents(g.amount);
+    if (i !== undefined) sums[i] = (sums[i] ?? 0) + cents(g.amount);
   }
-  return months.map((m, i) => ({ ...m, total: sums[i] / 100 }));
+  return months.map((m, i) => ({ ...m, total: (sums[i] ?? 0) / 100 }));
 }
 
 export const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
