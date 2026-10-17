@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DueBadge } from "@/components/DueBadge";
 import { day, money, providerVisitsQuery } from "@/lib/visits-api";
 
 export function VisitHistory({ providerId }: { providerId: string }) {
@@ -34,7 +35,7 @@ export function VisitHistory({ providerId }: { providerId: string }) {
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   <StatusBadge ok={v.paid} yes="Paid" no="Unpaid" />
-                  {v.next_service_date && <span>Next service: {day(v.next_service_date)}</span>}
+                  {v.next_service_date && <span className="inline-flex items-center gap-2">Next service: {day(v.next_service_date)} <DueBadge date={v.next_service_date} /></span>}
                   {v.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
                 </div>
               </Link>

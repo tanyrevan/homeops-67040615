@@ -24,6 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Dashboard</Link>
             <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
             <Link to="/maintenance" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Maintenance</Link>
+            <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
             <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
             <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Needs Attention</Link>
             <button onClick={signOut} className="ml-2 rounded-md border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">
