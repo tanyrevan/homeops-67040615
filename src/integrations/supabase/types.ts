@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      grocery_expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          purchase_date: string
+          receipt_url: string | null
+          store: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          purchase_date: string
+          receipt_url?: string | null
+          store: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          purchase_date?: string
+          receipt_url?: string | null
+          store?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_expenses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_visits: {
         Row: {
           amount_paid: number | null
