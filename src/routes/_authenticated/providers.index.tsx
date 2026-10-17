@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AppShell } from "@/components/AppShell";
 import { useState } from "react";
+import { AppShell } from "@/components/AppShell";
+import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
 import { StarButton } from "@/components/StarButton";
+import { DEFAULT_PROVIDER_FILTERS, filterProviders, isDefault, type ProviderFilters } from "@/lib/list-filters";
+import { SERVICE_TYPES } from "@/lib/provider-validation";
 import { providersQuery } from "@/lib/providers-api";
-import { orderByStar, starsQuery } from "@/lib/stars";
+import { starsQuery } from "@/lib/stars";
 
 export const Route = createFileRoute("/_authenticated/providers/")({
   validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
@@ -25,8 +28,10 @@ function ProvidersPage() {
   const { user } = Route.useRouteContext();
   const { data, isLoading, error } = useQuery(providersQuery());
   const stars = useQuery(starsQuery());
-  const [starredOnly, setStarredOnly] = useState(false);
-  const list = data && stars.data ? orderByStar(data, stars.data, starredOnly) : [];
+  const [f, setF] = useState<ProviderFilters>(DEFAULT_PROVIDER_FILTERS);
+  const set = <K extends keyof ProviderFilters>(k: K, v: ProviderFilters[K]) => setF((prev) => ({ ...prev, [k]: v }));
+  const reset = () => setF(DEFAULT_PROVIDER_FILTERS);
+  const list = data && stars.data ? filterProviders(data, stars.data, f) : [];
 
   return (
     <AppShell>
@@ -49,28 +54,46 @@ function ProvidersPage() {
         </div>
       )}
       {data && data.length > 0 && (
-        <label className="mb-4 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
-          <input type="checkbox" checked={starredOnly} onChange={(e) => setStarredOnly(e.target.checked)} className="h-5 w-5 accent-primary" />
-          Starred only
-        </label>
-      )}
-      {data && data.length > 0 && starredOnly && stars.data && list.length === 0 && (
-        <p className="text-muted-foreground">No starred providers yet. Tap ☆ next to a provider to pin it here.</p>
-      )}
-      {data && data.length > 0 && (
-        <ul className="space-y-3">
-          {list.map((p) => (
-            <li key={p.id}>
-              <div className="flex items-center gap-2 rounded-lg border border-border bg-card pr-2 hover:bg-accent">
-                <Link to="/providers/$id" params={{ id: p.id }} className="block flex-1 p-4">
-                  <div className="font-medium text-foreground">{p.name}</div>
-                  <div className="text-sm text-muted-foreground">{p.service_type}</div>
-                </Link>
-                <StarButton userId={user.id} providerId={p.id} name={p.name} />
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <FilterBar onReset={reset} showReset={!isDefault(f, DEFAULT_PROVIDER_FILTERS)}>
+            <Field label="Search by name" htmlFor="q" wide>
+              <input id="q" type="search" className={ctrl} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Provider name" />
+            </Field>
+            <Field label="Service type" htmlFor="type">
+              <select id="type" className={ctrl} value={f.type} onChange={(e) => set("type", e.target.value)}>
+                <option value="">All types</option>
+                {SERVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </Field>
+            <Field label="Sort" htmlFor="sort">
+              <select id="sort" className={ctrl} value={f.sort} onChange={(e) => set("sort", e.target.value as ProviderFilters["sort"])}>
+                <option value="">Starred first</option>
+                <option value="name-asc">Name A–Z</option>
+                <option value="name-desc">Name Z–A</option>
+                <option value="newest">Date added (newest first)</option>
+                <option value="oldest">Date added (oldest first)</option>
+              </select>
+            </Field>
+            <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+              <input type="checkbox" checked={f.starredOnly} onChange={(e) => set("starredOnly", e.target.checked)} className="h-5 w-5 accent-primary" />
+              Starred only
+            </label>
+          </FilterBar>
+          {stars.data && list.length === 0 && <NoMatches onReset={reset} />}
+          <ul className="space-y-3">
+            {list.map((p) => (
+              <li key={p.id}>
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-card pr-2 hover:bg-accent">
+                  <Link to="/providers/$id" params={{ id: p.id }} className="block flex-1 p-4">
+                    <div className="font-medium text-foreground">{p.name}</div>
+                    <div className="text-sm text-muted-foreground">{p.service_type}</div>
+                  </Link>
+                  <StarButton userId={user.id} providerId={p.id} name={p.name} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </AppShell>
   );
