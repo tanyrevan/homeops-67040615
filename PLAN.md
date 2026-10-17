@@ -102,8 +102,24 @@ Given a provider, when a user stars it twice, then only one star exists.
 
 ## 8. Plan vs. Reality
 
-Do not complete this section until the end of the project.
-
 | Planned feature | Shipped / Changed / Cut | Status (Done/Backlogged) | Learning | What changed and why (one line) |
 |---|---|---|---|---|
-| | | | | |
+| 1. Sign up, log in, and log out | Shipped | Done | Authentication needed clear validation and error handling. | Email/password signup, login, and logout were implemented, including a fix for the six-character password boundary. |
+| 2. See only my own data | Shipped | Done | Page redirects are not enough by themselves for data security. | Owner-only database rules protect user records, with an additional ownership filter in provider loading. |
+| 3. Log maintenance visits | Changed | Done | Payment status is different from the amount recorded. | Visits shipped with provider, date, service, optional amount/notes/next date, receipt upload, and Paid/Unpaid status. |
+| 4. Log grocery purchases | Changed | Done | Spending and reimbursement should be tracked separately. | Purchases shipped with date, store, amount, category, notes, receipt upload, and Reimbursed/Not Reimbursed status. |
+| 5. CRUD providers, visits, and groceries | Shipped | Done | Related database rows can be deleted automatically, but uploaded files need separate cleanup. | Create, view, edit, and confirm-before-delete flows were implemented for all three record types. |
+| 6. Clear validation errors | Shipped | Done | Shared validation helpers made form rules easier to test. | Required fields and nonnegative amounts have friendly validation messages. |
+| 7. Star trusted providers | Changed | Done | Product wording should match the real purpose of a feature. | Stars were implemented as a provider priority/pin feature rather than using “trusted” or “favorite” language. |
+| 8. Search, filter, and sort | Changed | Done | Different record types needed different search controls. | Providers, maintenance, and groceries each received relevant search, filter, date, status, and sorting controls. |
+| 9. Dashboard and monthly chart | Shipped | Done | Using the actual purchase/visit dates is important for accurate monthly totals. | The Dashboard shows current-month grocery spending, maintenance spending, visit count, and a six-month grocery chart. |
+| 10. Grocery receipt photo | Changed | Done | The same private storage approach could support more than one record type. | Receipt uploads were implemented for both groceries and maintenance visits rather than only groceries. |
+| 11. Upcoming / Due maintenance | Shipped | Done | Clear date-grouping rules make upcoming maintenance easier to understand. | Visits are grouped as Overdue, Due Soon, or Upcoming based on their next service date. |
+| 12. Monthly grocery budget | Shipped | Done | Budget calculations need to handle zero and over-budget cases. | Current-month budget setting, editing, spending progress, and over-budget handling were implemented. |
+| Additional payment/reimbursement tracking | Added | Done | Amounts alone do not show whether something still needs attention. | Paid/Unpaid and Reimbursed/Not Reimbursed statuses plus a Needs Attention page were added during development. |
+| Database model | Changed | Done | The deployed database should drive the final documentation. | The six planned tables were kept, but additional status, receipt, constraint, and timestamp fields were added. |
+| Required Test 1: data isolation | Shipped | Done | Temporarily breaking the ownership filter confirmed the test catches the intended regression. | A two-user ownership test was added with red/green evidence. |
+| Required Test 2: Dashboard total | Shipped | Done | Testing the shared calculation logic helps prevent monthly-total regressions. | The test confirms $100.25 + $45.25 = $145.50 and excludes purchases from another month. |
+| Technologies | Changed | Done | Backend tooling can change without changing the overall product goal. | The original plan used Supabase directly, but the final app uses Lovable Cloud for authentication, database, and storage. |
+| Design | Changed | Done | Adding more sections required responsive navigation changes. | The simple mobile-friendly design remained, but navigation expanded and card layouts remained on desktop too. |
+| Shared-household access | Cut | Backlogged | Shared access would require a more complex membership and permissions model. | The app stayed one account per household, as originally scoped. |
