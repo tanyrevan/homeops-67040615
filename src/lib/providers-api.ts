@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { filterOwnedRecords } from "@/lib/ownership";
 
 export const providersQuery = () =>
   queryOptions({
@@ -10,7 +11,8 @@ export const providersQuery = () =>
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      const { data: s } = await supabase.auth.getSession();
+      return filterOwnedRecords(data, s.session?.user.id ?? "");
     },
   });
 
