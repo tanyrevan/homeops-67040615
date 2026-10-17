@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
+import { GROCERY_CATEGORIES } from "@/lib/grocery-validation";
+import { DEFAULT_GROCERY_FILTERS, filterGroceries, isDefault, type GroceryFilters } from "@/lib/list-filters";
 import { AppShell } from "@/components/AppShell";
 import { groceriesQuery } from "@/lib/groceries-api";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -22,6 +26,10 @@ export const Route = createFileRoute("/_authenticated/groceries/")({
 function GroceriesPage() {
   const { deleted } = Route.useSearch();
   const { data, isLoading, error } = useQuery(groceriesQuery());
+  const [f, setF] = useState<GroceryFilters>(DEFAULT_GROCERY_FILTERS);
+  const set = <K extends keyof GroceryFilters>(k: K, v: GroceryFilters[K]) => setF((prev) => ({ ...prev, [k]: v }));
+  const reset = () => setF(DEFAULT_GROCERY_FILTERS);
+  const list = data ? filterGroceries(data, f) : [];
   return (
     <AppShell>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -43,8 +51,42 @@ function GroceriesPage() {
         </div>
       )}
       {data && data.length > 0 && (
+        <>
+        <FilterBar onReset={reset} showReset={!isDefault(f, DEFAULT_GROCERY_FILTERS)}>
+          <Field label="Search by store" htmlFor="q" wide>
+            <input id="q" type="search" className={ctrl} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Store name" />
+          </Field>
+          <Field label="Category" htmlFor="category">
+            <select id="category" className={ctrl} value={f.category} onChange={(e) => set("category", e.target.value)}>
+              <option value="">All categories</option>
+              {GROCERY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
+          <Field label="Reimbursement" htmlFor="reimbursed">
+            <select id="reimbursed" className={ctrl} value={f.reimbursed} onChange={(e) => set("reimbursed", e.target.value as GroceryFilters["reimbursed"])}>
+              <option value="">All</option>
+              <option value="yes">Reimbursed</option>
+              <option value="no">Not Reimbursed</option>
+            </select>
+          </Field>
+          <Field label="Start date" htmlFor="from">
+            <input id="from" type="date" className={ctrl} value={f.from} onChange={(e) => set("from", e.target.value)} />
+          </Field>
+          <Field label="End date" htmlFor="to">
+            <input id="to" type="date" className={ctrl} value={f.to} onChange={(e) => set("to", e.target.value)} />
+          </Field>
+          <Field label="Sort" htmlFor="sort" wide>
+            <select id="sort" className={ctrl} value={f.sort} onChange={(e) => set("sort", e.target.value as GroceryFilters["sort"])}>
+              <option value="date-desc">Purchase date (newest first)</option>
+              <option value="date-asc">Purchase date (oldest first)</option>
+              <option value="amount-desc">Amount (highest first)</option>
+              <option value="amount-asc">Amount (lowest first)</option>
+            </select>
+          </Field>
+        </FilterBar>
+        {list.length === 0 && <NoMatches onReset={reset} />}
         <ul className="space-y-3">
-          {data.map((g) => (
+          {list.map((g) => (
             <li key={g.id}>
               <Link to="/groceries/$groceryId" params={{ groceryId: g.id }} className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
                 <div className="flex items-start justify-between gap-3">
@@ -65,6 +107,7 @@ function GroceriesPage() {
             </li>
           ))}
         </ul>
+        </>
       )}
     </AppShell>
   );

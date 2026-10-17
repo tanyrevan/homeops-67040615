@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAttentionRouteImport } from './routes/_authenticated/attention'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMaintenanceRouteImport } from './routes/_authenticated/maintenance'
 import { Route as AuthenticatedGroceriesIndexRouteImport } from './routes/_authenticated/groceries.index'
 import { Route as AuthenticatedGroceriesNewRouteImport } from './routes/_authenticated/groceries.new'
 import { Route as AuthenticatedProvidersIndexRouteImport } from './routes/_authenticated/providers.index'
@@ -50,6 +51,12 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMaintenanceRoute =
+  AuthenticatedMaintenanceRouteImport.update({
+    id: '/maintenance',
+    path: '/maintenance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGroceriesIndexRoute =
   AuthenticatedGroceriesIndexRouteImport.update({
     id: '/groceries/',
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/attention': typeof AuthenticatedAttentionRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
   '/groceries/': typeof AuthenticatedGroceriesIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/attention': typeof AuthenticatedAttentionRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/providers/new': typeof AuthenticatedProvidersNewRoute
   '/groceries': typeof AuthenticatedGroceriesIndexRoute
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/attention': typeof AuthenticatedAttentionRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/maintenance': typeof AuthenticatedMaintenanceRoute
   '/_authenticated/groceries/new': typeof AuthenticatedGroceriesNewRoute
   '/_authenticated/providers/new': typeof AuthenticatedProvidersNewRoute
   '/_authenticated/groceries/': typeof AuthenticatedGroceriesIndexRoute
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/attention'
     | '/home'
+    | '/maintenance'
     | '/groceries/new'
     | '/providers/new'
     | '/groceries/'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/attention'
     | '/home'
+    | '/maintenance'
     | '/groceries/new'
     | '/providers/new'
     | '/groceries'
@@ -212,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/attention'
     | '/_authenticated/home'
+    | '/_authenticated/maintenance'
     | '/_authenticated/groceries/new'
     | '/_authenticated/providers/new'
     | '/_authenticated/groceries/'
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance': {
+      id: '/_authenticated/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof AuthenticatedMaintenanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groceries/': {
@@ -351,6 +371,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttentionRoute: typeof AuthenticatedAttentionRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMaintenanceRoute: typeof AuthenticatedMaintenanceRoute
   AuthenticatedGroceriesNewRoute: typeof AuthenticatedGroceriesNewRoute
   AuthenticatedProvidersNewRoute: typeof AuthenticatedProvidersNewRoute
   AuthenticatedGroceriesIndexRoute: typeof AuthenticatedGroceriesIndexRoute
@@ -367,6 +388,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttentionRoute: AuthenticatedAttentionRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMaintenanceRoute: AuthenticatedMaintenanceRoute,
   AuthenticatedGroceriesNewRoute: AuthenticatedGroceriesNewRoute,
   AuthenticatedProvidersNewRoute: AuthenticatedProvidersNewRoute,
   AuthenticatedGroceriesIndexRoute: AuthenticatedGroceriesIndexRoute,
