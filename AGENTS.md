@@ -11,3 +11,4 @@
 
 - Signed-in pages live under `src/routes/_authenticated/` (client-only gate redirecting to `/auth`); why: the session is in browser storage, so the server can't check it.
 - `public.users` rows are created only by the `handle_new_user` trigger on signup; why: guarantees exactly one row per account.
+- Password validation and password-error classification live in `src/lib/password-validation.ts`; why: boundary tests exercise the same rules the authentication form uses, without mistaking strength errors for length errors.

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { friendlyPasswordError, MIN_PASSWORD_LENGTH, passwordSchema } from "@/lib/password-validation";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -14,12 +15,12 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-function friendly(msg: string) {
-  const m = msg.toLowerCase();
+function friendly(error: { message: string; reasons?: string[] }) {
+  const m = error.message.toLowerCase();
   if (m.includes("invalid login")) return "That email and password don't match. Please try again.";
   if (m.includes("email not confirmed")) return "Please confirm your email first — check your inbox for the link.";
   if (m.includes("already registered")) return "An account with this email already exists. Try logging in instead.";
-  if (m.includes("password")) return "Please choose a stronger password (at least 6 characters).";
+  if (m.includes("password")) return friendlyPasswordError(error);
   if (m.includes("rate limit")) return "Too many attempts. Please wait a moment and try again.";
   return "Something went wrong. Please try again.";
 }
@@ -44,12 +45,13 @@ function AuthPage() {
     setError(null);
     setInfo(null);
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Please enter a valid email address.");
-    if (password.length < 6) return setError("Password must be at least 6 characters.");
+    if (!passwordSchema.safeParse(password).success)
+      return setError(`Please use a password with at least ${MIN_PASSWORD_LENGTH} characters.`);
     setBusy(true);
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
-      if (error) return setError(friendly(error.message));
+      if (error) return setError(friendly(error));
       navigate({ to: "/home", replace: true });
     } else {
       const { data, error } = await supabase.auth.signUp({
@@ -58,7 +60,7 @@ function AuthPage() {
         options: { emailRedirectTo: `${window.location.origin}/home` },
       });
       setBusy(false);
-      if (error) return setError(friendly(error.message));
+      if (error) return setError(friendly(error));
       if (data.user && data.user.identities?.length === 0)
         return setError("An account with this email already exists. Try logging in instead.");
       if (data.session) return navigate({ to: "/home", replace: true });
