@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      maintenance_visits: {
+        Row: {
+          amount_paid: number | null
+          created_at: string
+          id: string
+          next_service_date: string | null
+          notes: string | null
+          receipt_url: string | null
+          service_performed: string
+          service_provider_id: string
+          user_id: string
+          visit_date: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          created_at?: string
+          id?: string
+          next_service_date?: string | null
+          notes?: string | null
+          receipt_url?: string | null
+          service_performed: string
+          service_provider_id: string
+          user_id?: string
+          visit_date: string
+        }
+        Update: {
+          amount_paid?: number | null
+          created_at?: string
+          id?: string
+          next_service_date?: string | null
+          notes?: string | null
+          receipt_url?: string | null
+          service_performed?: string
+          service_provider_id?: string
+          user_id?: string
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_visits_service_provider_id_fkey"
+            columns: ["service_provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_visits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_providers: {
         Row: {
           created_at: string

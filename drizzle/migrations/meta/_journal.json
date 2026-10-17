@@ -15,6 +15,13 @@
       "when": 1792271510818,
       "tag": "0001_create_service_providers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792272213798,
+      "tag": "0002_create_maintenance_visits",
+      "breakpoints": true
     }
   ]
 }
