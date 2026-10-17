@@ -43,6 +43,13 @@
       "when": 1792273981985,
       "tag": "0005_create_stars",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792275410362,
+      "tag": "0006_create_budgets",
+      "breakpoints": true
     }
   ]
 }
