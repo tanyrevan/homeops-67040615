@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GROCERY_CATEGORIES, splitCategory, validateGrocery } from "@/lib/grocery-validation";
 
-const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", categoryChoice: "", customCategory: "", notes: "" };
+const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", categoryChoice: "", customCategory: "", notes: "", reimbursed: false };
 
 describe("grocery validation", () => {
   it("offers the seven categories", () => {
@@ -30,5 +30,14 @@ describe("grocery validation", () => {
     expect(r.ok && r.data.category).toBe("Pet food");
     expect(splitCategory("Pet food")).toEqual({ categoryChoice: "Other", customCategory: "Pet food" });
     expect(splitCategory("Dairy")).toEqual({ categoryChoice: "Dairy", customCategory: "" });
+  });
+});
+
+describe("reimbursement status", () => {
+  it("defaults to Not Reimbursed and saves Reimbursed when chosen", () => {
+    const no = validateGrocery(base);
+    expect(no.ok && no.data.reimbursed).toBe(false);
+    const yes = validateGrocery({ ...base, reimbursed: true });
+    expect(yes.ok && yes.data.reimbursed).toBe(true);
   });
 });

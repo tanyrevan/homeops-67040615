@@ -10,11 +10,12 @@ export type GroceryFormValues = {
   categoryChoice: string; // "" | one of GROCERY_CATEGORIES
   customCategory: string;
   notes: string;
+  reimbursed: boolean;
 };
 export type GroceryErrors = Partial<Record<"purchaseDate" | "store" | "amount" | "receipt", string>>;
 
 export function validateGrocery(v: GroceryFormValues):
-  | { ok: true; data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null } }
+  | { ok: true; data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null; reimbursed: boolean } }
   | { ok: false; errors: GroceryErrors } {
   const errors: GroceryErrors = {};
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.purchaseDate)) errors.purchaseDate = "Please choose the purchase date.";
@@ -33,7 +34,7 @@ export function validateGrocery(v: GroceryFormValues):
   let category: string | null = null;
   if (v.categoryChoice === "Other") category = v.customCategory.trim() || "Other";
   else if (PRESETS.includes(v.categoryChoice)) category = v.categoryChoice;
-  return { ok: true, data: { purchase_date: v.purchaseDate, store, amount, category, notes: v.notes.trim() || null } };
+  return { ok: true, data: { purchase_date: v.purchaseDate, store, amount, category, notes: v.notes.trim() || null, reimbursed: v.reimbursed === true } };
 }
 
 /** Saved category back to form fields; unknown values are custom "Other" entries. */

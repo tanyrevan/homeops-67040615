@@ -6,6 +6,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { groceryQuery } from "@/lib/groceries-api";
 import { day, money, receiptUrlQuery, removeReceipt } from "@/lib/visits-api";
@@ -54,6 +55,7 @@ function GroceryDetail() {
             <Field label="Purchase Date" value={day(g.purchase_date)} />
             <Field label="Store" value={g.store} />
             <Field label="Amount" value={money(g.amount)} />
+            <div><dt className="text-sm text-muted-foreground">Reimbursement</dt><dd className="mt-1"><StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" /></dd></div>
             <Field label="Category" value={g.category} />
             <div className="sm:col-span-2"><Field label="Notes" value={g.notes} /></div>
           </dl>

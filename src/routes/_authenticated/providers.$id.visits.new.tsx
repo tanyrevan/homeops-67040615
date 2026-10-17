@@ -34,7 +34,7 @@ function NewVisit() {
       {!isLoading && !p && <p className="text-foreground">This provider wasn't found.</p>}
       {p && (
         <VisitForm
-          initial={{ visitDate: today, service: "", amount: "", notes: "", nextDate: "" }}
+          initial={{ visitDate: today, service: "", amount: "", notes: "", nextDate: "", paid: false }}
           submitLabel="Save Visit"
           onCancel={() => navigate({ to: "/providers/$id", params: { id } })}
           onSubmit={async ({ data, file }) => {

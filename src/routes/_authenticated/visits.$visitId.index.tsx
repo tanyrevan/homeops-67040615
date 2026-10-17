@@ -6,6 +6,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { day, money, receiptUrlQuery, removeReceipt, visitQuery } from "@/lib/visits-api";
 
@@ -58,6 +59,7 @@ function VisitDetail() {
             <Field label="Visit Date" value={day(v.visit_date)} />
             <Field label="Service Performed" value={v.service_performed} />
             <Field label="Amount Paid" value={money(v.amount_paid)} />
+            <div><dt className="text-sm text-muted-foreground">Payment Status</dt><dd className="mt-1"><StatusBadge ok={v.paid} yes="Paid" no="Unpaid" /></dd></div>
             <Field label="Next Service Date" value={day(v.next_service_date)} />
             <div className="sm:col-span-2"><Field label="Notes" value={v.notes} /></div>
           </dl>

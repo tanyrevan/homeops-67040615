@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { GROCERY_CATEGORIES, validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
+import { YesNo } from "@/components/StatusBadge";
 import { RECEIPT_ACCEPT, validateReceipt } from "@/lib/visit-validation";
 
 export type GrocerySubmit = {
-  data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null };
+  data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null; reimbursed: boolean };
   file: File | null;
   removeReceipt: boolean;
 };
@@ -70,6 +71,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
           <input id="customCategory" className={input} value={v.customCategory} onChange={set("customCategory")} placeholder="Optional, e.g. Pet food" />
         </div>
       )}
+      <YesNo label="Reimbursed?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
         <textarea id="notes" rows={3} className={input} value={v.notes} onChange={set("notes")} placeholder="Optional" />

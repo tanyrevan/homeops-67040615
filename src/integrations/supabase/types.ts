@@ -23,6 +23,7 @@ export type Database = {
           notes: string | null
           purchase_date: string
           receipt_url: string | null
+          reimbursed: boolean
           store: string
           user_id: string
         }
@@ -34,6 +35,7 @@ export type Database = {
           notes?: string | null
           purchase_date: string
           receipt_url?: string | null
+          reimbursed?: boolean
           store: string
           user_id?: string
         }
@@ -45,6 +47,7 @@ export type Database = {
           notes?: string | null
           purchase_date?: string
           receipt_url?: string | null
+          reimbursed?: boolean
           store?: string
           user_id?: string
         }
@@ -65,6 +68,7 @@ export type Database = {
           id: string
           next_service_date: string | null
           notes: string | null
+          paid: boolean
           receipt_url: string | null
           service_performed: string
           service_provider_id: string
@@ -77,6 +81,7 @@ export type Database = {
           id?: string
           next_service_date?: string | null
           notes?: string | null
+          paid?: boolean
           receipt_url?: string | null
           service_performed: string
           service_provider_id: string
@@ -89,6 +94,7 @@ export type Database = {
           id?: string
           next_service_date?: string | null
           notes?: string | null
+          paid?: boolean
           receipt_url?: string | null
           service_performed?: string
           service_provider_id?: string
