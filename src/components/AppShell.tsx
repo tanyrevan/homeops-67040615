@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-4 py-4">
           <Link to="/home" className="text-xl font-bold text-primary">HomeOps</Link>
           <nav className="flex items-center gap-1">
-            <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Home</Link>
+            <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Dashboard</Link>
             <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
             <Link to="/maintenance" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Maintenance</Link>
             <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>

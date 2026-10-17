@@ -18,3 +18,4 @@
 - Payment status: `maintenance_visits.paid` and `grocery_expenses.reimbursed` are explicit booleans (default false), never inferred from amounts; why: a cost can be owed but unpaid.
 - Provider stars are a pin/priority flag in the `stars` junction table (unique per user+provider, insert only for owned providers); list ordering lives in `src/lib/stars.ts`; why: one tested sort rule.
 - Search/filter/sort runs in the browser over rows already limited by RLS, via pure functions in `src/lib/list-filters.ts`; why: ownership stays enforced by the backend and the rules are unit-tested.
+- Dashboard math (month totals, 6-month grocery buckets, by record date not created_at) lives in `src/lib/dashboard-stats.ts`, summed in cents; why: deterministic and unit-tested.
