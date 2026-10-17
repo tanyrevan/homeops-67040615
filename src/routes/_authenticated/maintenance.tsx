@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DueBadge } from "@/components/DueBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_VISIT_FILTERS, filterVisits, isDefault, type VisitFilters } from "@/lib/list-filters";
 import { day, money } from "@/lib/visits-api";
@@ -13,7 +14,7 @@ const allVisitsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("maintenance_visits")
-      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name)")
+      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, next_service_date, service_providers(name)")
       .order("visit_date", { ascending: false });
     if (error) throw error;
     return data;
@@ -94,7 +95,12 @@ function MaintenancePage() {
                       <div className="mt-1"><StatusBadge ok={v.paid} yes="Paid" no="Unpaid" /></div>
                     </div>
                   </div>
-                  {v.receipt_url && <div className="mt-2 text-sm font-medium text-primary">📎 Receipt</div>}
+                  {(v.next_service_date || v.receipt_url) && (
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                      {v.next_service_date && <span className="inline-flex items-center gap-2">Next service: {day(v.next_service_date)} <DueBadge date={v.next_service_date} /></span>}
+                      {v.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
+                    </div>
+                  )}
                 </Link>
               </li>
             ))}
