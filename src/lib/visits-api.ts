@@ -45,9 +45,9 @@ export const receiptUrlQuery = (path: string | null) =>
   });
 
 /** Uploads into the owner's own folder; storage rules only allow `${userId}/...`. */
-export async function uploadReceipt(userId: string, file: File): Promise<string> {
+export async function uploadReceipt(userId: string, file: File, folder: "visits" | "groceries" = "visits"): Promise<string> {
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${userId}/visits/${crypto.randomUUID()}.${ext}`;
+  const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, file.type ? { contentType: file.type } : {});
   if (error) throw error;
   return path;
