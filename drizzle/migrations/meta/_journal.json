@@ -8,6 +8,13 @@
       "when": 1792193033258,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792271510818,
+      "tag": "0001_create_service_providers",
+      "breakpoints": true
     }
   ]
 }
