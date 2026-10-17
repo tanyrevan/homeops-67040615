@@ -13,3 +13,4 @@
 - `public.users` rows are created only by the `handle_new_user` trigger on signup; why: guarantees exactly one row per account.
 - Password validation and password-error classification live in `src/lib/password-validation.ts`; why: boundary tests exercise the same rules the authentication form uses, without mistaking strength errors for length errors.
 - Service provider form rules (service type choices, "Other" custom type, required fields) live in `src/lib/provider-validation.ts`; why: tests and the add/edit form share one source of truth. Provider rows are owner-only via RLS on `user_id`.
+- Visit form rules live in `src/lib/visit-validation.ts`; receipt photos go in the private `receipts` bucket under `<user_id>/...` (storage rules check the first folder); why: owner-only access enforced by the backend.
