@@ -2,17 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { DueBadge } from "@/components/DueBadge";
-import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { groupByDue } from "@/lib/due-status";
-import { day, money } from "@/lib/visits-api";
+import { day } from "@/lib/visits-api";
 
 const scheduledQuery = queryOptions({
   queryKey: ["visits", "scheduled"],
   queryFn: async () => {
     const { data, error } = await supabase
       .from("maintenance_visits")
-      .select("id, service_provider_id, service_performed, next_service_date, amount_paid, paid, service_providers(name)")
+      .select("id, service_provider_id, service_performed, next_service_date, service_providers(name)")
       .not("next_service_date", "is", null)
       .order("next_service_date", { ascending: true });
     if (error) throw error;
@@ -80,8 +79,6 @@ function Section({ title, rows }: { title: string; rows: Row[] }) {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
                 <DueBadge date={v.next_service_date} />
-                {v.amount_paid != null && <span className="text-sm text-muted-foreground">{money(v.amount_paid)}</span>}
-                <StatusBadge ok={v.paid} yes="Paid" no="Unpaid" />
               </div>
             </div>
             <Link to="/visits/$visitId" params={{ visitId: v.id }} className="mt-3 inline-block text-sm font-medium text-primary underline">

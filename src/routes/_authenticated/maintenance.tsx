@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
 import { StatusBadge } from "@/components/StatusBadge";
-import { DueBadge } from "@/components/DueBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_VISIT_FILTERS, filterVisits, isDefault, type VisitFilters } from "@/lib/list-filters";
 import { day, money } from "@/lib/visits-api";
@@ -14,7 +13,7 @@ const allVisitsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("maintenance_visits")
-      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, next_service_date, service_providers(name)")
+      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name)")
       .order("visit_date", { ascending: false });
     if (error) throw error;
     return data;
@@ -24,9 +23,9 @@ const allVisitsQuery = queryOptions({
 export const Route = createFileRoute("/_authenticated/maintenance")({
   head: () => ({
     meta: [
-      { title: "Maintenance — HomeOps" },
+      { title: "History — HomeOps" },
       { name: "description", content: "Search all maintenance visits across providers." },
-      { property: "og:title", content: "Maintenance — HomeOps" },
+      { property: "og:title", content: "History — HomeOps" },
       { property: "og:description", content: "Search all maintenance visits across providers." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -44,14 +43,13 @@ function MaintenancePage() {
 
   return (
     <AppShell>
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">Maintenance</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">History</h1>
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load visits. Please refresh.</p>}
       {data && data.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-foreground">No maintenance visits yet.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Open a provider and tap "Add Visit" to log one.</p>
-          <Link to="/providers" className="mt-5 inline-block rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">Go to Providers</Link>
+          <p className="text-foreground">No completed visits yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Completed visits from your expense types will appear here automatically.</p>
         </div>
       )}
       {data && data.length > 0 && (
@@ -97,10 +95,9 @@ function MaintenancePage() {
                       <div className="mt-1"><StatusBadge ok={v.paid} yes="Paid" no="Unpaid" /></div>
                     </div>
                   </div>
-                  {(v.next_service_date || v.receipt_url) && (
-                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      {v.next_service_date && <span className="inline-flex items-center gap-2">Next service: {day(v.next_service_date)} <DueBadge date={v.next_service_date} /></span>}
-                      {v.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
+                  {v.receipt_url && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <span className="font-medium text-primary">📎 Receipt</span>
                     </div>
                   )}
                 </Link>

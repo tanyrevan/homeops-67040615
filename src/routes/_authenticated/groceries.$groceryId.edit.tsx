@@ -4,7 +4,6 @@ import { AppShell } from "@/components/AppShell";
 import { GroceryForm } from "@/components/GroceryForm";
 import { supabase } from "@/integrations/supabase/client";
 import { groceryQuery } from "@/lib/groceries-api";
-import { splitCategory } from "@/lib/grocery-validation";
 import { removeReceipt, uploadReceipt } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/groceries/$groceryId/edit")({
@@ -34,7 +33,7 @@ function EditGrocery() {
       {!isLoading && !g && <p className="text-foreground">This purchase wasn't found.</p>}
       {g && (
         <GroceryForm
-          initial={{ purchaseDate: g.purchase_date, store: g.store, amount: String(g.amount), ...splitCategory(g.category), notes: g.notes ?? "", reimbursed: g.reimbursed }}
+          initial={{ purchaseDate: g.purchase_date, store: g.store, amount: String(g.amount), notes: g.notes ?? "", reimbursed: g.reimbursed }}
           hasReceipt={!!g.receipt_url}
           submitLabel="Save Changes"
           onCancel={() => navigate({ to: "/groceries/$groceryId", params: { groceryId } })}
