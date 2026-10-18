@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
-import { GROCERY_CATEGORIES } from "@/lib/grocery-validation";
 import { DEFAULT_GROCERY_FILTERS, filterGroceries, isDefault, type GroceryFilters } from "@/lib/list-filters";
 import { AppShell } from "@/components/AppShell";
 import { groceriesQuery } from "@/lib/groceries-api";
@@ -58,12 +57,6 @@ function GroceriesPage() {
           <Field label="Search by store" htmlFor="q" wide>
             <input id="q" type="search" className={ctrl} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Store name" />
           </Field>
-          <Field label="Category" htmlFor="category">
-            <select id="category" className={ctrl} value={f.category} onChange={(e) => set("category", e.target.value)}>
-              <option value="">All categories</option>
-              {GROCERY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </Field>
           <Field label="Reimbursement" htmlFor="reimbursed">
             <select id="reimbursed" className={ctrl} value={f.reimbursed} onChange={(e) => set("reimbursed", e.target.value as GroceryFilters["reimbursed"])}>
               <option value="">All</option>
@@ -101,7 +94,6 @@ function GroceriesPage() {
                 {(
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                     <StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" />
-                    {g.category && <span>{g.category}</span>}
                     {g.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
                   </div>
                 )}

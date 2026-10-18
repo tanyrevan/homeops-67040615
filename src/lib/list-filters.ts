@@ -1,5 +1,4 @@
 import { PRESET_TYPES } from "@/lib/provider-validation";
-import { GROCERY_CATEGORIES } from "@/lib/grocery-validation";
 
 const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 const inRange = (d: string, from: string, to: string) => (!from || d >= from) && (!to || d <= to);
@@ -68,18 +67,15 @@ export function filterVisits<T extends V>(items: T[], f: VisitFilters): T[] {
 }
 
 // ---------- Groceries ----------
-export type GroceryFilters = { q: string; category: string; reimbursed: "" | "yes" | "no"; from: string; to: string; sort: MoneySort };
-export const DEFAULT_GROCERY_FILTERS: GroceryFilters = { q: "", category: "", reimbursed: "", from: "", to: "", sort: "date-desc" };
-const CAT_PRESETS = GROCERY_CATEGORIES.filter((c) => c !== "Other") as string[];
-type G = { purchase_date: string; store: string; amount: number; category: string | null; reimbursed: boolean; created_at: string };
+export type GroceryFilters = { q: string; reimbursed: "" | "yes" | "no"; from: string; to: string; sort: MoneySort };
+export const DEFAULT_GROCERY_FILTERS: GroceryFilters = { q: "", reimbursed: "", from: "", to: "", sort: "date-desc" };
+type G = { purchase_date: string; store: string; amount: number; reimbursed: boolean; created_at: string };
 
 export function filterGroceries<T extends G>(items: T[], f: GroceryFilters): T[] {
   const q = norm(f.q);
   const out = items.filter(
     (g) =>
       (!q || norm(g.store).includes(q)) &&
-      (!f.category ||
-        (f.category === "Other" ? !!g.category && !CAT_PRESETS.includes(g.category) : g.category === f.category)) &&
       (!f.reimbursed || (f.reimbursed === "yes" ? g.reimbursed : !g.reimbursed)) &&
       inRange(g.purchase_date, f.from, f.to),
   );

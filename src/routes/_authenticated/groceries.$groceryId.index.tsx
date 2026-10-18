@@ -58,7 +58,6 @@ function GroceryDetail() {
             <Field label="Store" value={g.store} />
             <Field label="Amount" value={money(g.amount)} />
             <div><dt className="text-sm text-muted-foreground">Reimbursement</dt><dd className="mt-1"><StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" /></dd></div>
-            <Field label="Category" value={g.category} />
             <div className="sm:col-span-2"><Field label="Notes" value={g.notes} /></div>
           </dl>
           {g.receipt_url && (

@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { GROCERY_CATEGORIES, validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
+import { validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
 import { YesNo } from "@/components/StatusBadge";
 import { RECEIPT_ACCEPT, validateReceipt } from "@/lib/visit-validation";
 
 export type GrocerySubmit = {
-  data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null; reimbursed: boolean };
+  data: { purchase_date: string; store: string; amount: number; notes: string | null; reimbursed: boolean };
   file: File | null;
   removeReceipt: boolean;
 };
