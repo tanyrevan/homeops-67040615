@@ -75,7 +75,7 @@ function Dashboard() {
         </div>
         <p className="mt-1 text-2xl font-semibold tabular-nums">{usd(totalSpend)}</p>
       </div>
-      <div><div className="flex flex-wrap items-center gap-x-3"><h2 className="text-sm text-muted-foreground">Total Amount Due</h2><Button asChild variant="link" size="sm" className="h-auto px-0"><Link to="/attention">View</Link></Button></div><p className="mt-1 text-2xl font-semibold tabular-nums">{usd(stats.due)}</p></div>
+      <div><h2 className="text-sm text-muted-foreground">Total Amount Due</h2><p className="mt-1 text-2xl font-semibold tabular-nums">{usd(stats.due)}</p></div>
     </div>
     <section className="mt-6">
       <h2 className="text-lg font-semibold">Category Summary — {monthAbbr}</h2>
@@ -87,7 +87,7 @@ function Dashboard() {
       </div>
     </section>
     <section className="mt-8">
-      <h2 className="text-lg font-semibold">Household Spending — Last 3 Months</h2>
+      <h2 className="text-lg font-semibold">Household Spending (Last 3 Months)</h2>
       {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded in the last three months.</p>}
       <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending for the last three calendar months">
         <ResponsiveContainer width="100%" height="100%"><BarChart data={stats.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
