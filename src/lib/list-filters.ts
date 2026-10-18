@@ -51,19 +51,27 @@ function sortRecords<T>(items: T[], sort: MoneySort, date: (t: T) => string, amo
 }
 
 // ---------- Visits ----------
-export type VisitFilters = { q: string; paid: "" | "paid" | "unpaid"; from: string; to: string; sort: MoneySort };
-export const DEFAULT_VISIT_FILTERS: VisitFilters = { q: "", paid: "", from: "", to: "", sort: "date-desc" };
-type V = { visit_date: string; service_performed: string; amount_paid: number | null; paid: boolean; created_at: string; service_providers: { name: string } | null };
+export type VisitFilters = { paid: "" | "paid" | "unpaid"; type: string; month: string; year: string };
+export const DEFAULT_VISIT_FILTERS: VisitFilters = { paid: "", type: "", month: "", year: "" };
+type V = { visit_date: string; service_performed: string; amount_paid: number | null; paid: boolean; created_at: string; service_providers: { name: string; service_type: string } | null };
 
 export function filterVisits<T extends V>(items: T[], f: VisitFilters): T[] {
-  const q = norm(f.q);
   const out = items.filter(
     (v) =>
-      (!q || norm(v.service_providers?.name).includes(q) || norm(v.service_performed).includes(q)) &&
       (!f.paid || (f.paid === "paid" ? v.paid : !v.paid)) &&
-      inRange(v.visit_date, f.from, f.to),
+      (!f.type || v.service_providers?.service_type === f.type) &&
+      (!f.month || v.visit_date.slice(5, 7) === f.month) &&
+      (!f.year || v.visit_date.slice(0, 4) === f.year),
   );
-  return sortRecords(out, f.sort, (v) => v.visit_date, (v) => v.amount_paid, (v) => v.created_at);
+  // History is always newest first: visit_date desc, then creation time desc.
+  return sortRecords(out, "date-desc", (v) => v.visit_date, (v) => v.amount_paid, (v) => v.created_at);
+}
+
+/** Distinct service types and years present in the user's completed visits, for filter dropdowns. */
+export function visitFilterOptions<T extends V>(items: T[]): { types: string[]; years: string[] } {
+  const types = [...new Set(items.map((v) => v.service_providers?.service_type).filter((t): t is string => !!t))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  const years = [...new Set(items.map((v) => v.visit_date.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+  return { types, years };
 }
 
 // ---------- Groceries ----------
