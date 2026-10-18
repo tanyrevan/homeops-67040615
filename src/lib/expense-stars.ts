@@ -37,7 +37,7 @@ export async function setExpenseStar(userId: string, item: ExpenseRef, on: boole
   const column = item.kind === "visit" ? "visit_id" : "grocery_id";
   if (on) {
     const { error } = await supabase.from("expense_stars").upsert(
-      { user_id: userId, [column]: item.id },
+      item.kind === "visit" ? { user_id: userId, visit_id: item.id } : { user_id: userId, grocery_id: item.id },
       { onConflict: `user_id,${column}`, ignoreDuplicates: true },
     );
     if (error) throw error;
