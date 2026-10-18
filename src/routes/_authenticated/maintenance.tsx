@@ -135,7 +135,7 @@ function HistoryPage() {
                       <div className="mt-1">
                         {h.kind === "visit"
                           ? <StatusBadge ok={h.settled} yes="Paid" no="Unpaid" />
-                          : <StatusBadge ok={h.settled} yes="Reimbursed" no="Not Reimbursed" />}
+                          : <StatusBadge ok={h.settled} yes="Paid" no="Unpaid" />}
                       </div>
                     </div>
                   </div>
