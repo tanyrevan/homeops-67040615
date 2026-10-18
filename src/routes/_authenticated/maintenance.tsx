@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_VISIT_FILTERS, filterVisits, isDefault, visitFilterOptions, type VisitFilters } from "@/lib/list-filters";
 import { day, money } from "@/lib/visits-api";
 
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 const allVisitsQuery = queryOptions({
   queryKey: ["visits", "all"],
   queryFn: async () => {
