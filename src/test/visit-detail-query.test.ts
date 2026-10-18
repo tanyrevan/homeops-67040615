@@ -8,6 +8,12 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: query.from 
 
 import { visitQuery } from "@/lib/visits-api";
 
+function readVisit(id: string) {
+  const { queryFn } = visitQuery(id);
+  if (typeof queryFn !== "function") throw new Error("Visit read function is missing");
+  return queryFn({} as never);
+}
+
 describe("Service detail record query", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -22,8 +28,7 @@ describe("Service detail record query", () => {
       service_providers: Object.freeze({ id: "existing-provider", name: "Jacuzzi Maintenance", service_type: "Jacuzzi" }),
     });
     query.maybeSingle.mockResolvedValue({ data: record, error: null });
-    const options = visitQuery(record.id);
-    const result = await options.queryFn({} as never);
+    const result = await readVisit(record.id);
     expect(query.from).toHaveBeenCalledWith("maintenance_visits");
     expect(query.select).toHaveBeenCalledWith("*, service_providers(id, name, service_type)");
     expect(query.eq).toHaveBeenCalledWith("id", "existing-visit");
@@ -37,19 +42,19 @@ describe("Service detail record query", () => {
   it("preserves stored A/C while the shared category normalization produces Aircon", async () => {
     const record = Object.freeze({ service_providers: Object.freeze({ service_type: "A/C" }) });
     query.maybeSingle.mockResolvedValue({ data: record, error: null });
-    const result = await visitQuery("legacy-visit").queryFn({} as never);
+    const result = await readVisit("legacy-visit");
     expect(expenseTypeLabel(result?.service_providers?.service_type ?? "Other")).toBe("Aircon");
     expect(record.service_providers.service_type).toBe("A/C");
   });
 
   it("does not fabricate a record when the ownership-limited read returns none", async () => {
     query.maybeSingle.mockResolvedValue({ data: null, error: null });
-    expect(await visitQuery("inaccessible-visit").queryFn({} as never)).toBeNull();
+    expect(await readVisit("inaccessible-visit")).toBeNull();
   });
 
   it("propagates query failures rather than presenting a partial transaction", async () => {
     const error = new Error("Read denied");
     query.maybeSingle.mockResolvedValue({ data: null, error });
-    await expect(visitQuery("denied-visit").queryFn({} as never)).rejects.toBe(error);
+    await expect(readVisit("denied-visit")).rejects.toBe(error);
   });
 });

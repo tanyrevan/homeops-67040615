@@ -8,4 +8,5 @@
 - [x] Change displayed service type to Aircon, preserve stored values, append follow-up, and verify tests/build and signed-in pages.
 - [x] Consolidate navigation and Expenses sections, add History settlement, green Paid badges and legacy redirects; preserve records, document and verify full tests/build and signed-in flow.
 - [x] Refine compact selected navigation, settings/logout menu and Upcoming heading; document and verify signed-in/mobile behavior and tests/build.
-- [ ] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and verify full tests/build and existing-record flows.
+- [x] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and run full tests/build.
+- [ ] Verify signed-in existing-record detail, edit, receipt and delete-confirmation flows; blocked until the user signs in (no matching account available for automatic session).
