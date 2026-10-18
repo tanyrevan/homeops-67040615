@@ -42,6 +42,14 @@ No migrations, no schema changes, no records modified or deleted.
 - Cards unchanged: provider, completed date, service, amount, Paid/Unpaid, receipt indicator. No Next service, no Upcoming badge, no creation actions.
 - Tests: `src/test/list-filters.test.ts` visits section rewritten — 9 tests covering default newest-first, each filter, month+year together, all four together, empty result, and derived type/year options.
 
+## Follow-up: History includes groceries + monochrome theme + expense-type overflow menu
+- History now combines completed maintenance visits and grocery purchases for display (tables stay separate). `HistoryItem`/`HistoryFilters`/`filterHistory`/`historyFilterOptions` in `src/lib/list-filters.ts` replace the visit-only filter; `src/routes/_authenticated/maintenance.tsx` queries both tables and maps them to history items.
+- Type dropdown includes "Grocery" whenever grocery records exist, plus the actual service types. Grocery cards show store, purchase date, "Grocery", amount, Reimbursed/Not Reimbursed; visit cards keep Paid/Unpaid. No next-service or Upcoming info. Newest first (record date desc, created_at desc).
+- "Payment status" is now "Status" with All / Outstanding (unpaid visits + unreimbursed groceries) / Settled (paid + reimbursed). Works with Type, Month, Year.
+- Theme: `src/styles.css` `:root` replaced with a black-and-white colonial-inspired palette — warm ivory background, white cards, charcoal text, muted gray secondary text, gray borders, black primary buttons with white text, grayscale chart tokens, smaller radius. Serif heading font (Libre Baskerville via Google Fonts link in `src/routes/__root.tsx`; `h1–h3` rule in styles.css). Red kept only for errors/overdue/unpaid. No calculation or functionality changes.
+- Expense Type detail (`providers.$id.index.tsx`): large Edit/Delete buttons and the star icon removed; a small "..." overflow menu (top-right) holds "Edit expense type" and a destructive "Delete expense type" with the existing confirmation dialog. Starring remains on the Expenses directory cards only. Edit page relabeled "Edit Expense Type".
+- Tests: history section of `src/test/list-filters.test.ts` rewritten — 10 tests covering newest-first across both kinds, Grocery in type options, Grocery-only filtering, maintenance type filtering, Outstanding/Settled definitions, month/year on both record dates, all four filters together, empty result.
+
 ## Tests
 - `src/test/grocery-validation.test.ts`: rewritten — category tests replaced with "saves without a category" (asserts the validated payload has no `category` key).
 - `src/test/list-filters.test.ts`: "Other category" filter test replaced with "historical category values still load and are ignored by filters".
