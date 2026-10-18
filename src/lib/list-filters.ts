@@ -58,11 +58,24 @@ export type HistoryItem = {
   type: string; // service type, or "Grocery"
   title: string; // service performed or store
   subtitle: string; // provider name or "Grocery"
+  providerId?: string | null; // service provider id for visits; null for groceries
   amount: number | null;
   settled: boolean; // paid (visit) or reimbursed (grocery)
   receipt_url: string | null;
   created_at: string;
 };
+
+/** Future-dated items (date > today), soonest first. `today` is a local YYYY-MM-DD string. */
+export function upcomingItems(items: HistoryItem[], today: string): HistoryItem[] {
+  return items
+    .filter((h) => h.date > today)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.created_at.localeCompare(b.created_at));
+}
+
+/** Items dated today or earlier (the History subset of the ledger). */
+export function pastItems(items: HistoryItem[], today: string): HistoryItem[] {
+  return items.filter((h) => h.date <= today);
+}
 export type HistoryFilters = { status: "" | "outstanding" | "settled"; type: string; month: string; year: string };
 export const DEFAULT_HISTORY_FILTERS: HistoryFilters = { status: "", type: "", month: "", year: "" };
 
