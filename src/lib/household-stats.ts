@@ -50,5 +50,5 @@ export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdV
     });
     return { key, label: month.toLocaleDateString("en-US", { month: "short", year: "numeric" }), spend0: values["spend0"] ?? 0, ...values };
   });
-  return { recorded: (cents(groceryTotal) + cents(sum(visits, (v) => v.amount_paid))) / 100, due: (cents(groceryDue) + cents(sum(visits.filter((v) => v.paid === false), (v) => v.amount_paid))) / 100, rows, chart, series };
+  return { recorded: (cents(sum(groceries, (g) => g.amount)) + cents(sum(visits, (v) => v.amount_paid))) / 100, due: (cents(groceryDue) + cents(sum(visits.filter((v) => v.paid === false), (v) => v.amount_paid))) / 100, rows, chart, series };
 }
