@@ -84,7 +84,13 @@ function NewExpense() {
       {expenseType && (matching.length === 0 || providerChoice === "new") && (
         <ProviderForm
           key={expenseType}
-          initial={{ name: "", serviceChoice: expenseType, customType: "", phone: "", notes: "" }}
+          initial={{
+            name: "",
+            serviceChoice: (SERVICE_TYPES as readonly string[]).includes(expenseType) ? (expenseType as (typeof SERVICE_TYPES)[number]) : "Other",
+            customType: (SERVICE_TYPES as readonly string[]).includes(expenseType) ? "" : expenseType,
+            phone: "",
+            notes: "",
+          }}
           submitLabel="Save Provider"
           onCancel={() => navigate({ to: "/providers" })}
           onSubmit={async (d) => {
