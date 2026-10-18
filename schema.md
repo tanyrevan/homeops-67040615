@@ -4,7 +4,7 @@ Rechecked against the live Lovable Cloud database on October 18, 2026. Final int
 
 ## Overview
 
-HomeOps has six application tables in the `public` schema:
+HomeOps has seven application tables in the `public` schema:
 
 - `users`
 - `service_providers`
@@ -12,10 +12,11 @@ HomeOps has six application tables in the `public` schema:
 - `grocery_expenses`
 - `stars`
 - `budgets`
+- `expense_stars`
 
 Authentication accounts are managed separately by Lovable Cloud. Receipt files are stored in the private `receipts` storage bucket.
 
-All six application tables have row-level security (RLS) enabled. Each account owns its records; there is no shared-household membership model.
+All seven application tables have row-level security (RLS) enabled. Each account owns its records; there is no shared-household membership model.
 
 ## Column notation
 
@@ -128,7 +129,7 @@ The interface displays `reimbursed` as Paid/Unpaid. The `category` column and ex
 
 ## 5. stars
 
-A junction table recording starred providers.
+A legacy junction table recording starred providers. The table and its existing rows remain in the database, but provider starring is no longer the Expenses UI workflow; individual transactions use `expense_stars` instead.
 
 | Column | Type | Required | Default |
 |---|---|---|---|
@@ -144,7 +145,7 @@ Constraints:
 - Foreign key: `service_provider_id → public.service_providers.id`, `ON DELETE CASCADE`.
 - Unique: `(user_id, service_provider_id)`.
 
-The unique constraint prevents duplicate stars for the same user and provider. The application uses a duplicate-ignoring insert/upsert when starring and deletes the row when unstarring.
+The unique constraint prevents duplicate stars for the same user and provider. Retained legacy helpers use a duplicate-ignoring insert/upsert when starring and delete the row when unstarring; the final Expenses UI does not use these helpers.
 
 ## 6. budgets
 
@@ -169,14 +170,40 @@ Constraints:
 
 The original budget implementation supported current-month setting/editing. Budget controls were cut from the final user-facing product; this table, its constraints, update trigger, policies and historical rows remain preserved. There is no budget-delete policy.
 
+## 7. expense_stars
+
+Final, persistent stars for individual Grocery purchases and service/maintenance visits, introduced by `0007_individual_expense_stars.sql` and rechecked against the live database on October 18, 2026.
+
+| Column | Type | Required | Default |
+|---|---|---|---|
+| id | uuid | Yes | `gen_random_uuid()` |
+| user_id | uuid | Yes | `auth.uid()` |
+| visit_id | uuid | No | — |
+| grocery_id | uuid | No | — |
+| created_at | timestamptz | Yes | `now()` |
+
+Constraints:
+
+- Primary key: `id` (`expense_stars_pkey`).
+- Ownership: `user_id` stores the authenticated account UUID; there is **no foreign key** on this column to `public.users` or the authentication table.
+- Foreign key: `visit_id → public.maintenance_visits.id`, `ON DELETE CASCADE`.
+- Foreign key: `grocery_id → public.grocery_expenses.id`, `ON DELETE CASCADE`.
+- `expense_stars_one_expense`: `num_nonnulls(visit_id, grocery_id) = 1`; exactly one expense reference must be present, never both or neither.
+- Unique: `(user_id, visit_id)` and `(user_id, grocery_id)`; one star per user per individual transaction.
+
+RLS allows signed-in users to read and delete only their own stars. Inserting requires their own `user_id` and a referenced visit or grocery purchase that they also own. No UPDATE policy exists. The migration grants SELECT, INSERT and DELETE to `authenticated`, ALL to `service_role`, and no access to `anon`.
+
+The final UI reads owner-scoped stars in pages of 500 and uses duplicate-ignoring upserts for starring and owner/transaction-scoped deletion for unstarring. Stars persist in the database, not browser storage. Starring one service expense never stars other visits from the same provider. The Starred button beside Filter limits both Upcoming and History to starred transactions, combines with the existing filters and preserves ordering.
+
 ## Relationships and cascade behavior
 
-- One application user owns many providers, visits, grocery expenses, stars, and budgets.
+- One application user owns many providers, visits, grocery expenses, legacy provider stars, budgets, and individual expense stars; expense-star ownership is enforced by RLS rather than a user foreign key.
 - One provider has many maintenance visits.
-- Stars connect users to providers, with one star per user/provider pair.
+- Legacy `stars` connect users to providers, with one star per user/provider pair; `expense_stars` connect an owner to one visit or grocery purchase.
 - Budgets have one row per user/calendar month.
-- Deleting an application user cascades to their related application rows.
-- Deleting a provider cascades to its visits and stars.
+- Deleting an application user cascades through the existing user foreign keys; `expense_stars` has no direct user cascade, but deleting its referenced expense cascades its star rows.
+- Deleting a provider cascades to its visits and legacy provider stars; those visit deletions also cascade to their individual expense stars.
+- Deleting a grocery purchase or maintenance visit cascades to its individual expense stars.
 - Database cascades do not delete receipt files from storage.
 
 ## Row-level security
@@ -191,12 +218,13 @@ All policies below apply to the `authenticated` role.
 | grocery_expenses | Own rows | Own rows | Own rows; ownership retained | Own rows |
 | stars | Own rows | Own rows and owned provider | No policy | Own rows |
 | budgets | Own rows | Own rows | Own rows; ownership retained | No policy |
+| expense_stars | Own rows | Own rows and owned visit or grocery expense | No policy | Own rows |
 
 For owner-scoped tables, ownership is `auth.uid() = user_id`.
 
-Visit INSERT/UPDATE and star INSERT policies additionally check that the referenced provider belongs to the signed-in user.
+Visit INSERT/UPDATE and legacy provider-star INSERT policies additionally check that the referenced provider belongs to the signed-in user. Individual expense-star INSERT policies check ownership of the referenced visit or grocery expense instead.
 
-There are no anonymous application-table policies. Although live table privileges permit SELECT/INSERT/UPDATE/DELETE for both `anon` and `authenticated`, RLS restricts which rows and operations are accessible. Therefore, missing policies deny ordinary client access even where a table-level privilege exists.
+There are no anonymous application-table policies. The original six tables were previously documented with SELECT/INSERT/UPDATE/DELETE privileges for both `anon` and `authenticated`; `expense_stars` instead has the narrower grants listed above. RLS restricts which rows and operations are accessible, and missing policies deny ordinary client access even where a table-level privilege exists.
 
 RLS is enabled but not forced on these tables. Privileged backend operations are outside the ordinary client-policy model.
 
@@ -233,6 +261,8 @@ Every table has a primary-key index on `id`. Additional indexes are:
 | grocery_expenses | grocery_expenses_unreimbursed_idx | `(user_id) WHERE reimbursed = false` |
 | stars | stars_user_provider_unique | Unique `(user_id, service_provider_id)` |
 | budgets | budgets_user_month_unique | Unique `(user_id, month)` |
+| expense_stars | expense_stars_user_id_visit_id_key | Unique `(user_id, visit_id)` |
+| expense_stars | expense_stars_user_id_grocery_id_key | Unique `(user_id, grocery_id)` |
 
 ## Receipt storage
 
@@ -252,6 +282,6 @@ Individual visit/grocery deletion and receipt replacement attempt storage cleanu
 
 ## Repository schema history
 
-Application SQL is recorded in `drizzle/migrations/0000_migration.sql` through `0006_create_budgets.sql`.
+Application SQL is recorded in `drizzle/migrations/0000_migration.sql` through `0007_individual_expense_stars.sql`. Migration 0007 adds individual expense stars and marks provider stars as legacy in a table comment; it does not remove the provider-star table.
 
 `drizzle/schema.ts` is intentionally blank and is not a complete representation of the live schema. Migration configuration uses `LOVABLE_DB_MIGRATION_URL`. The receipt bucket itself was provisioned separately; the SQL migrations contain storage policies but do not create the bucket.
