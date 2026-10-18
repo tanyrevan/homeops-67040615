@@ -2,7 +2,7 @@ import { monthKey, monthSummary } from "@/lib/dashboard-stats";
 import { localISO } from "@/lib/due-status";
 
 export type HouseholdGrocery = { purchase_date: string; amount: number; reimbursed: boolean };
-export type HouseholdVisit = { id: string; service_provider_id: string; visit_date: string; amount_paid: number | null; paid: boolean; next_service_date: string | null; created_at: string };
+export type HouseholdVisit = { id: string; service_provider_id: string; visit_date: string; amount_paid: number | null; paid: boolean; created_at: string };
 export type HouseholdProvider = { id: string; service_type: string };
 const cents = (amount: number | null) => Math.round(Number(amount ?? 0) * 100);
 const sum = <T,>(rows: T[], amount: (row: T) => number | null) => rows.reduce((total, row) => total + cents(amount(row)), 0) / 100;

@@ -23,7 +23,7 @@ const dashboardQuery = (userId: string) => queryOptions({
   queryFn: async () => {
     const [groceries, visits, providers] = await Promise.all([
       allRows((from, to) => supabase.from("grocery_expenses").select("user_id, purchase_date, amount, reimbursed").eq("user_id", userId).order("id").range(from, to)),
-      allRows((from, to) => supabase.from("maintenance_visits").select("id, user_id, service_provider_id, visit_date, amount_paid, paid, next_service_date, created_at").eq("user_id", userId).order("id").range(from, to)),
+      allRows((from, to) => supabase.from("maintenance_visits").select("id, user_id, service_provider_id, visit_date, amount_paid, paid, created_at").eq("user_id", userId).order("id").range(from, to)),
       allRows((from, to) => supabase.from("service_providers").select("id, user_id, service_type").eq("user_id", userId).order("id").range(from, to)),
     ]);
     return { groceries: filterOwnedRecords(groceries, userId), visits: filterOwnedRecords(visits, userId), providers: filterOwnedRecords(providers, userId) };
