@@ -39,14 +39,14 @@ describe("Total Spend period selector", () => {
 describe("Household dashboard", () => {
   it("groups legacy A/C and canonical types into one category and chart series", () => {
     const result = householdStats([], [visit("a", "legacy", "2026-10-15", 250, false), visit("b", "canonical", "2026-10-16", 50, false)], [{ id: "legacy", service_type: "A/C" }, { id: "canonical", service_type: "Air Conditioner" }], today);
-    expect(result.rows.map((r) => [r.category, r.due])).toEqual([["Groceries", 0], ["Air Conditioner", 300]]);
-    expect(result.series.map((s) => s.name)).toEqual(["Groceries", "Air Conditioner"]);
+    expect(result.rows.map((r) => [r.category, r.due])).toEqual([["Groceries", 0], ["Aircon", 300]]);
+    expect(result.series.map((s) => s.name)).toEqual(["Groceries", "Aircon"]);
     expect(result.chart[2]).toMatchObject({ spend1: 300 });
   });
   it("combines all-time grocery and maintenance amounts regardless of settlement", () => expect(stats().recorded).toBe(455.5));
   it("includes only unreimbursed groceries and unpaid maintenance in due", () => expect(stats().due).toBe(330.25));
   it("sums category totals for the current month with all-time due", () => {
-    expect(stats().rows.map((r) => [r.category, r.total, r.due])).toEqual([["Groceries", 100.25, 110.25], ["Air Conditioner", 0, 0], ["Gardener", 30, 0], ["Plumber", 200, 200]]);
+    expect(stats().rows.map((r) => [r.category, r.total, r.due])).toEqual([["Groceries", 100.25, 110.25], ["Aircon", 0, 0], ["Gardener", 30, 0], ["Plumber", 200, 200]]);
   });
   it("shows no Last Visit for groceries", () => expect(stats().rows[0]?.lastVisit).toBeNull());
   it("shows no Next Visit for groceries", () => expect(stats().rows[0]?.nextVisit).toBeNull());

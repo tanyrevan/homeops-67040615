@@ -50,11 +50,13 @@ describe("Combined Expenses ledger", () => {
   });
   it("maps stored A/C to the canonical type without altering input records", () => {
     const row = visit("ac", TODAY, TODAY);
-    expect(toLedgerItems([row], [])[0]?.type).toBe("Air Conditioner");
+    expect(toLedgerItems([row], [])[0]?.type).toBe("Aircon");
     expect(row.service_providers.service_type).toBe("A/C");
   });
   it("only maps the exact legacy type, leaving unrelated text unchanged", () => {
-    expect(expenseTypeLabel("A/C")).toBe("Air Conditioner");
+    expect(expenseTypeLabel("A/C")).toBe("Aircon");
+    expect(expenseTypeLabel("Air Conditioner")).toBe("Aircon");
+    expect(expenseTypeLabel("Aircon")).toBe("Aircon");
     expect(expenseTypeLabel("A/C inspection")).toBe("A/C inspection");
   });
 });
