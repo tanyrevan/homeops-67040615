@@ -1,11 +1,14 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const expensesArea = ["/providers", "/groceries"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -20,20 +23,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-4 py-4">
           <Link to="/home" className="text-xl font-bold text-primary">HomeOps</Link>
-          <nav className="flex flex-wrap items-center gap-1">
+          <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-1">
             <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Dashboard</Link>
-            <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
-            <Link to="/maintenance" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Maintenance</Link>
+            <Link to="/providers" className={`${linkCls} ${expensesArea ? "bg-accent text-foreground" : ""}`}>Expenses</Link>
+            <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Amount Due</Link>
             <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
-            <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
-            <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Needs Attention</Link>
-            <button onClick={signOut} className="ml-2 rounded-md border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">
+            <Link to="/maintenance" className={`${linkCls} ${pathname.startsWith("/visits/") ? "bg-accent text-foreground" : ""}`} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
+            <Button variant="outline" size="sm" onClick={signOut} className="ml-2">
               Log Out
-            </button>
+            </Button>
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        {children}
+      </main>
     </div>
   );
 }

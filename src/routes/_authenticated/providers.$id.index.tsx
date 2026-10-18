@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { providerQuery } from "@/lib/providers-api";
 import { StarButton } from "@/components/StarButton";
 import { VisitHistory } from "@/components/VisitHistory";
+import { UpcomingVisits } from "@/components/UpcomingVisits";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/")({
   validateSearch: (s: Record<string, unknown>): { visitDeleted?: boolean } =>
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/providers/$id/")({
       { name: "description", content: "Details for a household service provider." },
       { property: "og:title", content: "Provider details — HomeOps" },
       { property: "og:description", content: "Details for a household service provider." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProviderDetail,
@@ -44,7 +47,7 @@ function ProviderDetail() {
 
   return (
     <AppShell>
-      <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to providers</Link>
+      <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to expenses</Link>
       {visitDeleted && <p className="mt-4 rounded-md bg-accent p-3 text-sm text-foreground">Visit deleted.</p>}
       {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
       {!isLoading && !p && <p className="mt-6 text-foreground">This provider wasn't found.</p>}
@@ -55,7 +58,7 @@ function ProviderDetail() {
             <StarButton userId={user.id} providerId={p.id} name={p.name} />
           </div>
           <dl className="mt-5 space-y-4">
-            <Field label="Service type" value={p.service_type} />
+            <Field label="Expense type" value={p.service_type} />
             <Field label="Phone or contact" value={p.phone_or_contact} />
             <Field label="Notes" value={p.notes} />
             <Field label="Added" value={new Date(p.created_at).toLocaleString()} />
@@ -85,6 +88,7 @@ function ProviderDetail() {
           </div>
         </div>
       )}
+      {p && <UpcomingVisits providerId={id} />}
       {p && <VisitHistory providerId={id} />}
     </AppShell>
   );

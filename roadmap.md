@@ -1,0 +1,5 @@
+# Dashboard and navigation simplification
+- [x] Replace dashboard with all-time summaries, category table, and three-month stacks.
+- [x] Simplify top navigation and add maintenance secondary navigation.
+- [x] Save prompt and architecture notes; preserve database and budget history.
+- [x] Add calculation tests, run full suite, verify signed-in desktop/mobile flows.

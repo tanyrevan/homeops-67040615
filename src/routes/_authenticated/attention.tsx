@@ -34,10 +34,12 @@ const unreimbursedQuery = queryOptions({
 export const Route = createFileRoute("/_authenticated/attention")({
   head: () => ({
     meta: [
-      { title: "Needs Attention — HomeOps" },
+      { title: "Amount Due — HomeOps" },
       { name: "description", content: "Unpaid maintenance and grocery purchases not yet reimbursed." },
-      { property: "og:title", content: "Needs Attention — HomeOps" },
+      { property: "og:title", content: "Amount Due — HomeOps" },
       { property: "og:description", content: "Unpaid maintenance and grocery purchases not yet reimbursed." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Attention,
@@ -52,7 +54,7 @@ function Attention() {
 
   return (
     <AppShell>
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">Needs Attention</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">Amount Due</h1>
       {loading && <p className="text-muted-foreground">Loading…</p>}
       {(visits.error || groceries.error) && <p className="text-destructive">We couldn't load everything. Please refresh.</p>}
       {empty && (
