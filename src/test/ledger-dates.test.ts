@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pastItems, upcomingItems, type HistoryItem } from "@/lib/list-filters";
+import { expenseSections, pastItems, upcomingItems, type HistoryItem } from "@/lib/list-filters";
 import { toLedgerItems } from "@/lib/ledger";
 import { DEFAULT_HISTORY_FILTERS, filterHistory } from "@/lib/list-filters";
 import { expenseTypeLabel } from "@/lib/expense-type";
@@ -77,5 +77,51 @@ describe("History (today and past expenses)", () => {
   it("excludes future-dated expenses even when unpaid", () => {
     const futureUnpaid = { ...item("f", "2026-10-25"), settled: false };
     expect(pastItems([futureUnpaid], TODAY)).toEqual([]);
+  });
+});
+
+describe("Central Expenses sections", () => {
+  const ledger = toLedgerItems(
+    [visit("past-unpaid", "2026-10-17", TODAY), visit("future-paid", "2026-10-20", TODAY, true)],
+    [grocery("today-paid", TODAY, TODAY, true), grocery("future-unpaid", "2026-10-19", TODAY)],
+  );
+  it("splits future records soonest first and history newest first", () => {
+    const result = expenseSections(ledger, TODAY, DEFAULT_HISTORY_FILTERS);
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid", "future-paid"]);
+    expect(result.history.map((h) => h.id)).toEqual(["today-paid", "past-unpaid"]);
+  });
+  it("Unpaid filters History only and retains both future payment states", () => {
+    const result = expenseSections(ledger, TODAY, { ...DEFAULT_HISTORY_FILTERS, status: "outstanding" });
+    expect(result.history.map((h) => h.id)).toEqual(["past-unpaid"]);
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid", "future-paid"]);
+  });
+  it("Paid filters History only and retains both future payment states", () => {
+    const result = expenseSections(ledger, TODAY, { ...DEFAULT_HISTORY_FILTERS, status: "settled" });
+    expect(result.history.map((h) => h.id)).toEqual(["today-paid"]);
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid", "future-paid"]);
+  });
+  it("Type applies to both sections", () => {
+    const result = expenseSections(ledger, TODAY, { ...DEFAULT_HISTORY_FILTERS, type: "Grocery" });
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid"]);
+    expect(result.history.map((h) => h.id)).toEqual(["today-paid"]);
+  });
+  it("Month applies to both sections", () => {
+    const result = expenseSections([...ledger, item("nov-past", "2025-11-01"), item("nov-future", "2026-11-01")], TODAY, { ...DEFAULT_HISTORY_FILTERS, month: "11" });
+    expect(result.upcoming.map((h) => h.id)).toEqual(["nov-future"]);
+    expect(result.history.map((h) => h.id)).toEqual(["nov-past"]);
+  });
+  it("Year applies to both sections", () => {
+    const result = expenseSections([...ledger, item("old", "2025-10-01"), item("next", "2027-10-01")], TODAY, { ...DEFAULT_HISTORY_FILTERS, year: "2026" });
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid", "future-paid"]);
+    expect(result.history.map((h) => h.id)).toEqual(["today-paid", "past-unpaid"]);
+  });
+  it("all filters combine without excluding paid future groceries", () => {
+    const rows = [...ledger, { ...item("future-grocery-paid", "2026-10-21"), kind: "grocery" as const, type: "Grocery" }];
+    const result = expenseSections(rows, TODAY, { status: "outstanding", type: "Grocery", month: "10", year: "2026" });
+    expect(result.upcoming.map((h) => h.id)).toEqual(["future-unpaid", "future-grocery-paid"]);
+    expect(result.history).toEqual([]);
+  });
+  it("keeps both empty sections for an empty ledger", () => {
+    expect(expenseSections([], TODAY, DEFAULT_HISTORY_FILTERS)).toEqual({ upcoming: [], history: [] });
   });
 });
