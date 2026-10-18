@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { Field, FilterPopover, ctrl } from "@/components/FilterControls";
+import { Field, FilterPopover, ctrl, secondaryFilterControl } from "@/components/FilterControls";
 import { ExpenseSection } from "@/components/ExpenseSection";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,10 +12,8 @@ import {
   type HistoryFilters,
 } from "@/lib/list-filters";
 import { localISO } from "@/lib/due-status";
-import { providersQuery } from "@/lib/providers-api";
-import { starsQuery } from "@/lib/stars";
+import { expenseStarsQuery, filterStarredExpenses, setExpenseStar, updateExpenseStars, type ExpenseRef } from "@/lib/expense-stars";
 import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
-import { expenseTypeLabel } from "@/lib/expense-type";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -39,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/providers/")({
 });
 
 function ExpensesPage() {
+  const { user } = Route.useRouteContext();
   const { deleted } = Route.useSearch();
   const qc = useQueryClient();
   const [settleMessage, setSettleMessage] = useState<string | null>(null);
@@ -61,103 +59,55 @@ function ExpensesPage() {
   });
   const visits = useQuery(expenseVisitsQuery);
   const groceries = useQuery(expenseGroceriesQuery);
-  const providers = useQuery(providersQuery());
-  const stars = useQuery(starsQuery());
+  const starOptions = expenseStarsQuery(user.id);
+  const stars = useQuery(starOptions);
   const [showStarred, setShowStarred] = useState(false);
-  const [providerFilter, setProviderFilter] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [starError, setStarError] = useState<string | null>(null);
+  const starMutation = useMutation({
+    mutationFn: ({ item, on }: { item: ExpenseRef; on: boolean }) => setExpenseStar(user.id, item, on),
+    onMutate: async ({ item, on }) => {
+      setStarError(null);
+      await qc.cancelQueries({ queryKey: starOptions.queryKey });
+      const previous = qc.getQueryData(starOptions.queryKey) ?? new Set<string>();
+      qc.setQueryData(starOptions.queryKey, updateExpenseStars(previous, item, on));
+      return { previous };
+    },
+    onError: (_, __, context) => {
+      if (context) qc.setQueryData(starOptions.queryKey, context.previous);
+      setStarError("We couldn't update that star. Please try again.");
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: starOptions.queryKey }),
+  });
   const [f, setF] = useState<HistoryFilters>(DEFAULT_HISTORY_FILTERS);
   const set = <K extends keyof HistoryFilters>(k: K, v: HistoryFilters[K]) => setF((prev) => ({ ...prev, [k]: v }));
   const reset = () => setF(DEFAULT_HISTORY_FILTERS);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    const close = (e: MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [menuOpen]);
-
-  const isLoading = visits.isLoading || groceries.isLoading;
-  const error = visits.error || groceries.error;
+  const isLoading = visits.isLoading || groceries.isLoading || stars.isLoading;
+  const error = visits.error || groceries.error || stars.error;
   const items = toLedgerItems(visits.data ?? [], groceries.data ?? []);
-  const scoped = providerFilter ? items.filter((h) => h.providerId === providerFilter) : items;
+  const starSet = stars.data ?? new Set<string>();
+  const scoped = filterStarredExpenses(items, starSet, showStarred);
   const { upcoming, history } = expenseSections(scoped, localISO(new Date()), f);
   const { types, years } = historyFilterOptions(items);
-  const starredProviders = (providers.data ?? []).filter((p) => stars.data?.has(p.id));
-  const starredName = providerFilter ? providers.data?.find((p) => p.id === providerFilter)?.name : null;
 
   return (
     <AppShell>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-foreground">Expenses</h1>
         <div className="flex items-center gap-2">
-          <div className="relative" ref={menuRef}>
-            <Button
-              variant="outline"
-              size="icon"
-              type="button"
-              aria-label="Expense view options"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="rounded-full border border-border p-2 text-muted-foreground hover:bg-accent"
-            >
-              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-            </Button>
-            {menuOpen && (
-              <div className="absolute right-0 z-10 mt-1 w-52 rounded-md border border-border bg-card py-1 shadow-md">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  aria-pressed={showStarred}
-                  onClick={() => { setShowStarred(!showStarred); setMenuOpen(false); }}
-                  className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent"
-                >
-                  {showStarred ? "✓ " : ""}Starred service providers
-                </Button>
-              </div>
-            )}
-          </div>
           <Link to="/providers/new" className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
             Add Expense
           </Link>
         </div>
       </div>
       {deleted && <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">Expense type deleted.</p>}
-      {showStarred && (
-        <div className="mb-6 rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground">Starred service providers</h2>
-          {starredProviders.length === 0 && <p className="mt-1 text-sm text-muted-foreground">No starred providers yet.</p>}
-          <ul className="mt-2 space-y-1">
-            {starredProviders.map((p) => (
-              <li key={p.id}>
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={() => { setProviderFilter(providerFilter === p.id ? null : p.id); setShowStarred(false); }}
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  ★ {p.name} <span className="text-muted-foreground">· {expenseTypeLabel(p.service_type)}</span>
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {providerFilter && (
-        <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">
-          Showing expenses for {starredName ?? "this provider"}.{" "}
-          <Button variant="link" type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</Button>
-        </p>
-      )}
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load your expenses. Please refresh.</p>}
       {settleMessage && <p role="status" className="mb-4 text-sm text-foreground">{settleMessage}</p>}
       {settleError && <p role="alert" className="mb-4 text-sm text-destructive">{settleError}</p>}
+      {starError && <p role="alert" className="mb-4 text-sm text-destructive">{starError}</p>}
       <div>
-          <div className="mb-5 flex justify-end">
+          <div className="mb-5 flex justify-end gap-2">
             <FilterPopover onReset={reset} activeCount={activeCount(f)}>
               <Field label="Status" htmlFor="status">
                 <select id="status" className={ctrl} value={f.status} onChange={(e) => set("status", e.target.value as HistoryFilters["status"])}>
@@ -185,6 +135,9 @@ function ExpensesPage() {
                 </select>
               </Field>
             </FilterPopover>
+            <Button type="button" variant="outline" className={`${secondaryFilterControl} ${showStarred ? "ring-1 ring-foreground" : ""}`} aria-pressed={showStarred} onClick={() => setShowStarred(!showStarred)}>
+              <span className="text-xl leading-none" aria-hidden="true">{showStarred ? "★" : "☆"}</span> Starred
+            </Button>
           </div>
           {!isLoading && !error && (
             <div className="space-y-8">
@@ -193,6 +146,12 @@ function ExpensesPage() {
                   key={isUpcoming ? "upcoming" : "history"}
                   upcoming={isUpcoming}
                   items={isUpcoming ? upcoming : history}
+                  stars={starSet}
+                  starring={starMutation.isPending}
+                  onToggleStar={(item) => {
+                    if (starMutation.isPending) return;
+                    starMutation.mutate({ item, on: !starSet.has(`${item.kind}-${item.id}`) });
+                  }}
                   saving={settle.isPending}
                   settlingKey={settle.isPending && settle.variables ? `${settle.variables.kind}-${settle.variables.id}` : null}
                   onMarkPaid={(item) => {

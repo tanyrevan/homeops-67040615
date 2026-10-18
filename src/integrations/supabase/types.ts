@@ -49,6 +49,45 @@ export type Database = {
           },
         ]
       }
+      expense_stars: {
+        Row: {
+          created_at: string
+          grocery_id: string | null
+          id: string
+          user_id: string
+          visit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          grocery_id?: string | null
+          id?: string
+          user_id?: string
+          visit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          grocery_id?: string | null
+          id?: string
+          user_id?: string
+          visit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_stars_grocery_id_fkey"
+            columns: ["grocery_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_stars_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grocery_expenses: {
         Row: {
           amount: number

@@ -11,3 +11,7 @@
 - [x] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and run full tests/build.
 - [ ] Verify signed-in existing-record detail, edit, receipt and delete-confirmation flows; blocked until the user signs in (no matching account available for automatic session).
 - [x] Update final README and PLAN Section 8 only, verify live schema documentation, save final prompt, and confirm application files are unchanged.
+- [x] Remove the duplicate provider category selector, preserve selected/stored types and editing, save prompt, run full tests and verify signed-in Add Expense (124 tests; build OK; saved/read back Electrician and removed temporary QA provider).
+- [x] Add owner-only individual expense stars, replace provider-star UI with combined Starred filtering, append prompt and verify persistence/isolation, full tests and build.
+- [x] Align History payment controls, center card stars, match Starred to Filter, append follow-up and verify full tests/build and signed-in layout (140 tests; build OK; equal card heights and aligned controls verified).
+- [x] Center Mark Paid left of the amount/status stack, make Filter and Starred identical dimensions, append prompt and verify tests/build and signed-in layout (140 tests; build OK; signed-in dimensions and payment readback verified).
