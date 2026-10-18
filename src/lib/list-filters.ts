@@ -5,9 +5,9 @@ const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 const inRange = (d: string, from: string, to: string) => (!from || d >= from) && (!to || d <= to);
 
 // ---------- Providers ----------
-export type ProviderSort = "" | "name-asc" | "name-desc" | "newest" | "oldest";
+export type ProviderSort = "name-asc" | "name-desc" | "newest" | "oldest";
 export type ProviderFilters = { q: string; type: string; starredOnly: boolean; sort: ProviderSort };
-export const DEFAULT_PROVIDER_FILTERS: ProviderFilters = { q: "", type: "", starredOnly: false, sort: "" };
+export const DEFAULT_PROVIDER_FILTERS: ProviderFilters = { q: "", type: "", starredOnly: false, sort: "newest" };
 
 type P = { id: string; name: string; service_type: string; created_at: string };
 
@@ -26,10 +26,7 @@ export function filterProviders<T extends P>(items: T[], starred: Set<string>, f
     case "name-desc": return [...out].sort((a, b) => byName(b, a));
     case "newest": return [...out].sort(byNew);
     case "oldest": return [...out].sort((a, b) => byNew(b, a));
-    default:
-      // Default: starred first, each group newest first (unchanged behavior).
-      out = [...out].sort(byNew);
-      return [...out.filter((p) => starred.has(p.id)), ...out.filter((p) => !starred.has(p.id))];
+    default: return [...out].sort(byNew);
   }
 }
 

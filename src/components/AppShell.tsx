@@ -28,6 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link to="/providers" className={`${linkCls} ${expensesArea ? "bg-accent text-foreground" : ""}`}>Expenses</Link>
             <Link to="/maintenance" className={`${linkCls} ${pathname.startsWith("/visits/") ? "bg-accent text-foreground" : ""}`} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
             <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
+            <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Amount Due</Link>
             <Button variant="outline" size="sm" onClick={signOut} className="ml-2">
               Log Out
             </Button>
@@ -35,12 +36,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">
-        {expensesArea && (
-          <nav aria-label="Expenses navigation" className="mb-6 flex gap-1 border-b border-border pb-3">
-            <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
-            <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
-          </nav>
-        )}
         {children}
       </main>
     </div>

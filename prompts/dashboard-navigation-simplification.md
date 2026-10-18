@@ -414,3 +414,16 @@ Stop after completing this feature.
 - Chart Y-axis: $0–$1,000 in $200 increments, expanding to the next $200 increment when a month exceeds $1,000.
 - Top navigation: Dashboard | Expenses | History | Upcoming | Log Out. Expenses (defaulting to Providers) holds secondary nav Providers | Groceries; the old Providers | History | Upcoming secondary nav is removed.
 - No database changes; all existing functionality preserved; full test suite must pass.
+
+---
+
+## Final UI consolidation (2026-10-18)
+
+- Top navigation: Dashboard | Expenses | History | Upcoming | Amount Due | Log Out. Amount Due links to /attention.
+- /attention heading renamed "Needs Attention" → "Amount Due" (route unchanged; Dashboard "View" link still points there).
+- Expenses secondary tabs (Providers | Groceries) removed; /providers is the unified Expenses page.
+- Terminology: Providers → Expenses, Add Provider → Add Expense, "Search by name" → "Name", "Service type" → "Expense Type".
+- Expense Type includes Grocery: selecting it on Add Expense routes to the existing grocery form; selecting it as a filter lists grocery_expenses records. No fake service_provider rows; tables stay separate.
+- Filters simplified to Name / Expense Type / Sort; "Starred first" sort and "Starred only" checkbox removed; default sort is newest first.
+- Starring preserved: star icons remain, and a small "Starred" chip near the Expenses heading toggles the starred view.
+- No database changes; full test suite must pass.

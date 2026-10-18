@@ -11,8 +11,8 @@ const providers = [
 ];
 
 describe("providers", () => {
-  it("default keeps starred first, then newest", () => {
-    expect(filterProviders(providers, new Set(["1"]), DEFAULT_PROVIDER_FILTERS).map((p) => p.id)).toEqual(["1", "3", "2"]);
+  it("default sorts newest first without star grouping", () => {
+    expect(filterProviders(providers, new Set(["1"]), DEFAULT_PROVIDER_FILTERS).map((p) => p.id)).toEqual(["3", "2", "1"]);
   });
   it("searches name case-insensitively", () => {
     expect(filterProviders(providers, new Set(), { ...DEFAULT_PROVIDER_FILTERS, q: "ALICE" }).map((p) => p.id)).toEqual(["2"]);
