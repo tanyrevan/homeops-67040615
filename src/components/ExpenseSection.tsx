@@ -29,7 +29,7 @@ export function ExpenseSection({ upcoming = false, items, settlingKey, saving, o
           {items.map((item) => (
             <li key={`${item.kind}-${item.id}`} className="overflow-hidden rounded-lg border border-border bg-card">
               <div className="flex items-stretch">
-              <div className="relative grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 p-4">
+              <div className="relative flex min-w-0 flex-1 items-stretch gap-2 p-4">
               <Link
                 to={item.kind === "visit" ? "/visits/$visitId" : "/groceries/$groceryId"}
                 params={item.kind === "visit" ? { visitId: item.id } : { groceryId: item.id }}
@@ -37,18 +37,20 @@ export function ExpenseSection({ upcoming = false, items, settlingKey, saving, o
               >
                 <span className="sr-only">View {item.type} expense on {item.date}</span>
               </Link>
-                  <div className="pointer-events-none relative row-span-2 min-w-0">
+                  <div className="pointer-events-none relative min-w-0 flex-1">
                     <div className="text-sm text-muted-foreground">{day(item.date)}</div>
                     <div className="break-words font-medium text-foreground">{item.type}</div>
                     {item.receipt_url && <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><Paperclip className="h-3 w-3" aria-hidden="true" />Receipt</div>}
                   </div>
-                  <div className="pointer-events-none relative text-right font-semibold tabular-nums text-foreground">{money(item.amount) ?? "—"}</div>
-                  {!upcoming && <div className="pointer-events-none relative flex h-8 items-center justify-end gap-2">
-                    <StatusBadge ok={item.settled} yes="Paid" no="Unpaid" />
-                    {!item.settled && <Button className="pointer-events-auto" size="sm" disabled={saving} onClick={() => onMarkPaid(item)}>
+                  {!upcoming && !item.settled && <Button className="relative shrink-0 self-center" size="sm" disabled={saving} onClick={() => onMarkPaid(item)}>
                       {settlingKey === `${item.kind}-${item.id}` ? "Saving…" : "Mark Paid"}
-                    </Button>}
-                  </div>}
+                  </Button>}
+                  <div className="pointer-events-none relative shrink-0 text-right">
+                    <div className="font-semibold tabular-nums text-foreground">{money(item.amount) ?? "—"}</div>
+                    {!upcoming && <div className="mt-1 flex h-8 items-center justify-end">
+                      <StatusBadge ok={item.settled} yes="Paid" no="Unpaid" />
+                    </div>}
+                  </div>
               </div>
               <Button
                 variant="ghost" size="icon" type="button"

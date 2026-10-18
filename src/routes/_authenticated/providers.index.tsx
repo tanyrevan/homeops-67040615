@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { Field, FilterPopover, ctrl } from "@/components/FilterControls";
+import { Field, FilterPopover, ctrl, secondaryFilterControl } from "@/components/FilterControls";
 import { ExpenseSection } from "@/components/ExpenseSection";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,7 +135,7 @@ function ExpensesPage() {
                 </select>
               </Field>
             </FilterPopover>
-            <Button type="button" variant="outline" className={`h-auto border-border bg-card px-4 py-2 text-foreground hover:bg-accent ${showStarred ? "ring-1 ring-foreground" : ""}`} aria-pressed={showStarred} onClick={() => setShowStarred(!showStarred)}>
+            <Button type="button" variant="outline" className={`${secondaryFilterControl} ${showStarred ? "ring-1 ring-foreground" : ""}`} aria-pressed={showStarred} onClick={() => setShowStarred(!showStarred)}>
               <span className="text-xl leading-none" aria-hidden="true">{showStarred ? "★" : "☆"}</span> Starred
             </Button>
           </div>
