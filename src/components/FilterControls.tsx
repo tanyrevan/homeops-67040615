@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Funnel } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export const secondaryFilterControl = "h-10 w-32 gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent";
 
 export const ctrl = "w-full rounded-md border border-input bg-background px-3 py-2.5 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -32,15 +35,16 @@ export function FilterPopover({ children, onReset, activeCount }: { children: Re
 
   return (
     <div className="relative" ref={ref}>
-      <button
+      <Button
+        variant="outline"
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"
+        className={secondaryFilterControl}
       >
         <Funnel className="h-4 w-4" aria-hidden="true" />
         Filter{activeCount > 0 ? ` (${activeCount})` : ""}
-      </button>
+      </Button>
       {open && (
         <div className="absolute right-0 z-10 mt-1 w-72 rounded-md border border-border bg-card p-4 shadow-md">
           <div className="grid gap-3">{children}</div>

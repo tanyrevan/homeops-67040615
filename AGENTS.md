@@ -30,3 +30,4 @@
 - Combined transaction lists use `newestExpenses` in `src/lib/list-filters.ts`, including the ledger mapper; why: actual expense dates determine order before creation-time ties on every ledger path.
 
 - Ledger cards are rendered by `ExpenseSection`, using a stretched transaction link with sibling settlement controls and an independent star button; query refresh follows settlement updates; why: card navigation stays available while Mark Paid and stars never navigate, and Dashboard reads the new status.
+- Filter and Starred share `secondaryFilterControl` from `FilterControls`; why: identical control dimensions and styling stay synchronized without changing filter behavior.
