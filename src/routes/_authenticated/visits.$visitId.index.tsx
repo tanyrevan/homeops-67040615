@@ -11,6 +11,8 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Button } from "@/components/ui/button";
+import { expenseTypeLabel } from "@/lib/expense-type";
 import { supabase } from "@/integrations/supabase/client";
 import { day, money, receiptUrlQuery, removeReceipt, visitQuery } from "@/lib/visits-api";
 
@@ -56,10 +58,7 @@ function VisitDetail() {
       {v && (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-sm text-muted-foreground">{v.service_providers?.name}</p>
-              <h1 className="text-2xl font-semibold text-foreground">{v.service_performed}</h1>
-            </div>
+            <h1 className="min-w-0 break-words text-2xl font-semibold text-foreground">{expenseTypeLabel(v.service_providers?.service_type ?? "Other")}</h1>
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Expense options"
@@ -91,9 +90,10 @@ function VisitDetail() {
 
           {v.receipt_url && (
             <div className="mt-6">
-              <button onClick={() => setShowReceipt(!showReceipt)} className="rounded-md border border-input px-5 py-3 font-medium text-foreground hover:bg-accent">
+              <p className="mb-2 text-sm text-muted-foreground">Receipt</p>
+              <Button variant="outline" onClick={() => setShowReceipt(!showReceipt)}>
                 {showReceipt ? "Hide Receipt" : "View Receipt"}
-              </button>
+              </Button>
               {showReceipt && (
                 <div className="mt-4">
                   {receipt.isLoading && <p className="text-muted-foreground">Loading receipt…</p>}

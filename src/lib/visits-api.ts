@@ -24,7 +24,7 @@ export const visitQuery = (id: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("maintenance_visits")
-        .select("*, service_providers(id, name)")
+        .select("*, service_providers(id, name, service_type)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -38,7 +38,8 @@ export const receiptUrlQuery = (path: string | null) =>
     enabled: !!path,
     staleTime: 30 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).createSignedUrl(path!, 60 * 60);
+      if (!path) return null;
+      const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).createSignedUrl(path, 60 * 60);
       if (error) throw error;
       return data.signedUrl;
     },
