@@ -10,3 +10,4 @@
 - [x] Refine compact selected navigation, settings/logout menu and Upcoming heading; document and verify signed-in/mobile behavior and tests/build.
 - [x] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and run full tests/build.
 - [ ] Verify signed-in existing-record detail, edit, receipt and delete-confirmation flows; blocked until the user signs in (no matching account available for automatic session).
+- [ ] Update final README and PLAN Section 8 only, verify live schema documentation, save final prompt, and confirm application files are unchanged.
