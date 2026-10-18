@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { GROCERY_CATEGORIES, validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
+import { validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
 import { YesNo } from "@/components/StatusBadge";
 import { RECEIPT_ACCEPT, validateReceipt } from "@/lib/visit-validation";
 
 export type GrocerySubmit = {
-  data: { purchase_date: string; store: string; amount: number; category: string | null; notes: string | null; reimbursed: boolean };
+  data: { purchase_date: string; store: string; amount: number; notes: string | null; reimbursed: boolean };
   file: File | null;
   removeReceipt: boolean;
 };
@@ -58,20 +58,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         <input id="amount" type="number" inputMode="decimal" min="0" step="0.01" className={input} value={v.amount} onChange={set("amount")} placeholder="e.g. 54.20" />
         {err(errors.amount)}
       </div>
-      <div>
-        <label htmlFor="categoryChoice" className={label}>Category</label>
-        <select id="categoryChoice" className={input} value={v.categoryChoice} onChange={set("categoryChoice")}>
-          <option value="">No category</option>
-          {GROCERY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-      {v.categoryChoice === "Other" && (
-        <div>
-          <label htmlFor="customCategory" className={label}>Custom category</label>
-          <input id="customCategory" className={input} value={v.customCategory} onChange={set("customCategory")} placeholder="Optional, e.g. Pet food" />
-        </div>
-      )}
-      <YesNo label="Reimbursed?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
+      <YesNo label="Paid?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
         <textarea id="notes" rows={3} className={input} value={v.notes} onChange={set("notes")} placeholder="Optional" />

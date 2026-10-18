@@ -38,7 +38,6 @@ function EditVisit() {
             service: v.service_performed,
             amount: v.amount_paid == null ? "" : String(v.amount_paid),
             notes: v.notes ?? "",
-            nextDate: v.next_service_date ?? "",
             paid: v.paid,
           }}
           hasReceipt={!!v.receipt_url}

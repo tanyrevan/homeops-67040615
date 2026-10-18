@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_GROCERY_FILTERS, DEFAULT_PROVIDER_FILTERS, DEFAULT_VISIT_FILTERS,
-  filterGroceries, filterProviders, filterVisits,
+  DEFAULT_GROCERY_FILTERS, DEFAULT_PROVIDER_FILTERS,
+  filterGroceries, filterProviders, filterHistory, historyFilterOptions, DEFAULT_HISTORY_FILTERS,
+  type HistoryItem,
 } from "@/lib/list-filters";
 
 const providers = [
@@ -28,26 +29,49 @@ describe("providers", () => {
   });
 });
 
-const visits = [
-  { id: "a", visit_date: "2026-05-01", service_performed: "Mowing", amount_paid: 50, paid: true, created_at: "1", service_providers: { name: "Alice" } },
-  { id: "b", visit_date: "2026-06-01", service_performed: "Filter change", amount_paid: 200, paid: false, created_at: "2", service_providers: { name: "Bob" } },
-  { id: "c", visit_date: "2026-04-01", service_performed: "Inspection", amount_paid: null, paid: false, created_at: "3", service_providers: { name: "Bob" } },
+const history: HistoryItem[] = [
+  { kind: "visit", id: "a", date: "2026-05-01", type: "Gardener", title: "Mowing", subtitle: "Alice", amount: 50, settled: true, receipt_url: null, created_at: "1" },
+  { kind: "visit", id: "b", date: "2026-06-01", type: "Plumber", title: "Filter change", subtitle: "Bob", amount: 200, settled: false, receipt_url: null, created_at: "2" },
+  { kind: "visit", id: "c", date: "2025-06-15", type: "Plumber", title: "Inspection", subtitle: "Bob", amount: null, settled: false, receipt_url: null, created_at: "3" },
+  { kind: "grocery", id: "g1", date: "2026-06-20", type: "Grocery", title: "Costco", subtitle: "Grocery", amount: 120, settled: false, receipt_url: null, created_at: "4" },
+  { kind: "grocery", id: "g2", date: "2026-05-10", type: "Grocery", title: "Safeway", subtitle: "Grocery", amount: 30, settled: true, receipt_url: "r", created_at: "5" },
 ];
 
-describe("visits", () => {
-  it("newest first by default", () => {
-    expect(filterVisits(visits, DEFAULT_VISIT_FILTERS).map((v) => v.id)).toEqual(["b", "a", "c"]);
+describe("history (maintenance + groceries)", () => {
+  it("defaults to newest first across both kinds", () => {
+    expect(DEFAULT_HISTORY_FILTERS).toEqual({ status: "", type: "", month: "", year: "" });
+    expect(filterHistory(history, DEFAULT_HISTORY_FILTERS).map((h) => h.id)).toEqual(["g1", "b", "g2", "a", "c"]);
   });
-  it("searches provider and service", () => {
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, q: "bob" }).map((v) => v.id)).toEqual(["b", "c"]);
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, q: "mow" }).map((v) => v.id)).toEqual(["a"]);
+  it("Grocery appears in type options when grocery records exist", () => {
+    expect(historyFilterOptions(history).types).toEqual(["Gardener", "Grocery", "Plumber"]);
+    expect(historyFilterOptions(history).years).toEqual(["2026", "2025"]);
   });
-  it("filters unpaid within date range, sorted by amount", () => {
-    const f = { ...DEFAULT_VISIT_FILTERS, paid: "unpaid" as const, from: "2026-04-01", to: "2026-06-30", sort: "amount-asc" as const };
-    expect(filterVisits(visits, f).map((v) => v.id)).toEqual(["b", "c"]);
+  it("no Grocery type when there are no grocery records", () => {
+    expect(historyFilterOptions(history.filter((h) => h.kind === "visit")).types).toEqual(["Gardener", "Plumber"]);
   });
-  it("amount high to low", () => {
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, sort: "amount-desc" }).map((v) => v.id)).toEqual(["b", "a", "c"]);
+  it("selecting Grocery shows only grocery purchases", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, type: "Grocery" }).map((h) => h.id)).toEqual(["g1", "g2"]);
+  });
+  it("maintenance types still filter correctly", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, type: "Gardener" }).map((h) => h.id)).toEqual(["a"]);
+  });
+  it("Outstanding includes unpaid visits and unreimbursed groceries", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, status: "outstanding" }).map((h) => h.id)).toEqual(["g1", "b", "c"]);
+  });
+  it("Settled includes paid visits and reimbursed groceries", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, status: "settled" }).map((h) => h.id)).toEqual(["g2", "a"]);
+  });
+  it("month and year filter on the record date for both kinds", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, month: "06", year: "2026" }).map((h) => h.id)).toEqual(["g1", "b"]);
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, month: "06" }).map((h) => h.id)).toEqual(["g1", "b", "c"]);
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, year: "2026" }).map((h) => h.id)).toEqual(["g1", "b", "g2", "a"]);
+  });
+  it("all four filters work together", () => {
+    const f = { status: "outstanding" as const, type: "Plumber", month: "06", year: "2025" };
+    expect(filterHistory(history, f).map((h) => h.id)).toEqual(["c"]);
+  });
+  it("no matches produces an empty list", () => {
+    expect(filterHistory(history, { ...DEFAULT_HISTORY_FILTERS, month: "01" })).toEqual([]);
   });
 });
 
@@ -62,8 +86,8 @@ describe("groceries", () => {
     const f = { ...DEFAULT_GROCERY_FILTERS, q: "COSTCO", reimbursed: "no" as const, sort: "date-asc" as const };
     expect(filterGroceries(groceries, f).map((g) => g.id)).toEqual(["z", "x"]);
   });
-  it("Other category matches custom categories", () => {
-    expect(filterGroceries(groceries, { ...DEFAULT_GROCERY_FILTERS, category: "Other" }).map((g) => g.id)).toEqual(["y"]);
+  it("historical category values still load and are ignored by filters", () => {
+    expect(filterGroceries(groceries, DEFAULT_GROCERY_FILTERS).map((g) => g.id)).toEqual(["y", "x", "z"]);
   });
   it("date range is inclusive", () => {
     expect(filterGroceries(groceries, { ...DEFAULT_GROCERY_FILTERS, from: "2026-07-01", to: "2026-07-01" }).map((g) => g.id)).toEqual(["x"]);

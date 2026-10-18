@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { validateReceipt, validateVisit } from "@/lib/visit-validation";
 
-const base = { visitDate: "2026-10-01", service: "Pool cleaning", amount: "", notes: "", nextDate: "", paid: false };
+const base = { visitDate: "2026-10-01", service: "Pool cleaning", amount: "", notes: "", paid: false };
 
 describe("visit validation", () => {
   it("requires a visit date", () => {

@@ -26,22 +26,22 @@ function NewGrocery() {
   const today = new Date().toLocaleDateString("en-CA");
   return (
     <AppShell>
-      <Link to="/groceries" className="text-sm text-muted-foreground hover:text-foreground">← Back to groceries</Link>
+      <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to Expenses</Link>
       <h1 className="mb-6 mt-3 text-2xl font-semibold text-foreground">Add Grocery Purchase</h1>
       <GroceryForm
-        initial={{ purchaseDate: today, store: "", amount: "", categoryChoice: "", customCategory: "", notes: "", reimbursed: false }}
+        initial={{ purchaseDate: today, store: "", amount: "", notes: "", reimbursed: false }}
         submitLabel="Save Purchase"
-        onCancel={() => navigate({ to: "/groceries" })}
+        onCancel={() => navigate({ to: "/providers" })}
         onSubmit={async ({ data, file }) => {
           let path: string | null = null;
           if (file) {
             try { path = await uploadReceipt(user.id, file, "groceries"); } catch { return "We couldn't upload the receipt. Please try again."; }
           }
-          const { data: row, error } = await supabase
+          const { error } = await supabase
             .from("grocery_expenses").insert({ ...data, receipt_url: path, user_id: user.id }).select("id").single();
           if (error) { await removeReceipt(path); return "We couldn't save this purchase. Please try again."; }
           await qc.invalidateQueries({ queryKey: ["groceries"] });
-          navigate({ to: "/groceries/$groceryId", params: { groceryId: row.id } });
+          navigate({ to: "/providers" });
           return null;
         }}
       />

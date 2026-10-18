@@ -41,12 +41,12 @@ function GroceryDetail() {
     await removeReceipt(g.receipt_url);
     qc.removeQueries({ queryKey: ["groceries", groceryId] });
     await qc.invalidateQueries({ queryKey: ["groceries"] });
-    navigate({ to: "/groceries", search: { deleted: true } });
+    navigate({ to: "/providers" });
   }
 
   return (
     <AppShell>
-      <Link to="/groceries" className="text-sm text-muted-foreground hover:text-foreground">← Back to groceries</Link>
+      <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to Expenses</Link>
       {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
       {!isLoading && !g && <p className="mt-6 text-foreground">This purchase wasn't found.</p>}
       {g && (
@@ -57,8 +57,7 @@ function GroceryDetail() {
             <Field label="Purchase Date" value={day(g.purchase_date)} />
             <Field label="Store" value={g.store} />
             <Field label="Amount" value={money(g.amount)} />
-            <div><dt className="text-sm text-muted-foreground">Reimbursement</dt><dd className="mt-1"><StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" /></dd></div>
-            <Field label="Category" value={g.category} />
+            <div><dt className="text-sm text-muted-foreground">Status</dt><dd className="mt-1"><StatusBadge ok={g.reimbursed} yes="Paid" no="Unpaid" /></dd></div>
             <div className="sm:col-span-2"><Field label="Notes" value={g.notes} /></div>
           </dl>
           {g.receipt_url && (

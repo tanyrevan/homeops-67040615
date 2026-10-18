@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { GROCERY_CATEGORIES, splitCategory, validateGrocery } from "@/lib/grocery-validation";
+import { validateGrocery } from "@/lib/grocery-validation";
 
-const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", categoryChoice: "", customCategory: "", notes: "", reimbursed: false };
+const base = { purchaseDate: "2026-10-10", store: "Costco", amount: "42.5", notes: "", reimbursed: false };
 
 describe("grocery validation", () => {
-  it("offers the seven categories", () => {
-    expect([...GROCERY_CATEGORIES]).toEqual(["General Groceries", "Produce", "Meat / Seafood", "Dairy", "Household", "Snacks / Drinks", "Other"]);
+  it("saves without a category", () => {
+    const r = validateGrocery(base);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect("category" in r.data).toBe(false);
   });
   it("requires purchase date", () => {
     const r = validateGrocery({ ...base, purchaseDate: "" });
@@ -24,12 +26,6 @@ describe("grocery validation", () => {
     expect(!neg.ok && neg.errors.amount).toBeTruthy();
     const zero = validateGrocery({ ...base, amount: "0" });
     expect(zero.ok && zero.data.amount).toBe(0);
-  });
-  it("saves a custom Other category and maps it back for editing", () => {
-    const r = validateGrocery({ ...base, categoryChoice: "Other", customCategory: "Pet food" });
-    expect(r.ok && r.data.category).toBe("Pet food");
-    expect(splitCategory("Pet food")).toEqual({ categoryChoice: "Other", customCategory: "Pet food" });
-    expect(splitCategory("Dairy")).toEqual({ categoryChoice: "Dairy", customCategory: "" });
   });
 });
 

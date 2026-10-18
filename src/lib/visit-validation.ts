@@ -7,13 +7,12 @@ export type VisitFormValues = {
   service: string;
   amount: string;
   notes: string;
-  nextDate: string;
   paid: boolean;
 };
-export type VisitErrors = Partial<Record<"visitDate" | "service" | "amount" | "nextDate" | "receipt", string>>;
+export type VisitErrors = Partial<Record<"visitDate" | "service" | "amount" | "receipt", string>>;
 
 export function validateVisit(v: VisitFormValues):
-  | { ok: true; data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; next_service_date: string | null; paid: boolean } }
+  | { ok: true; data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; paid: boolean } }
   | { ok: false; errors: VisitErrors } {
   const errors: VisitErrors = {};
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.visitDate)) errors.visitDate = "Please choose the visit date.";
@@ -27,7 +26,6 @@ export function validateVisit(v: VisitFormValues):
     else if (n < 0) errors.amount = "Amount paid can't be negative.";
     else amount = Math.round(n * 100) / 100;
   }
-  if (v.nextDate && !/^\d{4}-\d{2}-\d{2}$/.test(v.nextDate)) errors.nextDate = "Please choose a valid date.";
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
@@ -36,7 +34,6 @@ export function validateVisit(v: VisitFormValues):
       service_performed: service,
       amount_paid: amount,
       notes: v.notes.trim() || null,
-      next_service_date: v.nextDate || null,
       paid: v.paid === true,
     },
   };

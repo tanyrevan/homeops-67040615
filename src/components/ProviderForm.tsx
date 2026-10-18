@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { SERVICE_TYPES, validateProvider, type ProviderErrors, type ProviderFormValues } from "@/lib/provider-validation";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 type Saved = { name: string; service_type: string; phone_or_contact: string | null; notes: string | null };
 
@@ -40,14 +41,14 @@ export function ProviderForm({
     <form onSubmit={submit} noValidate className="space-y-5">
       <div>
         <label htmlFor="name" className={label}>Name *</label>
-        <input id="name" className={input} value={v.name} onChange={set("name")} placeholder="e.g. Maria's Gardening" />
+        <input id="name" className={input} value={v.name} onChange={set("name")} />
         {err(errors.name)}
       </div>
       <div>
         <label htmlFor="serviceChoice" className={label}>Service type *</label>
         <select id="serviceChoice" className={input} value={v.serviceChoice} onChange={set("serviceChoice")}>
           <option value="">Choose a service type…</option>
-          {SERVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          {SERVICE_TYPES.map((t) => <option key={t} value={t}>{expenseTypeLabel(t)}</option>)}
         </select>
         {err(errors.serviceChoice)}
       </div>

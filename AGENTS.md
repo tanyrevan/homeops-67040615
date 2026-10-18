@@ -15,12 +15,17 @@
 - Service provider form rules (service type choices, "Other" custom type, required fields) live in `src/lib/provider-validation.ts`; why: tests and the add/edit form share one source of truth. Provider rows are owner-only via RLS on `user_id`.
 - Visit form rules live in `src/lib/visit-validation.ts`; receipt photos go in the private `receipts` bucket under `<user_id>/...` (storage rules check the first folder); why: owner-only access enforced by the backend.
 - Grocery form rules live in `src/lib/grocery-validation.ts`; grocery receipts share the private `receipts` bucket under `<user_id>/groceries/`; why: one owner-only storage rule covers all receipts.
+- Preserve `/groceries` as a redirect to the unified Expenses ledger; grocery add/detail/delete navigation returns to the ledger and edit save/cancel may return to the current detail; why: old public URLs stay usable without exposing a second list.
 - Payment status: `maintenance_visits.paid` and `grocery_expenses.reimbursed` are explicit booleans (default false), never inferred from amounts; why: a cost can be owed but unpaid.
 - Provider stars are a pin/priority flag in the `stars` junction table (unique per user+provider, insert only for owned providers); list ordering lives in `src/lib/stars.ts`; why: one tested sort rule.
 - Search/filter/sort runs in the browser over rows already limited by RLS, via pure functions in `src/lib/list-filters.ts`; why: ownership stays enforced by the backend and the rules are unit-tested.
 - Household dashboard calculations live in `src/lib/household-stats.ts`, reusing legacy monthly math in `src/lib/dashboard-stats.ts`; why: cent-based calculations and record-date rules stay deterministic and shared with tests.
 - Dashboard reads are owner-filtered and paginated; why: all-time totals must include records beyond the backend page limit without weakening isolation.
-- Maintenance secondary navigation is centralized in AppShell using the current path; why: providers, visits, history, and upcoming keep their existing URLs and share navigation.
-- Overdue / Due Soon / Upcoming is computed only from `next_service_date` vs the local calendar date in `src/lib/due-status.ts`; why: no time-of-day drift, unit-tested.
+- AppShell exposes only Dashboard and Expenses; retired attention, upcoming and maintenance routes redirect to the ledger; why: old URLs stay usable without duplicate workflows.
+- Expenses section splitting and filters use `expenseSections` in `src/lib/list-filters.ts` with the local calendar date; why: future records ignore settlement filters while History uses explicit booleans.
 - Monthly grocery budgets: one `budgets` row per user per month (month = first day, unique user+month, owner-only RLS, no delete); math in `src/lib/budget.ts`; why: tested, no division by zero, prior months preserved.
 - Provider list also filters by the signed-in user via `filterOwnedRecords` in `src/lib/ownership.ts` (on top of RLS); why: a unit-tested data-isolation check.
+- Normalize legacy expense-type labels through `src/lib/expense-type.ts` in display models and selectors while keeping stored selector values unchanged; why: consistent terminology without altering records or validation compatibility.
+- Combined transaction lists use `newestExpenses` in `src/lib/list-filters.ts`, including the ledger mapper; why: actual expense dates determine order before creation-time ties on every ledger path.
+
+- Ledger cards are rendered by `ExpenseSection`, with settlement outside transaction links and query refresh after updates; why: Mark Paid never navigates or deletes a record and Dashboard reads the new status.

@@ -1,6 +1,6 @@
 export function StatusBadge({ ok, yes, no }: { ok: boolean; yes: string; no: string }) {
   return ok ? (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">✓ {yes}</span>
+    <span className="inline-flex items-center rounded-full border border-paid-border bg-paid px-2.5 py-0.5 text-xs font-semibold text-paid-foreground">✓ {yes}</span>
   ) : (
     <span className="inline-flex items-center rounded-full border border-destructive/40 bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">{no}</span>
   );
