@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/components/AppShell";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { monthKey, usd } from "@/lib/dashboard-stats";
 import { chartAxisMax, householdStats, periodTotal, type SpendPeriod } from "@/lib/household-stats";
@@ -55,7 +54,6 @@ function Dashboard() {
   const { user } = Route.useRouteContext();
   const { data } = useSuspenseQuery(dashboardQuery(user.id));
   const today = new Date();
-  const monthAbbr = today.toLocaleDateString("en-US", { month: "short" });
   const [period, setPeriod] = useState<SpendPeriod>("month");
   const stats = householdStats(data.groceries, data.visits, data.providers, today);
   const totalSpend = periodTotal(data.groceries, data.visits, today, period);
