@@ -31,9 +31,9 @@ const dashboardQuery = (userId: string) => queryOptions({
 });
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [
-    { title: "Dashboard — HomeOps" },
+    { title: "Dashboard — 16 Olive Road" },
     { name: "description", content: "Household spending, outstanding amounts, and maintenance activity." },
-    { property: "og:title", content: "Dashboard — HomeOps" },
+    { property: "og:title", content: "Dashboard — 16 Olive Road" },
     { property: "og:description", content: "Household spending, outstanding amounts, and maintenance activity." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
   ] }),

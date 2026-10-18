@@ -19,9 +19,9 @@ import { day, money, receiptUrlQuery, removeReceipt, visitQuery } from "@/lib/vi
 export const Route = createFileRoute("/_authenticated/visits/$visitId/")({
   head: () => ({
     meta: [
-      { title: "Expense details — HomeOps" },
+      { title: "Expense details — 16 Olive Road" },
       { name: "description", content: "Details of a service expense." },
-      { property: "og:title", content: "Expense details — HomeOps" },
+      { property: "og:title", content: "Expense details — 16 Olive Road" },
       { property: "og:description", content: "Details of a service expense." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

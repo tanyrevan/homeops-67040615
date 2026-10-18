@@ -6,9 +6,9 @@ import { friendlyPasswordError, MIN_PASSWORD_LENGTH, passwordSchema } from "@/li
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Log in — HomeOps" },
-      { name: "description", content: "Log in or sign up to HomeOps. Keep your household running smoothly." },
-      { property: "og:title", content: "Log in — HomeOps" },
+      { title: "16 Olive Road" },
+      { name: "description", content: "Log in or sign up to 16 Olive Road. Keep your household running smoothly." },
+      { property: "og:title", content: "16 Olive Road" },
       { property: "og:description", content: "Keep your household running smoothly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
