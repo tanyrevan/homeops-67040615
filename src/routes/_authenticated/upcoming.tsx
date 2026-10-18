@@ -1,64 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { AppShell } from "@/components/AppShell";
-import { upcomingItems } from "@/lib/list-filters";
-import { localISO } from "@/lib/due-status";
-import { day, money } from "@/lib/visits-api";
-import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/upcoming")({
-  head: () => ({
-    meta: [
-      { title: "Upcoming — HomeOps" },
-      { name: "description", content: "Future-dated household expenses." },
-      { property: "og:title", content: "Upcoming — HomeOps" },
-      { property: "og:description", content: "Future-dated household expenses." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: UpcomingPage,
+  beforeLoad: () => { throw redirect({ to: "/providers", replace: true }); },
+  head: () => ({ meta: [
+    { title: "Upcoming expenses — HomeOps" },
+    { name: "description", content: "Manage future household expenses in the unified Expenses workspace." },
+    { property: "og:title", content: "Upcoming expenses — HomeOps" },
+    { property: "og:description", content: "Manage future household expenses in the unified Expenses workspace." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
 });
-
-function UpcomingPage() {
-  const visits = useQuery(expenseVisitsQuery);
-  const groceries = useQuery(expenseGroceriesQuery);
-  const isLoading = visits.isLoading || groceries.isLoading;
-  const error = visits.error || groceries.error;
-  const items = toLedgerItems(visits.data ?? [], groceries.data ?? []);
-  // Upcoming = future-dated expense line items, soonest first.
-  const list = upcomingItems(items, localISO(new Date()));
-
-  return (
-    <AppShell>
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">Upcoming</h1>
-      {isLoading && <p className="text-muted-foreground">Loading…</p>}
-      {error && <p className="text-destructive">We couldn't load upcoming expenses. Please refresh.</p>}
-      {!isLoading && !error && list.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-lg font-medium text-foreground">No upcoming expenses.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Add an expense with a future date and it will show up here.</p>
-        </div>
-      )}
-      {list.length > 0 && (
-        <ul className="space-y-3">
-          {list.map((h) => (
-            <li key={`${h.kind}-${h.id}`}>
-              <Link
-                to={h.kind === "visit" ? "/visits/$visitId" : "/groceries/$groceryId"}
-                params={h.kind === "visit" ? { visitId: h.id } : { groceryId: h.id }}
-                className="block rounded-lg border border-border bg-card p-4 hover:bg-accent"
-              >
-                <div className="text-sm text-muted-foreground">{day(h.date)}</div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 break-words font-medium text-foreground">{h.type}</div>
-                  <div className="shrink-0 font-semibold tabular-nums text-foreground">{money(h.amount) ?? "—"}</div>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </AppShell>
-  );
-}

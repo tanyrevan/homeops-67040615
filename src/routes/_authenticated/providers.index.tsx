@@ -1,18 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { Field, FilterPopover, NoMatches, ctrl } from "@/components/FilterControls";
-import { StatusBadge } from "@/components/StatusBadge";
+import { Field, FilterPopover, ctrl } from "@/components/FilterControls";
+import { ExpenseSection } from "@/components/ExpenseSection";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { settleTable, settleUpdate } from "@/lib/settle";
 import {
-  DEFAULT_HISTORY_FILTERS, filterHistory, historyFilterOptions,
+  DEFAULT_HISTORY_FILTERS, expenseSections, historyFilterOptions,
   type HistoryFilters,
 } from "@/lib/list-filters";
 import { localISO } from "@/lib/due-status";
 import { providersQuery } from "@/lib/providers-api";
 import { starsQuery } from "@/lib/stars";
-import { day, money } from "@/lib/visits-api";
 import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
 import { expenseTypeLabel } from "@/lib/expense-type";
 
@@ -38,6 +40,25 @@ export const Route = createFileRoute("/_authenticated/providers/")({
 
 function ExpensesPage() {
   const { deleted } = Route.useSearch();
+  const qc = useQueryClient();
+  const [settleMessage, setSettleMessage] = useState<string | null>(null);
+  const [settleError, setSettleError] = useState<string | null>(null);
+  const settle = useMutation({
+    mutationFn: async ({ kind, id }: { kind: "visit" | "grocery"; id: string }) => {
+      const { data, error } = await supabase.from(settleTable(kind)).update(settleUpdate(kind)).eq("id", id).select("id").single();
+      if (error || !data) throw error ?? new Error("Expense was not updated.");
+    },
+    onSuccess: async (_, { kind, id }) => {
+      if (kind === "visit") {
+        qc.setQueryData(expenseVisitsQuery.queryKey, (rows) => rows?.map((row) => row.id === id ? { ...row, paid: true } : row));
+      } else {
+        qc.setQueryData(expenseGroceriesQuery.queryKey, (rows) => rows?.map((row) => row.id === id ? { ...row, reimbursed: true } : row));
+      }
+      setSettleMessage("Marked as paid.");
+      await qc.invalidateQueries();
+    },
+    onError: () => setSettleError("We couldn't mark that item as paid. Please try again."),
+  });
   const visits = useQuery(expenseVisitsQuery);
   const groceries = useQuery(expenseGroceriesQuery);
   const providers = useQuery(providersQuery());
@@ -63,10 +84,9 @@ function ExpensesPage() {
   const error = visits.error || groceries.error;
   const items = toLedgerItems(visits.data ?? [], groceries.data ?? []);
   const scoped = providerFilter ? items.filter((h) => h.providerId === providerFilter) : items;
-  const list = filterHistory(scoped, f);
+  const { upcoming, history } = expenseSections(scoped, localISO(new Date()), f);
   const { types, years } = historyFilterOptions(items);
   const starredProviders = (providers.data ?? []).filter((p) => stars.data?.has(p.id));
-  const today = localISO(new Date());
   const starredName = providerFilter ? providers.data?.find((p) => p.id === providerFilter)?.name : null;
 
   return (
@@ -75,7 +95,9 @@ function ExpensesPage() {
         <h1 className="text-2xl font-semibold text-foreground">Expenses</h1>
         <div className="flex items-center gap-2">
           <div className="relative" ref={menuRef}>
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               type="button"
               aria-label="Expense view options"
               aria-expanded={menuOpen}
@@ -83,17 +105,18 @@ function ExpensesPage() {
               className="rounded-full border border-border p-2 text-muted-foreground hover:bg-accent"
             >
               <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </Button>
             {menuOpen && (
               <div className="absolute right-0 z-10 mt-1 w-52 rounded-md border border-border bg-card py-1 shadow-md">
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
                   aria-pressed={showStarred}
                   onClick={() => { setShowStarred(!showStarred); setMenuOpen(false); }}
                   className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent"
                 >
                   {showStarred ? "✓ " : ""}Starred service providers
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -110,13 +133,14 @@ function ExpensesPage() {
           <ul className="mt-2 space-y-1">
             {starredProviders.map((p) => (
               <li key={p.id}>
-                <button
+                <Button
+                  variant="link"
                   type="button"
                   onClick={() => { setProviderFilter(providerFilter === p.id ? null : p.id); setShowStarred(false); }}
                   className="text-sm font-medium text-primary hover:underline"
                 >
                   ★ {p.name} <span className="text-muted-foreground">· {expenseTypeLabel(p.service_type)}</span>
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
@@ -125,22 +149,14 @@ function ExpensesPage() {
       {providerFilter && (
         <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">
           Showing expenses for {starredName ?? "this provider"}.{" "}
-          <button type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</button>
+          <Button variant="link" type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</Button>
         </p>
       )}
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load your expenses. Please refresh.</p>}
-      {!isLoading && !error && items.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-foreground">No expenses yet.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Add your first grocery purchase or service visit to start your ledger.</p>
-          <Link to="/providers/new" className="mt-5 inline-block rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
-            Add your first expense
-          </Link>
-        </div>
-      )}
-      {items.length > 0 && (
-        <>
+      {settleMessage && <p role="status" className="mb-4 text-sm text-foreground">{settleMessage}</p>}
+      {settleError && <p role="alert" className="mb-4 text-sm text-destructive">{settleError}</p>}
+      <div>
           <div className="mb-5 flex justify-end">
             <FilterPopover onReset={reset} activeCount={activeCount(f)}>
               <Field label="Status" htmlFor="status">
@@ -170,39 +186,26 @@ function ExpensesPage() {
               </Field>
             </FilterPopover>
           </div>
-          {list.length === 0 && <NoMatches onReset={reset} />}
-          <ul className="space-y-3">
-            {list.map((h) => (
-              <li key={`${h.kind}-${h.id}`}>
-                <Link
-                  to={h.kind === "visit" ? "/visits/$visitId" : "/groceries/$groceryId"}
-                  params={h.kind === "visit" ? { visitId: h.id } : { groceryId: h.id }}
-                  className="block rounded-lg border border-border bg-card p-4 hover:bg-accent"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-muted-foreground">{day(h.date)}</div>
-                      <div className="font-medium text-foreground">
-                        {h.type}
-                        {h.date > today && <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-muted-foreground">Upcoming</span>}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-foreground">{money(h.amount) ?? "—"}</div>
-                      <div className="mt-1"><StatusBadge ok={h.settled} yes="Paid" no="Unpaid" /></div>
-                    </div>
-                  </div>
-                  {h.receipt_url && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      <span className="font-medium text-primary">📎 Receipt</span>
-                    </div>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+          {!isLoading && !error && (
+            <div className="space-y-8">
+              {[true, false].map((isUpcoming) => (
+                <ExpenseSection
+                  key={isUpcoming ? "upcoming" : "history"}
+                  upcoming={isUpcoming}
+                  items={isUpcoming ? upcoming : history}
+                  saving={settle.isPending}
+                  settlingKey={settle.isPending && settle.variables ? `${settle.variables.kind}-${settle.variables.id}` : null}
+                  onMarkPaid={(item) => {
+                    if (settle.isPending) return;
+                    setSettleMessage(null);
+                    setSettleError(null);
+                    settle.mutate({ kind: item.kind, id: item.id });
+                  }}
+                />
+              ))}
+            </div>
+          )}
+      </div>
     </AppShell>
   );
 }

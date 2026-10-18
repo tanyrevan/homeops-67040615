@@ -115,3 +115,14 @@ No migrations, no schema changes, no records modified or deleted.
 
 - Removed the `e.g. Maria's Gardening` example placeholder from the Name input in `src/components/ProviderForm.tsx`, so the field renders blank when empty. This is the only place that exact example appeared; the same form is used by both Add Expense → new service provider and provider edit, so the cleanup covers the whole service/provider creation flow.
 - The `Name *` label, required validation, saved values, and all database logic are unchanged; other optional/example hints in unrelated forms were left as they were.
+
+
+## Follow-up: central Expenses workspace and final navigation
+
+- Navigation is Dashboard | Expenses | Log Out; /attention, /upcoming and /maintenance remain as redirects to /providers. No branch creation or switching.
+- Expenses shows exactly Upcoming Expenses first (future actual dates, soonest first, no settlement display) and History second (today/past, newest expense date first). Both show date, type, amount and optional receipts, not provider/store names; cards open transaction details. Empty sections remain visible.
+- The compact Filter keeps All / Unpaid / Paid, Type, Month, Year and Clear filters. Status applies only to History; Type/Month/Year and starred-provider scoping apply to both. Add Expense and the low-profile starred-provider menu remain.
+- Unpaid History cards offer Mark Paid, updating maintenance paid=true or grocery reimbursed=true, immediately updating the cached status and invalidating queries to refresh Dashboard due; paid cards have no button. Failure preserves the unpaid item and offers retry.
+- Shared Paid badges use restrained green tokens, Unpaid stays red; the ivory/black theme and chart remain unchanged. Dashboard keeps Total Amount Due without a View link.
+- No schema changes, migrations, or changes to authentication, isolation, receipt storage, stars, existing CRUD or stored types.
+- Verification: 112 tests across 15 files passed, including new section/filter and legacy redirect regressions; automatic build OK. Signed-in checks confirmed navigation, section order, redirects, future amounts without status, filtering, and both grocery and maintenance Mark Paid persisted through transaction details and refreshed Dashboard due. Only two temporary test transactions were created and removed; pre-existing records were preserved. Desktop/mobile checks showed no horizontal overflow or runtime errors.
