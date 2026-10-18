@@ -420,3 +420,8 @@ When finished, summarize:
 1. layout changes
 2. test result
 3. build result
+
+## Expense-star visual cleanup — verification
+- History amount sits above one payment row; paid and unpaid cards retain equal heights. Card stars are centered vertically with right-side spacing. Starred matches Filter and uses matching star glyphs with a subtle active outline.
+- Signed-in checks verified payment alignment, equal card heights, Mark Paid readback, star persistence, combined filtering, independent transaction navigation and mobile rendering. Temporary QA records removed. No database or starring logic changes.
+- Full suite: 140 tests across 20 files passed. Automatic build: OK.
