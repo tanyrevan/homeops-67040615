@@ -49,7 +49,7 @@ const chartColors = ["var(--chart-2)", "var(--chart-1)", "var(--chart-3)", "var(
 const periodOptions: { value: SpendPeriod; label: string }[] = [
   { value: "month", label: "This Month" },
   { value: "last3", label: "Last 3 Months" },
-  { value: "all", label: "Since Inception" },
+  { value: "all", label: "All Time" },
 ];
 function Dashboard() {
   const { user } = Route.useRouteContext();

@@ -15,7 +15,7 @@ const stats = () => householdStats(groceries, visits, providers, today);
 describe("Total Spend period selector", () => {
   it("This Month uses only current-month records", () => expect(periodTotal(groceries, visits, today, "month")).toBe(350.25));
   it("Last 3 Months uses exactly the current and previous two calendar months", () => expect(periodTotal(groceries, visits, today, "last3")).toBe(445.5));
-  it("Since Inception uses all records", () => expect(periodTotal(groceries, visits, today, "all")).toBe(455.5));
+  it("All Time uses all records", () => expect(periodTotal(groceries, visits, today, "all")).toBe(455.5));
   it("ignores settlement status and missing amounts", () => {
     const g = [{ purchase_date: "2026-10-01", amount: 10, reimbursed: true }];
     const v = [visit("1", "p", "2026-10-02", null, true), visit("2", "p", "2026-10-03", 5, true)];
