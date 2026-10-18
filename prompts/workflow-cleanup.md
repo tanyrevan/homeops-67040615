@@ -319,3 +319,9 @@ When finished, summarize:
 4. tests added/updated
 5. full test-suite result
 6. build result
+
+## Individual expense stars — verification
+- Added public.expense_stars (one visit_id or grocery_id, unique per owner/transaction, owner-only SELECT/INSERT/DELETE policies and foreign-key cleanup). Legacy provider stars and existing expense records preserved.
+- Replaced provider-star menu with per-card stars and a combined Starred toggle beside Filter; optimistic updates roll back on failure.
+- Added 15 tests for persistence calls, transaction independence, owner-scoped queries/deletes, both sections and combined filters, unstar removal, card click separation and database policy/constraint contracts. Full suite: 139 tests across 20 files passed; automatic build OK.
+- Signed-in browser verified both kinds, refresh and Dashboard navigation persistence, sibling independence, combined filters, immediate removal, card navigation and narrow-screen layout. Backend rejected spoofed-owner insertion. Logout/login and full two-user backend checks were not exercised; policy contracts were inspected and tested. All temporary QA records removed.
