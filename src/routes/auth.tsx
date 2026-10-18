@@ -7,7 +7,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "16 Olive Road" },
-      { name: "description", content: "Log in or sign up to HomeOps. Keep your household running smoothly." },
+      { name: "description", content: "Log in or sign up to 16 Olive Road. Keep your household running smoothly." },
       { property: "og:title", content: "16 Olive Road" },
       { property: "og:description", content: "Keep your household running smoothly." },
       { property: "og:type", content: "website" },
