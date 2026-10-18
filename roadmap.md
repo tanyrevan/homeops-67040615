@@ -5,4 +5,4 @@
 - [x] Add calculation tests, run full suite, verify signed-in desktop/mobile flows.
 - [x] Retire legacy grocery list navigation, preserve CRUD, append follow-up, and verify the full suite and signed-in flow.
 - [x] Verify actual-date ledger sorting, Paid/Unpaid filters, Upcoming amounts, and Air Conditioner display mapping; run all tests and signed-in checks.
-- [ ] Change displayed service type to Aircon, preserve stored values, append follow-up, and verify tests/build and signed-in pages.
+- [x] Change displayed service type to Aircon, preserve stored values, append follow-up, and verify tests/build and signed-in pages.

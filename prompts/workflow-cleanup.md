@@ -109,4 +109,4 @@ No migrations, no schema changes, no records modified or deleted.
 
 - Changed the shared expense-type display mapping from Air Conditioner to Aircon throughout selectors/forms, Expenses, Type filters, Upcoming, History, Dashboard Summary/chart legends, Amount Due, and all other mapped type labels.
 - Both exact stored `A/C` and `Air Conditioner` values display as `Aircon`; stored values, existing records, database schema, and validation-compatible selector values remain unchanged. No migration.
-- Updated mapping and Dashboard grouping regression expectations. Run the full automated suite and check the automatic build after this follow-up.
+- Updated mapping and Dashboard grouping regression expectations. Full suite: 101 tests passed across 15 files; automatic build OK. Signed-in checks confirmed Aircon in Type filters, Add Expense, Upcoming, Dashboard, History, and Amount Due; transaction opening and existing sorting/status behavior preserved. No runtime errors or records modified.
