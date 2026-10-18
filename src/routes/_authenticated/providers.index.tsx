@@ -96,6 +96,8 @@ function ExpensesPage() {
         <div className="flex items-center gap-2">
           <div className="relative" ref={menuRef}>
             <Button
+              variant="outline"
+              size="icon"
               type="button"
               aria-label="Expense view options"
               aria-expanded={menuOpen}
@@ -107,6 +109,7 @@ function ExpensesPage() {
             {menuOpen && (
               <div className="absolute right-0 z-10 mt-1 w-52 rounded-md border border-border bg-card py-1 shadow-md">
                 <Button
+                  variant="ghost"
                   type="button"
                   aria-pressed={showStarred}
                   onClick={() => { setShowStarred(!showStarred); setMenuOpen(false); }}
@@ -131,6 +134,7 @@ function ExpensesPage() {
             {starredProviders.map((p) => (
               <li key={p.id}>
                 <Button
+                  variant="link"
                   type="button"
                   onClick={() => { setProviderFilter(providerFilter === p.id ? null : p.id); setShowStarred(false); }}
                   className="text-sm font-medium text-primary hover:underline"
@@ -145,7 +149,7 @@ function ExpensesPage() {
       {providerFilter && (
         <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">
           Showing expenses for {starredName ?? "this provider"}.{" "}
-          <Button type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</Button>
+          <Button variant="link" type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</Button>
         </p>
       )}
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
