@@ -12,12 +12,12 @@ type Props = {
   settlingKey: string | null;
   saving: boolean;
   onMarkPaid: (item: HistoryItem) => void;
-  stars: Set<string>;
-  starring: boolean;
-  onToggleStar: (item: HistoryItem) => void;
+  stars?: Set<string>;
+  starring?: boolean;
+  onToggleStar?: (item: HistoryItem) => void;
 };
 
-export function ExpenseSection({ upcoming = false, items, settlingKey, saving, onMarkPaid, stars, starring, onToggleStar }: Props) {
+export function ExpenseSection({ upcoming = false, items, settlingKey, saving, onMarkPaid, stars = new Set<string>(), starring = false, onToggleStar }: Props) {
   const heading = upcoming ? "Upcoming" : "History";
   return (
     <section aria-label={heading}>
@@ -52,8 +52,8 @@ export function ExpenseSection({ upcoming = false, items, settlingKey, saving, o
                 aria-label={`${stars.has(expenseStarKey(item)) ? "Unstar" : "Star"} ${item.type} expense on ${item.date}`}
                 aria-pressed={stars.has(expenseStarKey(item))}
                 title={stars.has(expenseStarKey(item)) ? "Unstar expense" : "Star expense"}
-                disabled={starring}
-                onClick={() => onToggleStar(item)}
+                disabled={starring || !onToggleStar}
+                onClick={() => onToggleStar?.(item)}
               >
                 <span aria-hidden="true">{stars.has(expenseStarKey(item)) ? "★" : "☆"}</span>
               </Button>
