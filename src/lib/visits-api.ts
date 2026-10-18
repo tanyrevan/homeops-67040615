@@ -63,3 +63,12 @@ export const money = (n: number | null) =>
 
 export const day = (d: string | null) =>
   d ? new Date(`${d}T00:00:00`).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
+
+/**
+ * The currently scheduled upcoming visit is the most recent completed visit's
+ * next_service_date. `visits` must be newest-first (providerVisitsQuery order);
+ * older visits' next_service_dates are history, not active schedules.
+ */
+export function scheduledVisit<T extends { next_service_date: string | null }>(visits: T[]): T | null {
+  return visits.find((v) => v.next_service_date) ?? null;
+}

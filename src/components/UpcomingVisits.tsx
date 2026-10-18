@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DueBadge } from "@/components/DueBadge";
-import { day, providerVisitsQuery } from "@/lib/visits-api";
+import { day, providerVisitsQuery, scheduledVisit } from "@/lib/visits-api";
 
 /**
  * The currently scheduled upcoming visit is the most recent completed visit's
@@ -18,7 +18,7 @@ export function UpcomingVisits({ providerId }: { providerId: string }) {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Visits are newest first; the latest visit carrying a next_service_date is the schedule.
-  const scheduled = data?.find((v) => v.next_service_date) ?? null;
+  const scheduled = data ? scheduledVisit(data) : null;
 
   async function saveDate() {
     if (!scheduled || !date) return setEditing(false);
