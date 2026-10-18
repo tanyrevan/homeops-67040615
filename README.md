@@ -44,9 +44,9 @@ The stranger-test fix standardized this hierarchy after a tester found provider 
 - Scheduling uses future `purchase_date` / `visit_date` records for Upcoming and today/past records for History, using the local calendar date.
 - `next_service_date` remains in the database for backward compatibility but is not used by the scheduling interface or written by the current expense forms.
 
-### Starred service providers
+### Starred expenses
 
-Service providers can still be starred/unstarred. The Expenses options menu opens the low-profile **Starred service providers** panel, whose provider selection filters the ledger. Grocery transactions cannot be starred. The `stars` junction table enforces one star per user/provider pair; starring uses a duplicate-ignoring upsert.
+Individual **Grocery** and **service/maintenance expenses** can be starred/unstarred using the star on each card, without opening its detail page. The **Starred** button beside **Filter** shows starred expenses in both Upcoming and History and combines with existing filters. Stars persist for the signed-in user in `expense_stars`, with one star per user/transaction; other visits from the same provider remain independent. The legacy provider-level `stars` table and existing rows are retained, but are no longer the final Expenses starring workflow.
 
 ### Validation, receipts, and privacy
 
@@ -151,7 +151,7 @@ The suite does not constitute a hosted authentication-settings check, live datab
 
 ## Data model and project organization
 
-Six application tables remain: `users`, `service_providers`, `maintenance_visits`, `grocery_expenses`, `stars`, and `budgets`. See **schema.md** for the live columns, constraints, relationships, policies, triggers, indexes, and receipt storage configuration.
+Seven application tables remain: `users`, `service_providers`, `maintenance_visits`, `grocery_expenses`, legacy provider `stars`, `budgets`, and individual `expense_stars`. See **schema.md** for the live columns, constraints, relationships, policies, triggers, indexes, and receipt storage configuration.
 
 - `src/routes/`: auth, Dashboard, ledger, add/edit/detail pages and legacy redirects.
 - `src/components/`: shell, forms, compact filters, ledger sections and status controls.
