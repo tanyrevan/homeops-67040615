@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Funnel } from "lucide-react";
 
 export const ctrl = "w-full rounded-md border border-input bg-background px-3 py-2.5 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring";
 
@@ -10,6 +11,47 @@ export function FilterBar({ children, onReset, showReset }: { children: ReactNod
         <button type="button" onClick={onReset} className="mt-3 text-sm font-medium text-primary underline">
           Clear filters
         </button>
+      )}
+    </div>
+  );
+}
+
+/** Compact Filter button that opens a small popover panel with the filter controls. */
+export function FilterPopover({ children, onReset, activeCount }: { children: ReactNode; onReset: () => void; activeCount: number }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"
+      >
+        <Funnel className="h-4 w-4" aria-hidden="true" />
+        Filter{activeCount > 0 ? ` (${activeCount})` : ""}
+      </button>
+      {open && (
+        <div className="absolute right-0 z-10 mt-1 w-72 rounded-md border border-border bg-card p-4 shadow-md">
+          <div className="grid gap-3">{children}</div>
+          <button
+            type="button"
+            onClick={() => { onReset(); setOpen(false); }}
+            className="mt-3 text-sm font-medium text-primary underline"
+          >
+            Clear filters
+          </button>
+        </div>
       )}
     </div>
   );
