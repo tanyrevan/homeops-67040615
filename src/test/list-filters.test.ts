@@ -62,8 +62,8 @@ describe("groceries", () => {
     const f = { ...DEFAULT_GROCERY_FILTERS, q: "COSTCO", reimbursed: "no" as const, sort: "date-asc" as const };
     expect(filterGroceries(groceries, f).map((g) => g.id)).toEqual(["z", "x"]);
   });
-  it("Other category matches custom categories", () => {
-    expect(filterGroceries(groceries, { ...DEFAULT_GROCERY_FILTERS, category: "Other" }).map((g) => g.id)).toEqual(["y"]);
+  it("historical category values still load and are ignored by filters", () => {
+    expect(filterGroceries(groceries, DEFAULT_GROCERY_FILTERS).map((g) => g.id)).toEqual(["y", "x", "z"]);
   });
   it("date range is inclusive", () => {
     expect(filterGroceries(groceries, { ...DEFAULT_GROCERY_FILTERS, from: "2026-07-01", to: "2026-07-01" }).map((g) => g.id)).toEqual(["x"]);

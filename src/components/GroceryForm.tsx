@@ -59,18 +59,6 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         {err(errors.amount)}
       </div>
       <div>
-        <label htmlFor="categoryChoice" className={label}>Category</label>
-        <select id="categoryChoice" className={input} value={v.categoryChoice} onChange={set("categoryChoice")}>
-          <option value="">No category</option>
-          {GROCERY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-      {v.categoryChoice === "Other" && (
-        <div>
-          <label htmlFor="customCategory" className={label}>Custom category</label>
-          <input id="customCategory" className={input} value={v.customCategory} onChange={set("customCategory")} placeholder="Optional, e.g. Pet food" />
-        </div>
-      )}
       <YesNo label="Reimbursed?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
