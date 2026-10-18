@@ -441,3 +441,11 @@ Stop after completing this feature.
 - Main button renamed to "Add Expense Type"; Grocery stays backed by grocery_expenses, service types by service_providers — tables not merged.
 - Visible "Starred" text removed; an icon-only star toggle (aria-label "Show starred") beside the heading switches to the starred-only view. Star icons, stars table, and starring unchanged.
 - No database changes.
+
+## Follow-up: final refinements (All Time, overflow starred view, Upcoming Visits)
+
+- Dashboard Total Spend dropdown: "Since Inception" renamed to "All Time"; calculation unchanged.
+- Expenses page: large star button removed; starred-only view moved into a small "..." options menu ("Show starred only"). Grocery card subtitle removed.
+- Expense type detail page: "Back to expenses" / "Expense type" wording; sections are now Upcoming Visits (first, with Add Visit) then History (completed visits, newest first).
+- Upcoming visit rule: the most recent completed visit's next_service_date is the schedule (scheduledVisit in visits-api). Edit updates that date in place; Complete opens the existing visit form prefilled with the scheduled date (?scheduled=), supporting amount, paid, notes, receipt, and a new next_service_date.
+- No database changes.
