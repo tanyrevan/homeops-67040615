@@ -32,6 +32,16 @@ Clean up the final grocery, Upcoming, and History workflows before the stranger 
 ## Database
 No migrations, no schema changes, no records modified or deleted.
 
+## Follow-up: History filter simplification
+- Removed Search, Start date, End date, and the Sort dropdown from History.
+- Filter area is now exactly: Payment status | Type | Month | Year.
+- Type and Year options are derived from the signed-in user's actual completed visits (`visitFilterOptions`); Month is the 12 calendar months; all default to "All".
+- Month/Year filter on `visit_date`; all four filters combine.
+- History always sorts newest first (`visit_date` desc, `created_at` desc tiebreak) — no manual sort control.
+- `VisitFilters` is now `{ paid, type, month, year }`; `filterVisits` always sorts date-desc.
+- Cards unchanged: provider, completed date, service, amount, Paid/Unpaid, receipt indicator. No Next service, no Upcoming badge, no creation actions.
+- Tests: `src/test/list-filters.test.ts` visits section rewritten — 9 tests covering default newest-first, each filter, month+year together, all four together, empty result, and derived type/year options.
+
 ## Tests
 - `src/test/grocery-validation.test.ts`: rewritten — category tests replaced with "saves without a category" (asserts the validated payload has no `category` key).
 - `src/test/list-filters.test.ts`: "Other category" filter test replaced with "historical category values still load and are ignored by filters".

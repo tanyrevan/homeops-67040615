@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_GROCERY_FILTERS, DEFAULT_PROVIDER_FILTERS, DEFAULT_VISIT_FILTERS,
-  filterGroceries, filterProviders, filterVisits,
+  filterGroceries, filterProviders, filterVisits, visitFilterOptions,
 } from "@/lib/list-filters";
 
 const providers = [
@@ -29,25 +29,40 @@ describe("providers", () => {
 });
 
 const visits = [
-  { id: "a", visit_date: "2026-05-01", service_performed: "Mowing", amount_paid: 50, paid: true, created_at: "1", service_providers: { name: "Alice" } },
-  { id: "b", visit_date: "2026-06-01", service_performed: "Filter change", amount_paid: 200, paid: false, created_at: "2", service_providers: { name: "Bob" } },
-  { id: "c", visit_date: "2026-04-01", service_performed: "Inspection", amount_paid: null, paid: false, created_at: "3", service_providers: { name: "Bob" } },
+  { id: "a", visit_date: "2026-05-01", service_performed: "Mowing", amount_paid: 50, paid: true, created_at: "1", service_providers: { name: "Alice", service_type: "Gardener" } },
+  { id: "b", visit_date: "2026-06-01", service_performed: "Filter change", amount_paid: 200, paid: false, created_at: "2", service_providers: { name: "Bob", service_type: "Plumber" } },
+  { id: "c", visit_date: "2025-06-15", service_performed: "Inspection", amount_paid: null, paid: false, created_at: "3", service_providers: { name: "Bob", service_type: "Plumber" } },
 ];
 
-describe("visits", () => {
-  it("newest first by default", () => {
+describe("visits (History)", () => {
+  it("defaults to newest visit first with no filters", () => {
+    expect(DEFAULT_VISIT_FILTERS).toEqual({ paid: "", type: "", month: "", year: "" });
     expect(filterVisits(visits, DEFAULT_VISIT_FILTERS).map((v) => v.id)).toEqual(["b", "a", "c"]);
   });
-  it("searches provider and service", () => {
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, q: "bob" }).map((v) => v.id)).toEqual(["b", "c"]);
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, q: "mow" }).map((v) => v.id)).toEqual(["a"]);
+  it("filters by payment status", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, paid: "unpaid" }).map((v) => v.id)).toEqual(["b", "c"]);
   });
-  it("filters unpaid within date range, sorted by amount", () => {
-    const f = { ...DEFAULT_VISIT_FILTERS, paid: "unpaid" as const, from: "2026-04-01", to: "2026-06-30", sort: "amount-asc" as const };
-    expect(filterVisits(visits, f).map((v) => v.id)).toEqual(["b", "c"]);
+  it("filters by type from actual history data", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, type: "Gardener" }).map((v) => v.id)).toEqual(["a"]);
   });
-  it("amount high to low", () => {
-    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, sort: "amount-desc" }).map((v) => v.id)).toEqual(["b", "a", "c"]);
+  it("filters by month and year using visit_date", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, month: "06", year: "2026" }).map((v) => v.id)).toEqual(["b"]);
+  });
+  it("month works across all years", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, month: "06" }).map((v) => v.id)).toEqual(["b", "c"]);
+  });
+  it("year works across all months", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, year: "2026" }).map((v) => v.id)).toEqual(["b", "a"]);
+  });
+  it("all four filters work together", () => {
+    const f = { paid: "unpaid" as const, type: "Plumber", month: "06", year: "2025" };
+    expect(filterVisits(visits, f).map((v) => v.id)).toEqual(["c"]);
+  });
+  it("no matches produces an empty list", () => {
+    expect(filterVisits(visits, { ...DEFAULT_VISIT_FILTERS, month: "01" })).toEqual([]);
+  });
+  it("derives type and year options from the data", () => {
+    expect(visitFilterOptions(visits)).toEqual({ types: ["Gardener", "Plumber"], years: ["2026", "2025"] });
   });
 });
 

@@ -5,15 +5,17 @@ import { AppShell } from "@/components/AppShell";
 import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_VISIT_FILTERS, filterVisits, isDefault, type VisitFilters } from "@/lib/list-filters";
+import { DEFAULT_VISIT_FILTERS, filterVisits, isDefault, visitFilterOptions, type VisitFilters } from "@/lib/list-filters";
 import { day, money } from "@/lib/visits-api";
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const allVisitsQuery = queryOptions({
   queryKey: ["visits", "all"],
   queryFn: async () => {
     const { data, error } = await supabase
       .from("maintenance_visits")
-      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name)")
+      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name, service_type)")
       .order("visit_date", { ascending: false });
     if (error) throw error;
     return data;
@@ -40,6 +42,7 @@ function MaintenancePage() {
   const set = <K extends keyof VisitFilters>(k: K, v: VisitFilters[K]) => setF((prev) => ({ ...prev, [k]: v }));
   const reset = () => setF(DEFAULT_VISIT_FILTERS);
   const list = data ? filterVisits(data, f) : [];
+  const { types, years } = visitFilterOptions(data ?? []);
 
   return (
     <AppShell>
@@ -55,9 +58,6 @@ function MaintenancePage() {
       {data && data.length > 0 && (
         <>
           <FilterBar onReset={reset} showReset={!isDefault(f, DEFAULT_VISIT_FILTERS)}>
-            <Field label="Search" htmlFor="q" wide>
-              <input id="q" type="search" className={ctrl} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Provider name or service performed" />
-            </Field>
             <Field label="Payment status" htmlFor="paid">
               <select id="paid" className={ctrl} value={f.paid} onChange={(e) => set("paid", e.target.value as VisitFilters["paid"])}>
                 <option value="">All</option>
@@ -65,19 +65,23 @@ function MaintenancePage() {
                 <option value="unpaid">Unpaid</option>
               </select>
             </Field>
-            <Field label="Sort" htmlFor="sort">
-              <select id="sort" className={ctrl} value={f.sort} onChange={(e) => set("sort", e.target.value as VisitFilters["sort"])}>
-                <option value="date-desc">Visit date (newest first)</option>
-                <option value="date-asc">Visit date (oldest first)</option>
-                <option value="amount-desc">Amount (highest first)</option>
-                <option value="amount-asc">Amount (lowest first)</option>
+            <Field label="Type" htmlFor="type">
+              <select id="type" className={ctrl} value={f.type} onChange={(e) => set("type", e.target.value)}>
+                <option value="">All types</option>
+                {types.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
-            <Field label="Start date" htmlFor="from">
-              <input id="from" type="date" className={ctrl} value={f.from} onChange={(e) => set("from", e.target.value)} />
+            <Field label="Month" htmlFor="month">
+              <select id="month" className={ctrl} value={f.month} onChange={(e) => set("month", e.target.value)}>
+                <option value="">All months</option>
+                {MONTHS.map((name, i) => <option key={name} value={String(i + 1).padStart(2, "0")}>{name}</option>)}
+              </select>
             </Field>
-            <Field label="End date" htmlFor="to">
-              <input id="to" type="date" className={ctrl} value={f.to} onChange={(e) => set("to", e.target.value)} />
+            <Field label="Year" htmlFor="year">
+              <select id="year" className={ctrl} value={f.year} onChange={(e) => set("year", e.target.value)}>
+                <option value="">All years</option>
+                {years.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
             </Field>
           </FilterBar>
           {list.length === 0 && <NoMatches onReset={reset} />}
