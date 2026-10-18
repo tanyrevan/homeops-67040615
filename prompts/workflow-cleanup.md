@@ -62,3 +62,13 @@ No migrations, no schema changes, no records modified or deleted.
 - Amount Due: sections renamed "Unpaid Maintenance" / "Unpaid Groceries"; every outstanding item has a compact "Mark Paid" button that updates `paid = true` (visits) or `reimbursed = true` (groceries) via `settleUpdate`/`settleTable` in `src/lib/settle.ts`, disables while saving, invalidates all queries (Dashboard totals refresh), and never deletes records.
 - Tests: new `src/test/grocery-status.test.ts` (Paid/Unpaid mapping, no reimbursement wording) and `src/test/settle.test.ts` (settle payloads and tables).
 - No database/schema changes; no records deleted.
+
+## Follow-up: Expenses becomes the unified transaction ledger
+- Expenses (`providers.index.tsx`) is now the transaction ledger: it combines grocery_expenses and completed maintenance_visits for display only (tables stay separate), sorted newest first by purchase_date/visit_date. Cards show date, type · provider/store, service, amount, Paid/Unpaid, receipt indicator, and link to the record detail.
+- Filters moved from History into Expenses: Status (All/Outstanding/Settled) | Type (Grocery + real service types) | Month | Year, all combining; no manual Sort control.
+- "Add Expense Type" renamed "Add Expense" (`providers.new.tsx`): choose Expense Type (Grocery, preset service types, custom types already in use). Grocery → existing grocery workflow (grocery_expenses). Service type → choose an existing matching provider (then the existing visit form: date, service, amount, Paid?, notes, receipt, next visit) or create a new provider first. Visits save to maintenance_visits; no unified expenses table.
+- Expense-type directory UI removed from the main page; starring preserved low-profile via the "..." menu → "Starred service providers" panel (links to provider detail pages). Individual grocery transactions are not star-able.
+- Amount Due (`attention.tsx`) is now one "Outstanding Expenses" list, newest first, combining unpaid visits and groceries; each row shows date, type, provider/store, amount, Unpaid badge, and Mark Paid (visits → paid = true, groceries → reimbursed = true internally; no reimbursement wording). Settled items disappear immediately and all queries refresh (Dashboard totals, Expenses statuses). Records are never deleted.
+- Top navigation is now Dashboard | Expenses | Amount Due | Upcoming | Log Out; History removed from the nav. The /maintenance route still exists internally; no historical records deleted.
+- Upcoming unchanged (scheduling-only).
+- No database/schema changes.
