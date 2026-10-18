@@ -12,7 +12,7 @@ const unpaidVisitsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("maintenance_visits")
-      .select("id, visit_date, service_performed, amount_paid, service_providers(name)")
+      .select("id, visit_date, service_performed, amount_paid, service_providers(name, service_type)")
       .eq("paid", false)
       .order("visit_date", { ascending: false });
     if (error) throw error;
@@ -37,15 +37,19 @@ export const Route = createFileRoute("/_authenticated/attention")({
   head: () => ({
     meta: [
       { title: "Amount Due — HomeOps" },
-      { name: "description", content: "Unpaid maintenance visits and grocery purchases." },
+      { name: "description", content: "Outstanding unpaid maintenance visits and grocery purchases." },
       { property: "og:title", content: "Amount Due — HomeOps" },
-      { property: "og:description", content: "Unpaid maintenance visits and grocery purchases." },
+      { property: "og:description", content: "Outstanding unpaid maintenance visits and grocery purchases." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Attention,
 });
+
+type Outstanding =
+  | { kind: "visit"; id: string; date: string; type: string; name: string; detail: string; amount: number | null }
+  | { kind: "grocery"; id: string; date: string; type: string; name: string; detail: string; amount: number | null };
 
 function Attention() {
   const qc = useQueryClient();
@@ -80,18 +84,17 @@ function Attention() {
   };
 
   const loading = visits.isLoading || groceries.isLoading;
-  const empty = visits.data?.length === 0 && groceries.data?.length === 0;
-  const card = "rounded-lg border border-border bg-card p-4";
-  const markPaidBtn = (kind: "visit" | "grocery", id: string) => (
-    <button
-      type="button"
-      disabled={settle.isPending}
-      onClick={() => markPaid(kind, id)}
-      className="mt-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
-    >
-      {settle.isPending && settlingId === id ? "Saving…" : "Mark Paid"}
-    </button>
-  );
+  const items: Outstanding[] = [
+    ...(visits.data ?? []).map((v): Outstanding => ({
+      kind: "visit", id: v.id, date: v.visit_date,
+      type: v.service_providers?.service_type ?? "Other",
+      name: v.service_providers?.name ?? "Provider", detail: v.service_performed, amount: v.amount_paid,
+    })),
+    ...(groceries.data ?? []).map((g): Outstanding => ({
+      kind: "grocery", id: g.id, date: g.purchase_date,
+      type: "Grocery", name: g.store, detail: "Grocery", amount: g.amount,
+    })),
+  ].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <AppShell>
@@ -100,57 +103,46 @@ function Attention() {
       {settleError && <p className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{settleError}</p>}
       {loading && <p className="text-muted-foreground">Loading…</p>}
       {(visits.error || groceries.error) && <p className="text-destructive">We couldn't load everything. Please refresh.</p>}
-      {empty && (
+      {!loading && items.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
           <p className="text-lg font-medium text-foreground">You're all caught up.</p>
           <p className="mt-1 text-sm text-muted-foreground">No unpaid visits or groceries waiting.</p>
         </div>
       )}
-      {!loading && !empty && (
-        <div className="space-y-8">
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">Unpaid Maintenance ({visits.data?.length ?? 0})</h2>
-            {visits.data?.length === 0 && <p className="text-sm text-muted-foreground">All maintenance visits are paid.</p>}
-            <ul className="space-y-3">
-              {visits.data?.map((v) => (
-                <li key={v.id} className={card}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-muted-foreground">{v.service_providers?.name} · {day(v.visit_date)}</div>
-                      <Link to="/visits/$visitId" params={{ visitId: v.id }} className="font-medium text-foreground hover:underline">{v.service_performed}</Link>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-foreground">{money(v.amount_paid) ?? "—"}</div>
-                      <div className="mt-1"><StatusBadge ok={false} yes="Paid" no="Unpaid" /></div>
-                      {markPaidBtn("visit", v.id)}
-                    </div>
+      {items.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Outstanding Expenses ({items.length})</h2>
+          <ul className="space-y-3">
+            {items.map((item) => (
+              <li key={`${item.kind}-${item.id}`} className="rounded-lg border border-border bg-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm text-muted-foreground">{day(item.date)}</div>
+                    <div className="text-sm text-muted-foreground">{item.type} · {item.name}</div>
+                    {item.kind === "visit" && (
+                      <Link to="/visits/$visitId" params={{ visitId: item.id }} className="font-medium text-foreground hover:underline">{item.detail}</Link>
+                    )}
+                    {item.kind === "grocery" && (
+                      <Link to="/groceries/$groceryId" params={{ groceryId: item.id }} className="font-medium text-foreground hover:underline">{item.name}</Link>
+                    )}
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">Unpaid Groceries ({groceries.data?.length ?? 0})</h2>
-            {groceries.data?.length === 0 && <p className="text-sm text-muted-foreground">All grocery purchases are paid.</p>}
-            <ul className="space-y-3">
-              {groceries.data?.map((g) => (
-                <li key={g.id} className={card}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-muted-foreground">{day(g.purchase_date)}</div>
-                      <Link to="/groceries/$groceryId" params={{ groceryId: g.id }} className="font-medium text-foreground hover:underline">{g.store}</Link>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-foreground">{money(g.amount)}</div>
-                      <div className="mt-1"><StatusBadge ok={false} yes="Paid" no="Unpaid" /></div>
-                      {markPaidBtn("grocery", g.id)}
-                    </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-foreground">{money(item.amount) ?? "—"}</div>
+                    <div className="mt-1"><StatusBadge ok={false} yes="Paid" no="Unpaid" /></div>
+                    <button
+                      type="button"
+                      disabled={settle.isPending}
+                      onClick={() => markPaid(item.kind, item.id)}
+                      className="mt-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                    >
+                      {settle.isPending && settlingId === item.id ? "Saving…" : "Mark Paid"}
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </AppShell>
   );
