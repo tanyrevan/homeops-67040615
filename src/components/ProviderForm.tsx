@@ -41,7 +41,7 @@ export function ProviderForm({
     <form onSubmit={submit} noValidate className="space-y-5">
       <div>
         <label htmlFor="name" className={label}>Name *</label>
-        <input id="name" className={input} value={v.name} onChange={set("name")} placeholder="e.g. Maria's Gardening" />
+        <input id="name" className={input} value={v.name} onChange={set("name")} />
         {err(errors.name)}
       </div>
       <div>
