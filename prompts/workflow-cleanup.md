@@ -93,4 +93,4 @@ No migrations, no schema changes, no records modified or deleted.
 - Adding a grocery purchase returns to Expenses after save or cancel. Editing keeps save/cancel on the current transaction detail; deleting returns to Expenses.
 - The published `/groceries` URL is preserved as a redirect to `/providers`; its standalone list and filter controls are retired. Individual grocery detail/edit URLs and Add Expense → Grocery are preserved.
 - Grocery CRUD, receipt storage, existing records, database schema, and security rules are unchanged.
-- Added a routing regression test for the legacy list redirect; run the full automated suite and verify the signed-in grocery flow.
+- Added a routing regression test for the legacy list redirect. Full automated suite: 91 tests passed across 15 files; build OK. Signed-in checks verified the redirect, Add Expense → Grocery, add back/cancel/save, detail back, edit cancel/save with saved notes, and delete returning to Expenses. Only a temporary test purchase was created/edited/deleted; existing records were preserved and an existing purchase detail was checked without editing. No browser console errors.
