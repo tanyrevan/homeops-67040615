@@ -1,6 +1,6 @@
 # HomeOps — Database Schema
 
-Inspected against the live Lovable Cloud database on October 17, 2026.
+Rechecked against the live Lovable Cloud database on October 18, 2026. Final interface simplification did not remove tables or legacy fields.
 
 ## Overview
 
@@ -64,7 +64,7 @@ Constraints:
 - `length(btrim(name)) > 0`.
 - `length(btrim(service_type)) > 0`.
 
-Service types are stored as text, not a database enum. The form offers Gardener, Jacuzzi, A/C, Electrician, and Other; Other requires a custom service type.
+Service types are stored as text, not a database enum. The form displays Gardener, Jacuzzi, Aircon, Electrician, and Other; Other requires a custom service type. Legacy stored `A/C` and `Air Conditioner` values display as Aircon without migrating records.
 
 ## 3. maintenance_visits
 
@@ -94,6 +94,8 @@ Constraints:
 
 `paid` is an explicit status, independent of `amount_paid`. A blank amount is permitted. No database constraint requires the next service date to follow the visit date.
 
+`next_service_date` is retained for backward compatibility but is no longer used by the scheduling interface. Upcoming/History grouping uses actual `visit_date` and `purchase_date` values.
+
 `receipt_url` stores a storage object path, not a permanent public URL.
 
 ## 4. grocery_expenses
@@ -121,6 +123,8 @@ Constraints:
 - `amount >= 0`; zero is allowed.
 
 `reimbursed` is an explicit status, independent of the amount. Categories are nullable text, not a database enum. `receipt_url` stores a storage object path.
+
+The interface displays `reimbursed` as Paid/Unpaid. The `category` column and existing values remain stored even though category is no longer shown in the grocery forms.
 
 ## 5. stars
 
@@ -163,7 +167,7 @@ Constraints:
 - `EXTRACT(day FROM month) = 1`.
 - `amount >= 0`; a zero budget is permitted.
 
-The application sets or edits the current month's budget. Previous rows remain stored, but there is no past-month selector or budget-delete interface.
+The original budget implementation supported current-month setting/editing. Budget controls were cut from the final user-facing product; this table, its constraints, update trigger, policies and historical rows remain preserved. There is no budget-delete policy.
 
 ## Relationships and cascade behavior
 
