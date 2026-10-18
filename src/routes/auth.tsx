@@ -10,6 +10,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Log in or sign up to HomeOps. Keep your household running smoothly." },
       { property: "og:title", content: "Log in — HomeOps" },
       { property: "og:description", content: "Keep your household running smoothly." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,

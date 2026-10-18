@@ -28,6 +28,8 @@ export const Route = createFileRoute("/_authenticated/maintenance")({
       { name: "description", content: "Search all maintenance visits across providers." },
       { property: "og:title", content: "Maintenance — HomeOps" },
       { property: "og:description", content: "Search all maintenance visits across providers." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MaintenancePage,

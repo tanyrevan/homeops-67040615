@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/groceries/$groceryId/")({
       { name: "description", content: "Details of a grocery purchase." },
       { property: "og:title", content: "Grocery purchase — HomeOps" },
       { property: "og:description", content: "Details of a grocery purchase." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: GroceryDetail,

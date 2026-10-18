@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/providers/$id/visits/new")
       { name: "description", content: "Log a maintenance visit and payment." },
       { property: "og:title", content: "Add Visit — HomeOps" },
       { property: "og:description", content: "Log a maintenance visit and payment." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: NewVisit,

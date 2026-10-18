@@ -12,6 +12,8 @@ export const Route = createFileRoute("/_authenticated/visits/$visitId/edit")({
       { name: "description", content: "Edit a maintenance visit." },
       { property: "og:title", content: "Edit Visit — HomeOps" },
       { property: "og:description", content: "Edit a maintenance visit." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: EditVisit,

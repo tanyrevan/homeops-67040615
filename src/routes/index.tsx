@@ -9,6 +9,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Keep your household running smoothly with HomeOps." },
       { property: "og:title", content: "HomeOps — Household operations tracker" },
       { property: "og:description", content: "Keep your household running smoothly with HomeOps." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,

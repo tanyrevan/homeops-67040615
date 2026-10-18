@@ -11,6 +11,8 @@ export const Route = createFileRoute("/_authenticated/providers/new")({
       { name: "description", content: "Add a household service provider." },
       { property: "og:title", content: "Add Provider — HomeOps" },
       { property: "og:description", content: "Add a household service provider." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: NewProvider,

@@ -38,6 +38,8 @@ export const Route = createFileRoute("/_authenticated/attention")({
       { name: "description", content: "Unpaid maintenance and grocery purchases not yet reimbursed." },
       { property: "og:title", content: "Needs Attention — HomeOps" },
       { property: "og:description", content: "Unpaid maintenance and grocery purchases not yet reimbursed." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Attention,
