@@ -30,7 +30,7 @@ export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdV
     chartCategories.forEach((category, i) => {
       values[`spend${i + 1}`] = sum(visits.filter((v) => types.get(v.service_provider_id) === category && v.visit_date.slice(0, 7) === key), (v) => v.amount_paid);
     });
-    return { key, label: month.toLocaleDateString("en-US", { month: "short", year: "numeric" }), spend0: values.spend0 ?? 0, ...values };
+    return { key, label: month.toLocaleDateString("en-US", { month: "short", year: "numeric" }), spend0: values["spend0"] ?? 0, ...values };
   });
   return { recorded: (cents(groceryTotal) + cents(sum(visits, (v) => v.amount_paid))) / 100, due: (cents(groceryDue) + cents(sum(visits.filter((v) => v.paid === false), (v) => v.amount_paid))) / 100, rows, chart, series };
 }
