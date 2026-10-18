@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { SERVICE_TYPES, validateProvider, type ProviderErrors, type ProviderFormValues } from "@/lib/provider-validation";
 import { expenseTypeLabel } from "@/lib/expense-type";
+import { Button } from "@/components/ui/button";
 
 type Saved = { name: string; service_type: string; phone_or_contact: string | null; notes: string | null };
 
@@ -9,11 +10,13 @@ export function ProviderForm({
   submitLabel,
   onSubmit,
   onCancel,
+  categorySelected = false,
 }: {
   initial: ProviderFormValues;
   submitLabel: string;
   onSubmit: (data: Saved) => Promise<string | null>;
   onCancel: () => void;
+  categorySelected?: boolean;
 }) {
   const [v, setV] = useState(initial);
   const [errors, setErrors] = useState<ProviderErrors>({});
@@ -44,17 +47,17 @@ export function ProviderForm({
         <input id="name" className={input} value={v.name} onChange={set("name")} />
         {err(errors.name)}
       </div>
-      <div>
-        <label htmlFor="serviceChoice" className={label}>Service type *</label>
+      {!categorySelected && <div>
+        <label htmlFor="serviceChoice" className={label}>Expense Type *</label>
         <select id="serviceChoice" className={input} value={v.serviceChoice} onChange={set("serviceChoice")}>
-          <option value="">Choose a service type…</option>
+          <option value="">Choose an expense type…</option>
           {SERVICE_TYPES.map((t) => <option key={t} value={t}>{expenseTypeLabel(t)}</option>)}
         </select>
         {err(errors.serviceChoice)}
-      </div>
-      {v.serviceChoice === "Other" && (
+      </div>}
+      {v.serviceChoice === "Other" && (!categorySelected || !initial.customType) && (
         <div>
-          <label htmlFor="customType" className={label}>Type the service *</label>
+          <label htmlFor="customType" className={label}>Custom Expense Type *</label>
           <input id="customType" className={input} value={v.customType} onChange={set("customType")} placeholder="e.g. Plumber, Cleaner, Handyman" />
           {err(errors.customType)}
         </div>
@@ -69,12 +72,12 @@ export function ProviderForm({
       </div>
       {formError && <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{formError}</p>}
       <div className="flex flex-col gap-3 sm:flex-row">
-        <button type="submit" disabled={busy} className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+        <Button type="submit" disabled={busy} className="h-auto px-5 py-3 text-base">
           {busy ? "Saving…" : submitLabel}
-        </button>
-        <button type="button" onClick={onCancel} className="rounded-md border border-input px-5 py-3 font-medium text-foreground hover:bg-accent">
+        </Button>
+        <Button type="button" variant="outline" onClick={onCancel} className="h-auto px-5 py-3 text-base">
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );
