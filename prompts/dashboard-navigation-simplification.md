@@ -404,3 +404,13 @@ When complete, summarize:
 5. Any remaining limitations
 
 Stop after completing this feature.
+---
+
+## Follow-up refinements (2026-10-18)
+
+- Rename "Total Recorded Spend" to "Total Spend" with a period selector: This Month (default), Last 3 Months, Since Inception. Selector must not affect Total Amount Due.
+- Rename the "View Needs Attention" link to "View" (still links to /attention).
+- Category Summary becomes current-month scoped: heading "Category Summary — <Mon>", columns Category (<Mon>) | Total (<Mon>) | Amount Due | Last Visit | Next Visit. Total = current calendar month; Amount Due = all-time outstanding; Groceries show "—" for Last/Next Visit; all columns centered.
+- Chart Y-axis: $0–$1,000 in $200 increments, expanding to the next $200 increment when a month exceeds $1,000.
+- Top navigation: Dashboard | Expenses | History | Upcoming | Log Out. Expenses (defaulting to Providers) holds secondary nav Providers | Groceries; the old Providers | History | Upcoming secondary nav is removed.
+- No database changes; all existing functionality preserved; full test suite must pass.
