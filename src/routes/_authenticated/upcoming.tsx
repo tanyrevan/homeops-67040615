@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { upcomingItems } from "@/lib/list-filters";
 import { localISO } from "@/lib/due-status";
-import { day } from "@/lib/visits-api";
+import { day, money } from "@/lib/visits-api";
 import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
 
 export const Route = createFileRoute("/_authenticated/upcoming")({
@@ -50,7 +50,10 @@ function UpcomingPage() {
                 className="block rounded-lg border border-border bg-card p-4 hover:bg-accent"
               >
                 <div className="text-sm text-muted-foreground">{day(h.date)}</div>
-                <div className="font-medium text-foreground">{h.type}</div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 break-words font-medium text-foreground">{h.type}</div>
+                  <div className="shrink-0 font-semibold tabular-nums text-foreground">{money(h.amount) ?? "—"}</div>
+                </div>
               </Link>
             </li>
           ))}

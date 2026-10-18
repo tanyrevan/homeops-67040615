@@ -79,6 +79,11 @@ export function pastItems(items: HistoryItem[], today: string): HistoryItem[] {
 export type HistoryFilters = { status: "" | "outstanding" | "settled"; type: string; month: string; year: string };
 export const DEFAULT_HISTORY_FILTERS: HistoryFilters = { status: "", type: "", month: "", year: "" };
 
+/** Actual expense date is primary; entry time only breaks same-date ties. */
+export function newestExpenses(items: HistoryItem[]): HistoryItem[] {
+  return [...items].sort((a, b) => b.date.localeCompare(a.date) || (b.created_at ?? "").localeCompare(a.created_at ?? "") || `${a.kind}-${a.id}`.localeCompare(`${b.kind}-${b.id}`));
+}
+
 export function filterHistory(items: HistoryItem[], f: HistoryFilters): HistoryItem[] {
   const out = items.filter(
     (h) =>
@@ -88,7 +93,7 @@ export function filterHistory(items: HistoryItem[], f: HistoryFilters): HistoryI
       (!f.year || h.date.slice(0, 4) === f.year),
   );
   // History is always newest first: record date desc, then creation time desc.
-  return [...out].sort((a, b) => b.date.localeCompare(a.date) || b.created_at.localeCompare(a.created_at));
+  return newestExpenses(out);
 }
 
 /** Distinct types (incl. "Grocery" when grocery records exist) and years present in History. */

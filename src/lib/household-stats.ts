@@ -1,5 +1,6 @@
 import { monthKey, monthSummary } from "@/lib/dashboard-stats";
 import { localISO } from "@/lib/due-status";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 export type HouseholdGrocery = { purchase_date: string; amount: number; reimbursed: boolean };
 export type HouseholdVisit = { id: string; service_provider_id: string; visit_date: string; amount_paid: number | null; paid: boolean; created_at: string };
@@ -24,9 +25,9 @@ export function chartAxisMax(highestMonthTotal: number) {
 }
 
 export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdVisit[], providers: HouseholdProvider[], today: Date) {
-  const types = new Map(providers.map((p) => [p.id, p.service_type]));
+  const types = new Map(providers.map((p) => [p.id, expenseTypeLabel(p.service_type)]));
   // Saved provider types define account categories, including those without visits.
-  const categories = [...new Set(providers.map((p) => p.service_type).filter((type) => type && type !== "Other"))].sort((a, b) => a.localeCompare(b));
+  const categories = [...new Set(providers.map((p) => expenseTypeLabel(p.service_type)).filter((type) => type && type !== "Other"))].sort((a, b) => a.localeCompare(b));
   const currentKey = monthKey(today);
   const groceryMonth = sum(groceries.filter((g) => g.purchase_date.slice(0, 7) === currentKey), (g) => g.amount);
   const groceryDue = sum(groceries.filter((g) => g.reimbursed === false), (g) => g.amount);

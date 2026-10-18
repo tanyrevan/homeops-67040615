@@ -94,3 +94,13 @@ No migrations, no schema changes, no records modified or deleted.
 - The published `/groceries` URL is preserved as a redirect to `/providers`; its standalone list and filter controls are retired. Individual grocery detail/edit URLs and Add Expense → Grocery are preserved.
 - Grocery CRUD, receipt storage, existing records, database schema, and security rules are unchanged.
 - Added a routing regression test for the legacy list redirect. Full automated suite: 91 tests passed across 15 files; build OK. Signed-in checks verified the redirect, Add Expense → Grocery, add back/cancel/save, detail back, edit cancel/save with saved notes, and delete returning to Expenses. Only a temporary test purchase was created/edited/deleted; existing records were preserved and an existing purchase detail was checked without editing. No browser console errors.
+
+## Follow-up: actual-date ordering, Paid/Unpaid filters, Upcoming amounts, Air Conditioner
+
+- Combined ledger mapping now sorts by actual `purchase_date` / `visit_date` descending, `created_at` descending for equal dates, and a deterministic kind/id fallback for exact ties. The shared filter applies the same ordering; input and insertion order cannot override expense dates.
+- Compact Expenses Status options display All / Unpaid / Paid. Internal filter keys and grocery `reimbursed` remain unchanged; false flags are Unpaid, true flags are Paid.
+- Upcoming still includes only dates after the local calendar date, sorted soonest first. Cards now show Date, Expense Type, and Amount, with no payment badge, and open the actual transaction.
+- `expenseTypeLabel` maps only the exact legacy `A/C` type to `Air Conditioner`. Ledger/History/Upcoming/Type filter models, Amount Due, Dashboard Summary/chart series, starred providers, and Add Expense/provider-form selectors use the mapping. Stored selector values and existing records remain unchanged; canonical and legacy Dashboard categories group together.
+- Added ten regression tests covering mixed-table actual-date ordering, insertion independence, equal-date ties, both payment booleans, future dates/amounts, exact legacy mapping and unchanged inputs, plus Dashboard category/chart grouping. Full suite: 101 tests across 15 files passed.
+- Signed-in read-only checks verified actual ledger order, All / Unpaid / Paid options and filtering (two records each), Air Conditioner Type/Add Expense labels, real Upcoming amount with no status, transaction opening, Dashboard/History/Amount Due terminology, and mobile Upcoming layout. No runtime errors; no records modified; no database/schema changes.
+- No branch creation or switch performed; Lovable's internal edit workspace remains in use for the existing workflow-cleanup work.

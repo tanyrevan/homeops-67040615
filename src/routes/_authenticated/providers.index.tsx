@@ -14,6 +14,7 @@ import { providersQuery } from "@/lib/providers-api";
 import { starsQuery } from "@/lib/stars";
 import { day, money } from "@/lib/visits-api";
 import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -114,7 +115,7 @@ function ExpensesPage() {
                   onClick={() => { setProviderFilter(providerFilter === p.id ? null : p.id); setShowStarred(false); }}
                   className="text-sm font-medium text-primary hover:underline"
                 >
-                  ★ {p.name} <span className="text-muted-foreground">· {p.service_type}</span>
+                  ★ {p.name} <span className="text-muted-foreground">· {expenseTypeLabel(p.service_type)}</span>
                 </button>
               </li>
             ))}
@@ -145,8 +146,8 @@ function ExpensesPage() {
               <Field label="Status" htmlFor="status">
                 <select id="status" className={ctrl} value={f.status} onChange={(e) => set("status", e.target.value as HistoryFilters["status"])}>
                   <option value="">All</option>
-                  <option value="outstanding">Outstanding</option>
-                  <option value="settled">Settled</option>
+                  <option value="outstanding">Unpaid</option>
+                  <option value="settled">Paid</option>
                 </select>
               </Field>
               <Field label="Type" htmlFor="type">
