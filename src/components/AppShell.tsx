@@ -8,7 +8,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const maintenanceArea = ["/maintenance", "/providers", "/upcoming", "/visits"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const expensesArea = ["/providers", "/groceries"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -25,8 +25,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/home" className="text-xl font-bold text-primary">HomeOps</Link>
           <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-1">
             <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Dashboard</Link>
-            <Link to="/maintenance" className={`${linkCls} ${maintenanceArea ? "bg-accent text-foreground" : ""}`}>Maintenance</Link>
-            <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
+            <Link to="/providers" className={`${linkCls} ${expensesArea ? "bg-accent text-foreground" : ""}`}>Expenses</Link>
+            <Link to="/maintenance" className={`${linkCls} ${pathname.startsWith("/visits/") ? "bg-accent text-foreground" : ""}`} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
+            <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
             <Button variant="outline" size="sm" onClick={signOut} className="ml-2">
               Log Out
             </Button>
@@ -34,11 +35,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">
-        {maintenanceArea && (
-          <nav aria-label="Maintenance navigation" className="mb-6 flex gap-1 border-b border-border pb-3">
+        {expensesArea && (
+          <nav aria-label="Expenses navigation" className="mb-6 flex gap-1 border-b border-border pb-3">
             <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
-            <Link to="/maintenance" className={`${linkCls} ${pathname.startsWith("/visits/") ? "bg-accent text-foreground" : ""}`} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
-            <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
+            <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
           </nav>
         )}
         {children}
