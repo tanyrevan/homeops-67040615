@@ -9,9 +9,9 @@ import { providerQuery } from "@/lib/providers-api";
 export const Route = createFileRoute("/_authenticated/providers/$id/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Expense Type — HomeOps" },
+      { title: "Edit Expense Type — 16 Olive Road" },
       { name: "description", content: "Edit a household service provider." },
-      { property: "og:title", content: "Edit Expense Type — HomeOps" },
+      { property: "og:title", content: "Edit Expense Type — 16 Olive Road" },
       { property: "og:description", content: "Edit a household service provider." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

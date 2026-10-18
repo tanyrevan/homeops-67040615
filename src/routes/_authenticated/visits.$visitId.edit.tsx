@@ -8,9 +8,9 @@ import { removeReceipt, uploadReceipt, visitQuery } from "@/lib/visits-api";
 export const Route = createFileRoute("/_authenticated/visits/$visitId/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Visit — HomeOps" },
+      { title: "Edit Visit — 16 Olive Road" },
       { name: "description", content: "Edit a maintenance visit." },
-      { property: "og:title", content: "Edit Visit — HomeOps" },
+      { property: "og:title", content: "Edit Visit — 16 Olive Road" },
       { property: "og:description", content: "Edit a maintenance visit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
