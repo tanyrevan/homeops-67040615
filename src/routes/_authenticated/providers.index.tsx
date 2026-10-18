@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/providers/")({
       { name: "description", content: "Your household service providers." },
       { property: "og:title", content: "Providers — HomeOps" },
       { property: "og:description", content: "Your household service providers." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProvidersPage,

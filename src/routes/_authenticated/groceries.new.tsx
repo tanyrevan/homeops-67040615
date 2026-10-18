@@ -12,6 +12,8 @@ export const Route = createFileRoute("/_authenticated/groceries/new")({
       { name: "description", content: "Log a grocery purchase." },
       { property: "og:title", content: "Add Grocery Purchase — HomeOps" },
       { property: "og:description", content: "Log a grocery purchase." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: NewGrocery,

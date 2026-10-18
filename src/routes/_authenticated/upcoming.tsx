@@ -27,6 +27,8 @@ export const Route = createFileRoute("/_authenticated/upcoming")({
       { name: "description", content: "Overdue and upcoming household maintenance." },
       { property: "og:title", content: "Upcoming — HomeOps" },
       { property: "og:description", content: "Overdue and upcoming household maintenance." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: UpcomingPage,
