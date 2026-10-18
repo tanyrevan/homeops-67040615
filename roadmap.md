@@ -11,4 +11,4 @@
 - [x] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and run full tests/build.
 - [ ] Verify signed-in existing-record detail, edit, receipt and delete-confirmation flows; blocked until the user signs in (no matching account available for automatic session).
 - [x] Update final README and PLAN Section 8 only, verify live schema documentation, save final prompt, and confirm application files are unchanged.
-- [ ] Remove the duplicate provider category selector, preserve selected/stored types and editing, save prompt, run full tests and verify signed-in Add Expense.
+- [x] Remove the duplicate provider category selector, preserve selected/stored types and editing, save prompt, run full tests and verify signed-in Add Expense (124 tests; build OK; saved/read back Electrician and removed temporary QA provider).
