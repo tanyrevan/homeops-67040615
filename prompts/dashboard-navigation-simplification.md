@@ -433,3 +433,11 @@ Stop after completing this feature.
 - Removed the search/filter/sort panel from the Expenses page entirely; the page now shows the heading, a small Starred chip, and Add Expense, with expense items listed immediately below (groceries by purchase date, service expenses newest first).
 - Starred chip still toggles the starred view without any filter box; star icons, stars table, and Add Expense (Grocery + service types) workflows unchanged.
 - History page search/filter/sort untouched; no database changes.
+
+## Follow-up: structural simplification — Expenses as a directory of expense types
+
+- Top nav reordered: Dashboard | Expenses | Amount Due | Upcoming | History | Log Out.
+- Expenses page is now a directory of reusable expense types: one Grocery row (links to the grocery list/add flow) plus one row per service provider; individual grocery purchases and visits no longer appear on the main page.
+- Main button renamed to "Add Expense Type"; Grocery stays backed by grocery_expenses, service types by service_providers — tables not merged.
+- Visible "Starred" text removed; an icon-only star toggle (aria-label "Show starred") beside the heading switches to the starred-only view. Star icons, stars table, and starring unchanged.
+- No database changes.
