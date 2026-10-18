@@ -4,3 +4,4 @@
 - [x] Save prompt and architecture notes; preserve database and budget history.
 - [x] Add calculation tests, run full suite, verify signed-in desktop/mobile flows.
 - [x] Retire legacy grocery list navigation, preserve CRUD, append follow-up, and verify the full suite and signed-in flow.
+- [ ] Verify actual-date ledger sorting, Paid/Unpaid filters, Upcoming amounts, and Air Conditioner display mapping; run all tests and signed-in checks.
