@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Star } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StarButton } from "@/components/StarButton";
 import { DEFAULT_PROVIDER_FILTERS, filterProviders } from "@/lib/list-filters";
 import { providersQuery } from "@/lib/providers-api";
-import { groceriesQuery } from "@/lib/groceries-api";
 import { starsQuery } from "@/lib/stars";
-import { money } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/providers/")({
   validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
@@ -15,9 +14,9 @@ export const Route = createFileRoute("/_authenticated/providers/")({
   head: () => ({
     meta: [
       { title: "Expenses — HomeOps" },
-      { name: "description", content: "Your household expenses and service providers." },
+      { name: "description", content: "Your household expense types." },
       { property: "og:title", content: "Expenses — HomeOps" },
-      { property: "og:description", content: "Your household expenses and service providers." },
+      { property: "og:description", content: "Your household expense types." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -29,69 +28,57 @@ function ExpensesPage() {
   const { deleted } = Route.useSearch();
   const { user } = Route.useRouteContext();
   const { data, isLoading, error } = useQuery(providersQuery());
-  const groceries = useQuery(groceriesQuery());
   const stars = useQuery(starsQuery());
   const [starredOnly, setStarredOnly] = useState(false);
 
   const filters = { ...DEFAULT_PROVIDER_FILTERS, starredOnly };
   const providers = data && stars.data ? filterProviders(data, stars.data, filters) : [];
-  const groceryList = [...(groceries.data ?? [])].sort(
-    (a, b) => b.purchase_date.localeCompare(a.purchase_date) || b.created_at.localeCompare(a.created_at),
-  );
-  const hasAny = providers.length > 0 || (!starredOnly && groceryList.length > 0);
+  const showGrocery = !starredOnly;
+  const hasAny = providers.length > 0 || showGrocery;
 
   return (
     <AppShell>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-foreground">Expenses</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Expenses</h1>
+        <div className="flex items-center gap-2">
           <button
             type="button"
             aria-pressed={starredOnly}
+            aria-label="Show starred"
+            title="Show starred"
             onClick={() => setStarredOnly(!starredOnly)}
-            className={`rounded-full border px-3 py-1 text-sm font-medium ${starredOnly ? "border-primary bg-accent text-foreground" : "border-border text-muted-foreground hover:bg-accent"}`}
+            className={`rounded-full border p-2 ${starredOnly ? "border-primary bg-accent text-primary" : "border-border text-muted-foreground hover:bg-accent"}`}
           >
-            Starred
+            <Star className="h-4 w-4" fill={starredOnly ? "currentColor" : "none"} aria-hidden="true" />
           </button>
+          <Link to="/providers/new" className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
+            Add Expense Type
+          </Link>
         </div>
-        <Link to="/providers/new" className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
-          Add Expense
-        </Link>
       </div>
-      {deleted && <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">Expense deleted.</p>}
-      {(isLoading || groceries.isLoading) && <p className="text-muted-foreground">Loading…</p>}
+      {deleted && <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">Expense type deleted.</p>}
+      {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load your expenses. Please refresh.</p>}
-      {data && groceries.data && !hasAny && (
+      {data && stars.data && !hasAny && (
         <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          {starredOnly ? (
-            <p className="text-foreground">No starred expenses yet. Tap the star on any service expense to pin it here.</p>
-          ) : (
-            <>
-              <p className="text-foreground">You haven't added any expenses yet.</p>
-              <p className="mt-1 text-sm text-muted-foreground">Add your gardener, A/C technician, grocery store, or anyone who helps around the house.</p>
-              <Link to="/providers/new" className="mt-5 inline-block rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
-                Add your first expense
-              </Link>
-            </>
-          )}
+          <p className="text-foreground">No starred expense types yet. Tap the star on any expense type to pin it here.</p>
+        </div>
+      )}
+      {data && stars.data && providers.length === 0 && !starredOnly && (
+        <div className="mb-4 rounded-lg border border-dashed border-border bg-card p-6 text-center">
+          <p className="text-sm text-muted-foreground">Add your gardener, A/C technician, or anyone who helps around the house.</p>
         </div>
       )}
       {hasAny && (
         <ul className="space-y-3">
-          {!starredOnly &&
-            groceryList.map((g) => (
-              <li key={`g-${g.id}`}>
-                <Link to="/groceries/$groceryId" params={{ groceryId: g.id }} className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-medium text-foreground">{g.store}</div>
-                      <div className="text-sm text-muted-foreground">Grocery · {g.purchase_date}</div>
-                    </div>
-                    <div className="font-semibold text-foreground">{money(g.amount)}</div>
-                  </div>
-                </Link>
-              </li>
-            ))}
+          {showGrocery && (
+            <li>
+              <Link to="/groceries" className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
+                <div className="font-medium text-foreground">Grocery</div>
+                <div className="text-sm text-muted-foreground">Grocery purchases</div>
+              </Link>
+            </li>
+          )}
           {providers.map((p) => (
             <li key={p.id}>
               <div className="flex items-center gap-2 rounded-lg border border-border bg-card pr-2 hover:bg-accent">
