@@ -72,3 +72,17 @@ No migrations, no schema changes, no records modified or deleted.
 - Top navigation is now Dashboard | Expenses | Amount Due | Upcoming | Log Out; History removed from the nav. The /maintenance route still exists internally; no historical records deleted.
 - Upcoming unchanged (scheduling-only).
 - No database/schema changes.
+
+## Follow-up: final structural simplification (transaction-centric ledger)
+
+- Top nav: Dashboard | Expenses | Amount Due | Upcoming | History | Log Out (History restored).
+- Expenses = master ledger of every line item (past, today, future), newest first; cards show only Date, Expense Type, Amount, Paid/Unpaid, receipt indicator, plus a subtle "Upcoming" badge on future-dated items. No provider/store names on cards; cards open the transaction detail directly.
+- The four always-visible filter dropdowns collapsed into one compact Filter button (popover with Status | Type | Month | Year | Clear filters, active-count badge) on both Expenses and History.
+- Upcoming redefined: future-dated expenses (visit_date/purchase_date > today), soonest first, scheduling-only cards (Date + Type). next_service_date retired from the UI; the column and historical values remain untouched.
+- History = expenses dated today or earlier, newest first, no creation actions.
+- Maintenance transaction detail: Next Service Date, Add Visit, Upcoming Visits, and History sections removed; back link is "Back to Expenses"; Edit/Delete live in a low-profile "..." menu (delete keeps its confirmation).
+- Legacy provider-detail route (/providers/$id) now redirects to Expenses; provider records and the service_providers table are untouched. Starred providers in the Expenses "..." menu filter the ledger by provider instead of linking to the retired page.
+- Add/Edit Expense no longer shows or writes Next Service Date; new scheduling = future-dated expense line items.
+- Dashboard Last Visit = latest visit_date <= today; Next Visit = earliest visit_date > today; Groceries stay "—".
+- Amount Due unchanged: one combined Outstanding Expenses list with Mark Paid.
+- No database/schema changes. Tests updated (household-stats Last/Next Visit rules, visit-validation without nextDate, new ledger-dates tests); scheduled-visit and due-status tests removed with the retired model.

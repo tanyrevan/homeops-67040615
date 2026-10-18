@@ -28,6 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link to="/providers" className={`${linkCls} ${expensesArea ? "bg-accent text-foreground" : ""}`}>Expenses</Link>
             <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Amount Due</Link>
             <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
+            <Link to="/maintenance" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
             <Button variant="outline" size="sm" onClick={signOut} className="ml-2">
               Log Out
             </Button>

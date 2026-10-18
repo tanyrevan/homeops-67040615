@@ -1,7 +1,8 @@
 import { monthKey, monthSummary } from "@/lib/dashboard-stats";
+import { localISO } from "@/lib/due-status";
 
 export type HouseholdGrocery = { purchase_date: string; amount: number; reimbursed: boolean };
-export type HouseholdVisit = { id: string; service_provider_id: string; visit_date: string; amount_paid: number | null; paid: boolean; next_service_date: string | null; created_at: string };
+export type HouseholdVisit = { id: string; service_provider_id: string; visit_date: string; amount_paid: number | null; paid: boolean; created_at: string };
 export type HouseholdProvider = { id: string; service_type: string };
 const cents = (amount: number | null) => Math.round(Number(amount ?? 0) * 100);
 const sum = <T,>(rows: T[], amount: (row: T) => number | null) => rows.reduce((total, row) => total + cents(amount(row)), 0) / 100;
@@ -34,8 +35,14 @@ export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdV
     { category: "Groceries", total: groceryMonth, due: groceryDue, lastVisit: null as string | null, nextVisit: null as string | null },
     ...categories.map((category) => {
       const records = visits.filter((v) => types.get(v.service_provider_id) === category);
-      const latest = [...records].sort((a, b) => b.visit_date.localeCompare(a.visit_date) || b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id))[0];
-      return { category, total: sum(records.filter((v) => v.visit_date.slice(0, 7) === currentKey), (v) => v.amount_paid), due: sum(records.filter((v) => v.paid === false), (v) => v.amount_paid), lastVisit: latest?.visit_date ?? null, nextVisit: latest?.next_service_date ?? null };
+      // Scheduling comes from visit_date itself: Last Visit = latest past/today
+      // visit, Next Visit = earliest future visit. next_service_date is unused.
+      const todayStr = localISO(today);
+      const past = records.filter((v) => v.visit_date <= todayStr);
+      const future = records.filter((v) => v.visit_date > todayStr);
+      const latest = [...past].sort((a, b) => b.visit_date.localeCompare(a.visit_date) || b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id))[0];
+      const next = [...future].sort((a, b) => a.visit_date.localeCompare(b.visit_date) || a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id))[0];
+      return { category, total: sum(records.filter((v) => v.visit_date.slice(0, 7) === currentKey), (v) => v.amount_paid), due: sum(records.filter((v) => v.paid === false), (v) => v.amount_paid), lastVisit: latest?.visit_date ?? null, nextVisit: next?.visit_date ?? null };
     }),
   ];
   const months = Array.from({ length: 3 }, (_, i) => new Date(today.getFullYear(), today.getMonth() - 2 + i, 1));

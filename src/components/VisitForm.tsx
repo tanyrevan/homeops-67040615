@@ -3,7 +3,7 @@ import { YesNo } from "@/components/StatusBadge";
 import { RECEIPT_ACCEPT, validateReceipt, validateVisit, type VisitErrors, type VisitFormValues } from "@/lib/visit-validation";
 
 export type VisitSubmit = {
-  data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; next_service_date: string | null; paid: boolean };
+  data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; paid: boolean };
   file: File | null;
   removeReceipt: boolean;
 };
@@ -67,11 +67,6 @@ export function VisitForm({
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
         <textarea id="notes" rows={3} className={input} value={v.notes} onChange={set("notes")} placeholder="Optional" />
-      </div>
-      <div>
-        <label htmlFor="nextDate" className={label}>Next Service Date</label>
-        <input id="nextDate" type="date" className={input} value={v.nextDate} onChange={set("nextDate")} />
-        {err(errors.nextDate)}
       </div>
       <div>
         <label htmlFor="receipt" className={label}>Upload Receipt</label>

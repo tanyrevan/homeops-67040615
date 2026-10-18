@@ -1,44 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
+import { Field, FilterPopover, NoMatches, ctrl } from "@/components/FilterControls";
 import { StatusBadge } from "@/components/StatusBadge";
-import { supabase } from "@/integrations/supabase/client";
 import {
-  DEFAULT_HISTORY_FILTERS, filterHistory, historyFilterOptions, isDefault,
-  type HistoryFilters, type HistoryItem,
+  DEFAULT_HISTORY_FILTERS, filterHistory, historyFilterOptions,
+  type HistoryFilters,
 } from "@/lib/list-filters";
+import { localISO } from "@/lib/due-status";
 import { providersQuery } from "@/lib/providers-api";
 import { starsQuery } from "@/lib/stars";
 import { day, money } from "@/lib/visits-api";
+import { expenseGroceriesQuery, expenseVisitsQuery, toLedgerItems } from "@/lib/ledger";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-const expenseVisitsQuery = queryOptions({
-  queryKey: ["visits", "all"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("maintenance_visits")
-      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name, service_type)")
-      .order("visit_date", { ascending: false });
-    if (error) throw error;
-    return data;
-  },
-});
-
-const expenseGroceriesQuery = queryOptions({
-  queryKey: ["groceries", "history"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("grocery_expenses")
-      .select("id, purchase_date, store, amount, reimbursed, created_at, receipt_url")
-      .order("purchase_date", { ascending: false });
-    if (error) throw error;
-    return data;
-  },
-});
+const activeCount = (f: HistoryFilters) => [f.status, f.type, f.month, f.year].filter(Boolean).length;
 
 export const Route = createFileRoute("/_authenticated/providers/")({
   validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
@@ -46,9 +25,9 @@ export const Route = createFileRoute("/_authenticated/providers/")({
   head: () => ({
     meta: [
       { title: "Expenses — HomeOps" },
-      { name: "description", content: "Every household expense: groceries and completed service visits." },
+      { name: "description", content: "Every household expense: groceries and service visits." },
       { property: "og:title", content: "Expenses — HomeOps" },
-      { property: "og:description", content: "Every household expense: groceries and completed service visits." },
+      { property: "og:description", content: "Every household expense: groceries and service visits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -63,6 +42,7 @@ function ExpensesPage() {
   const providers = useQuery(providersQuery());
   const stars = useQuery(starsQuery());
   const [showStarred, setShowStarred] = useState(false);
+  const [providerFilter, setProviderFilter] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [f, setF] = useState<HistoryFilters>(DEFAULT_HISTORY_FILTERS);
@@ -80,22 +60,13 @@ function ExpensesPage() {
 
   const isLoading = visits.isLoading || groceries.isLoading;
   const error = visits.error || groceries.error;
-  const items: HistoryItem[] = [
-    ...(visits.data ?? []).map((v): HistoryItem => ({
-      kind: "visit", id: v.id, date: v.visit_date,
-      type: v.service_providers?.service_type ?? "Other",
-      title: v.service_performed, subtitle: v.service_providers?.name ?? "Provider",
-      amount: v.amount_paid, settled: v.paid, receipt_url: v.receipt_url, created_at: v.created_at,
-    })),
-    ...(groceries.data ?? []).map((g): HistoryItem => ({
-      kind: "grocery", id: g.id, date: g.purchase_date,
-      type: "Grocery", title: g.store, subtitle: "Grocery",
-      amount: g.amount, settled: g.reimbursed, receipt_url: g.receipt_url, created_at: g.created_at,
-    })),
-  ];
-  const list = filterHistory(items, f);
+  const items = toLedgerItems(visits.data ?? [], groceries.data ?? []);
+  const scoped = providerFilter ? items.filter((h) => h.providerId === providerFilter) : items;
+  const list = filterHistory(scoped, f);
   const { types, years } = historyFilterOptions(items);
   const starredProviders = (providers.data ?? []).filter((p) => stars.data?.has(p.id));
+  const today = localISO(new Date());
+  const starredName = providerFilter ? providers.data?.find((p) => p.id === providerFilter)?.name : null;
 
   return (
     <AppShell>
@@ -138,13 +109,23 @@ function ExpensesPage() {
           <ul className="mt-2 space-y-1">
             {starredProviders.map((p) => (
               <li key={p.id}>
-                <Link to="/providers/$id" params={{ id: p.id }} className="text-sm font-medium text-primary hover:underline">
+                <button
+                  type="button"
+                  onClick={() => { setProviderFilter(providerFilter === p.id ? null : p.id); setShowStarred(false); }}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   ★ {p.name} <span className="text-muted-foreground">· {p.service_type}</span>
-                </Link>
+                </button>
               </li>
             ))}
           </ul>
         </div>
+      )}
+      {providerFilter && (
+        <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">
+          Showing expenses for {starredName ?? "this provider"}.{" "}
+          <button type="button" onClick={() => setProviderFilter(null)} className="font-medium text-primary underline">Show all</button>
+        </p>
       )}
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load your expenses. Please refresh.</p>}
@@ -159,33 +140,35 @@ function ExpensesPage() {
       )}
       {items.length > 0 && (
         <>
-          <FilterBar onReset={reset} showReset={!isDefault(f, DEFAULT_HISTORY_FILTERS)}>
-            <Field label="Status" htmlFor="status">
-              <select id="status" className={ctrl} value={f.status} onChange={(e) => set("status", e.target.value as HistoryFilters["status"])}>
-                <option value="">All</option>
-                <option value="outstanding">Outstanding</option>
-                <option value="settled">Settled</option>
-              </select>
-            </Field>
-            <Field label="Type" htmlFor="type">
-              <select id="type" className={ctrl} value={f.type} onChange={(e) => set("type", e.target.value)}>
-                <option value="">All types</option>
-                {types.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </Field>
-            <Field label="Month" htmlFor="month">
-              <select id="month" className={ctrl} value={f.month} onChange={(e) => set("month", e.target.value)}>
-                <option value="">All months</option>
-                {MONTHS.map((name, i) => <option key={name} value={String(i + 1).padStart(2, "0")}>{name}</option>)}
-              </select>
-            </Field>
-            <Field label="Year" htmlFor="year">
-              <select id="year" className={ctrl} value={f.year} onChange={(e) => set("year", e.target.value)}>
-                <option value="">All years</option>
-                {years.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </Field>
-          </FilterBar>
+          <div className="mb-5 flex justify-end">
+            <FilterPopover onReset={reset} activeCount={activeCount(f)}>
+              <Field label="Status" htmlFor="status">
+                <select id="status" className={ctrl} value={f.status} onChange={(e) => set("status", e.target.value as HistoryFilters["status"])}>
+                  <option value="">All</option>
+                  <option value="outstanding">Outstanding</option>
+                  <option value="settled">Settled</option>
+                </select>
+              </Field>
+              <Field label="Type" htmlFor="type">
+                <select id="type" className={ctrl} value={f.type} onChange={(e) => set("type", e.target.value)}>
+                  <option value="">All types</option>
+                  {types.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </Field>
+              <Field label="Month" htmlFor="month">
+                <select id="month" className={ctrl} value={f.month} onChange={(e) => set("month", e.target.value)}>
+                  <option value="">All months</option>
+                  {MONTHS.map((name, i) => <option key={name} value={String(i + 1).padStart(2, "0")}>{name}</option>)}
+                </select>
+              </Field>
+              <Field label="Year" htmlFor="year">
+                <select id="year" className={ctrl} value={f.year} onChange={(e) => set("year", e.target.value)}>
+                  <option value="">All years</option>
+                  {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </Field>
+            </FilterPopover>
+          </div>
           {list.length === 0 && <NoMatches onReset={reset} />}
           <ul className="space-y-3">
             {list.map((h) => (
@@ -198,8 +181,10 @@ function ExpensesPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm text-muted-foreground">{day(h.date)}</div>
-                      <div className="text-sm text-muted-foreground">{h.type}{h.kind === "visit" ? ` · ${h.subtitle}` : h.title !== "Grocery" ? ` · ${h.title}` : ""}</div>
-                      {h.kind === "visit" && <div className="font-medium text-foreground">{h.title}</div>}
+                      <div className="font-medium text-foreground">
+                        {h.type}
+                        {h.date > today && <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-muted-foreground">Upcoming</span>}
+                      </div>
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-foreground">{money(h.amount) ?? "—"}</div>

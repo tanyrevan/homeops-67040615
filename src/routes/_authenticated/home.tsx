@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { monthKey, usd } from "@/lib/dashboard-stats";
 import { chartAxisMax, householdStats, periodTotal, type SpendPeriod } from "@/lib/household-stats";
 import { filterOwnedRecords } from "@/lib/ownership";
-import { localISO } from "@/lib/due-status";
 
 // Paginate so the all-time totals aren't truncated by the backend row limit.
 async function allRows<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
@@ -24,7 +23,7 @@ const dashboardQuery = (userId: string) => queryOptions({
   queryFn: async () => {
     const [groceries, visits, providers] = await Promise.all([
       allRows((from, to) => supabase.from("grocery_expenses").select("user_id, purchase_date, amount, reimbursed").eq("user_id", userId).order("id").range(from, to)),
-      allRows((from, to) => supabase.from("maintenance_visits").select("id, user_id, service_provider_id, visit_date, amount_paid, paid, next_service_date, created_at").eq("user_id", userId).order("id").range(from, to)),
+      allRows((from, to) => supabase.from("maintenance_visits").select("id, user_id, service_provider_id, visit_date, amount_paid, paid, created_at").eq("user_id", userId).order("id").range(from, to)),
       allRows((from, to) => supabase.from("service_providers").select("id, user_id, service_type").eq("user_id", userId).order("id").range(from, to)),
     ]);
     return { groceries: filterOwnedRecords(groceries, userId), visits: filterOwnedRecords(visits, userId), providers: filterOwnedRecords(providers, userId) };
@@ -80,7 +79,7 @@ function Dashboard() {
       <div className="mt-3 overflow-x-auto" role="region" aria-label="Category summary" tabIndex={0}>
         <table className="w-full min-w-[660px] text-center text-sm">
           <thead className="border-b border-border bg-muted/50 text-muted-foreground"><tr>{["Category", "Amount Due", "Last Visit", "Next Visit"].map((label) => <th key={label} scope="col" className="px-3 py-3 text-center font-medium whitespace-nowrap">{label}</th>)}</tr></thead>
-          <tbody>{stats.rows.map((row, i) => <tr key={`${i}-${row.category}`} className="border-b border-border"><th scope="row" className="px-3 py-4 text-center font-medium whitespace-nowrap">{row.category}</th><td className="px-3 py-4 tabular-nums whitespace-nowrap">{usd(row.due)}</td><td className="px-3 py-4 whitespace-nowrap">{dateLabel(row.lastVisit)}</td><td className="px-3 py-4 whitespace-nowrap"><span>{dateLabel(row.nextVisit)}</span>{row.nextVisit && row.nextVisit < localISO(today) && <span className="ml-2 text-xs font-medium text-destructive">Overdue</span>}</td></tr>)}</tbody>
+          <tbody>{stats.rows.map((row, i) => <tr key={`${i}-${row.category}`} className="border-b border-border"><th scope="row" className="px-3 py-4 text-center font-medium whitespace-nowrap">{row.category}</th><td className="px-3 py-4 tabular-nums whitespace-nowrap">{usd(row.due)}</td><td className="px-3 py-4 whitespace-nowrap">{dateLabel(row.lastVisit)}</td><td className="px-3 py-4 whitespace-nowrap">{dateLabel(row.nextVisit)}</td></tr>)}</tbody>
         </table>
       </div>
     </section>
