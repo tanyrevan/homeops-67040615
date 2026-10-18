@@ -7,3 +7,4 @@
 - [x] Verify actual-date ledger sorting, Paid/Unpaid filters, Upcoming amounts, and Air Conditioner display mapping; run all tests and signed-in checks.
 - [x] Change displayed service type to Aircon, preserve stored values, append follow-up, and verify tests/build and signed-in pages.
 - [x] Consolidate navigation and Expenses sections, add History settlement, green Paid badges and legacy redirects; preserve records, document and verify full tests/build and signed-in flow.
+- [ ] Refine compact selected navigation, settings/logout menu and Upcoming heading; document and verify signed-in/mobile behavior and tests/build.
