@@ -1,12 +1,44 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { StarButton } from "@/components/StarButton";
-import { DEFAULT_PROVIDER_FILTERS, filterProviders } from "@/lib/list-filters";
+import { Field, FilterBar, NoMatches, ctrl } from "@/components/FilterControls";
+import { StatusBadge } from "@/components/StatusBadge";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  DEFAULT_HISTORY_FILTERS, filterHistory, historyFilterOptions, isDefault,
+  type HistoryFilters, type HistoryItem,
+} from "@/lib/list-filters";
 import { providersQuery } from "@/lib/providers-api";
 import { starsQuery } from "@/lib/stars";
+import { day, money } from "@/lib/visits-api";
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+const expenseVisitsQuery = queryOptions({
+  queryKey: ["visits", "all"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("maintenance_visits")
+      .select("id, visit_date, service_performed, amount_paid, paid, created_at, receipt_url, service_providers(name, service_type)")
+      .order("visit_date", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+});
+
+const expenseGroceriesQuery = queryOptions({
+  queryKey: ["groceries", "history"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("grocery_expenses")
+      .select("id, purchase_date, store, amount, reimbursed, created_at, receipt_url")
+      .order("purchase_date", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+});
 
 export const Route = createFileRoute("/_authenticated/providers/")({
   validateSearch: (s: Record<string, unknown>): { deleted?: boolean } =>
@@ -14,9 +46,9 @@ export const Route = createFileRoute("/_authenticated/providers/")({
   head: () => ({
     meta: [
       { title: "Expenses — HomeOps" },
-      { name: "description", content: "Your household expense types." },
+      { name: "description", content: "Every household expense: groceries and completed service visits." },
       { property: "og:title", content: "Expenses — HomeOps" },
-      { property: "og:description", content: "Your household expense types." },
+      { property: "og:description", content: "Every household expense: groceries and completed service visits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,12 +58,16 @@ export const Route = createFileRoute("/_authenticated/providers/")({
 
 function ExpensesPage() {
   const { deleted } = Route.useSearch();
-  const { user } = Route.useRouteContext();
-  const { data, isLoading, error } = useQuery(providersQuery());
+  const visits = useQuery(expenseVisitsQuery);
+  const groceries = useQuery(expenseGroceriesQuery);
+  const providers = useQuery(providersQuery());
   const stars = useQuery(starsQuery());
-  const [starredOnly, setStarredOnly] = useState(false);
+  const [showStarred, setShowStarred] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [f, setF] = useState<HistoryFilters>(DEFAULT_HISTORY_FILTERS);
+  const set = <K extends keyof HistoryFilters>(k: K, v: HistoryFilters[K]) => setF((prev) => ({ ...prev, [k]: v }));
+  const reset = () => setF(DEFAULT_HISTORY_FILTERS);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -42,10 +78,24 @@ function ExpensesPage() {
     return () => document.removeEventListener("mousedown", close);
   }, [menuOpen]);
 
-  const filters = { ...DEFAULT_PROVIDER_FILTERS, starredOnly };
-  const providers = data && stars.data ? filterProviders(data, stars.data, filters) : [];
-  const showGrocery = !starredOnly;
-  const hasAny = providers.length > 0 || showGrocery;
+  const isLoading = visits.isLoading || groceries.isLoading;
+  const error = visits.error || groceries.error;
+  const items: HistoryItem[] = [
+    ...(visits.data ?? []).map((v): HistoryItem => ({
+      kind: "visit", id: v.id, date: v.visit_date,
+      type: v.service_providers?.service_type ?? "Other",
+      title: v.service_performed, subtitle: v.service_providers?.name ?? "Provider",
+      amount: v.amount_paid, settled: v.paid, receipt_url: v.receipt_url, created_at: v.created_at,
+    })),
+    ...(groceries.data ?? []).map((g): HistoryItem => ({
+      kind: "grocery", id: g.id, date: g.purchase_date,
+      type: "Grocery", title: g.store, subtitle: "Grocery",
+      amount: g.amount, settled: g.reimbursed, receipt_url: g.receipt_url, created_at: g.created_at,
+    })),
+  ];
+  const list = filterHistory(items, f);
+  const { types, years } = historyFilterOptions(items);
+  const starredProviders = (providers.data ?? []).filter((p) => stars.data?.has(p.id));
 
   return (
     <AppShell>
@@ -63,57 +113,109 @@ function ExpensesPage() {
               <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 z-10 mt-1 w-44 rounded-md border border-border bg-card py-1 shadow-md">
+              <div className="absolute right-0 z-10 mt-1 w-52 rounded-md border border-border bg-card py-1 shadow-md">
                 <button
                   type="button"
-                  aria-pressed={starredOnly}
-                  onClick={() => { setStarredOnly(!starredOnly); setMenuOpen(false); }}
+                  aria-pressed={showStarred}
+                  onClick={() => { setShowStarred(!showStarred); setMenuOpen(false); }}
                   className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent"
                 >
-                  {starredOnly ? "✓ " : ""}Show starred only
+                  {showStarred ? "✓ " : ""}Starred service providers
                 </button>
               </div>
             )}
           </div>
           <Link to="/providers/new" className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
-            Add Expense Type
+            Add Expense
           </Link>
         </div>
       </div>
       {deleted && <p className="mb-4 rounded-md bg-accent p-3 text-sm text-foreground">Expense type deleted.</p>}
+      {showStarred && (
+        <div className="mb-6 rounded-lg border border-border bg-card p-4">
+          <h2 className="text-sm font-semibold text-foreground">Starred service providers</h2>
+          {starredProviders.length === 0 && <p className="mt-1 text-sm text-muted-foreground">No starred providers yet.</p>}
+          <ul className="mt-2 space-y-1">
+            {starredProviders.map((p) => (
+              <li key={p.id}>
+                <Link to="/providers/$id" params={{ id: p.id }} className="text-sm font-medium text-primary hover:underline">
+                  ★ {p.name} <span className="text-muted-foreground">· {p.service_type}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load your expenses. Please refresh.</p>}
-      {data && stars.data && !hasAny && (
+      {!isLoading && !error && items.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-foreground">No starred expense types yet. Tap the star on any expense type to pin it here.</p>
+          <p className="text-foreground">No expenses yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Add your first grocery purchase or service visit to start your ledger.</p>
+          <Link to="/providers/new" className="mt-5 inline-block rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
+            Add your first expense
+          </Link>
         </div>
       )}
-      {data && stars.data && providers.length === 0 && !starredOnly && (
-        <div className="mb-4 rounded-lg border border-dashed border-border bg-card p-6 text-center">
-          <p className="text-sm text-muted-foreground">Add your gardener, A/C technician, or anyone who helps around the house.</p>
-        </div>
-      )}
-      {hasAny && (
-        <ul className="space-y-3">
-          {showGrocery && (
-            <li>
-              <Link to="/groceries" className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
-                <div className="font-medium text-foreground">Grocery</div>
-              </Link>
-            </li>
-          )}
-          {providers.map((p) => (
-            <li key={p.id}>
-              <div className="flex items-center gap-2 rounded-lg border border-border bg-card pr-2 hover:bg-accent">
-                <Link to="/providers/$id" params={{ id: p.id }} className="block flex-1 p-4">
-                  <div className="font-medium text-foreground">{p.name}</div>
-                  <div className="text-sm text-muted-foreground">{p.service_type}</div>
+      {items.length > 0 && (
+        <>
+          <FilterBar onReset={reset} showReset={!isDefault(f, DEFAULT_HISTORY_FILTERS)}>
+            <Field label="Status" htmlFor="status">
+              <select id="status" className={ctrl} value={f.status} onChange={(e) => set("status", e.target.value as HistoryFilters["status"])}>
+                <option value="">All</option>
+                <option value="outstanding">Outstanding</option>
+                <option value="settled">Settled</option>
+              </select>
+            </Field>
+            <Field label="Type" htmlFor="type">
+              <select id="type" className={ctrl} value={f.type} onChange={(e) => set("type", e.target.value)}>
+                <option value="">All types</option>
+                {types.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </Field>
+            <Field label="Month" htmlFor="month">
+              <select id="month" className={ctrl} value={f.month} onChange={(e) => set("month", e.target.value)}>
+                <option value="">All months</option>
+                {MONTHS.map((name, i) => <option key={name} value={String(i + 1).padStart(2, "0")}>{name}</option>)}
+              </select>
+            </Field>
+            <Field label="Year" htmlFor="year">
+              <select id="year" className={ctrl} value={f.year} onChange={(e) => set("year", e.target.value)}>
+                <option value="">All years</option>
+                {years.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </Field>
+          </FilterBar>
+          {list.length === 0 && <NoMatches onReset={reset} />}
+          <ul className="space-y-3">
+            {list.map((h) => (
+              <li key={`${h.kind}-${h.id}`}>
+                <Link
+                  to={h.kind === "visit" ? "/visits/$visitId" : "/groceries/$groceryId"}
+                  params={h.kind === "visit" ? { visitId: h.id } : { groceryId: h.id }}
+                  className="block rounded-lg border border-border bg-card p-4 hover:bg-accent"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm text-muted-foreground">{day(h.date)}</div>
+                      <div className="text-sm text-muted-foreground">{h.type}{h.kind === "visit" ? ` · ${h.subtitle}` : h.title !== "Grocery" ? ` · ${h.title}` : ""}</div>
+                      {h.kind === "visit" && <div className="font-medium text-foreground">{h.title}</div>}
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-foreground">{money(h.amount) ?? "—"}</div>
+                      <div className="mt-1"><StatusBadge ok={h.settled} yes="Paid" no="Unpaid" /></div>
+                    </div>
+                  </div>
+                  {h.receipt_url && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <span className="font-medium text-primary">📎 Receipt</span>
+                    </div>
+                  )}
                 </Link>
-                <StarButton userId={user.id} providerId={p.id} name={p.name} />
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </AppShell>
   );
