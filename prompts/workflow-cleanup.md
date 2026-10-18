@@ -133,3 +133,4 @@ No migrations, no schema changes, no records modified or deleted.
 - Replaced the standalone Log Out button with a labeled Settings gear and a keyboard-accessible dropdown containing Log Out, using the unchanged existing sign-out action. The menu closes after selection or Escape.
 - Renamed the Expenses section heading to Upcoming; History and all date, sorting, settlement and filter logic remain unchanged.
 - No database, authentication, business-logic, records or branch changes.
+- Verification: all 112 tests across 15 files passed; automatic build OK. Signed-in checks confirmed selected Dashboard/Expenses states, Upcoming/History headings, gear menu keyboard opening, Escape dismissal and focus return, and successful Log Out to /auth. Navigation controls stayed together at 390px and 320px with no horizontal overflow or runtime errors. No records modified.
