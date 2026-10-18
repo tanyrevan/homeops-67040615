@@ -135,8 +135,8 @@ function ExpensesPage() {
                 </select>
               </Field>
             </FilterPopover>
-            <Button type="button" variant={showStarred ? "default" : "outline"} aria-pressed={showStarred} onClick={() => setShowStarred(!showStarred)}>
-              <span aria-hidden="true">☆</span> Starred
+            <Button type="button" variant="outline" className={`h-auto border-border bg-card px-4 py-2 text-foreground hover:bg-accent ${showStarred ? "ring-1 ring-foreground" : ""}`} aria-pressed={showStarred} onClick={() => setShowStarred(!showStarred)}>
+              <span className="text-xl leading-none" aria-hidden="true">{showStarred ? "★" : "☆"}</span> Starred
             </Button>
           </div>
           {!isLoading && !error && (

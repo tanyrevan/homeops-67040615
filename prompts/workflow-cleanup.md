@@ -325,3 +325,103 @@ When finished, summarize:
 - Replaced provider-star menu with per-card stars and a combined Starred toggle beside Filter; optimistic updates roll back on failure.
 - Added 15 tests for persistence calls, transaction independence, owner-scoped queries/deletes, both sections and combined filters, unstar removal, card click separation and database policy/constraint contracts. Full suite: 139 tests across 20 files passed; automatic build OK.
 - Signed-in browser verified both kinds, refresh and Dashboard navigation persistence, sibling independence, combined filters, immediate removal, card navigation and narrow-screen layout. Backend rejected spoofed-owner insertion. Logout/login and full two-user backend checks were not exercised; policy contracts were inspected and tested. All temporary QA records removed.
+Make a small visual cleanup to the new expense-star UI. Do not change any
+database behavior or starring logic.
+
+Stay on the current branch and append this follow-up to the existing prompt log.
+
+==================================================
+1. ALIGN HISTORY CARD ACTIONS
+==================================================
+
+The current Unpaid card looks inconsistent because the Mark Paid button creates
+an awkward vertical stack.
+
+For History cards:
+
+- Keep the amount at the top-right.
+- Under the amount, show payment controls on ONE horizontal row.
+
+For an unpaid item:
+
+Unpaid   Mark Paid
+
+For a paid item:
+
+✓ Paid
+
+Do not place Mark Paid on a separate third row.
+
+The goal is for paid and unpaid History cards to have roughly the same height
+and visual alignment.
+
+Keep Mark Paid functional exactly as it is now.
+
+==================================================
+2. CENTER STAR VERTICALLY
+==================================================
+
+On every Upcoming and History expense card:
+
+- Keep the star at the far right edge.
+- Vertically center the star within the entire card.
+- Do not align it to the amount or payment-status row.
+- Give it enough spacing so it does not feel cramped against the right border.
+
+The star should remain:
+
+☆ unstarred
+★ starred
+
+Clicking it must still not navigate into the expense detail page.
+
+==================================================
+3. CLEAN UP TOP STARRED BUTTON
+==================================================
+
+The Starred button beside Filter currently looks gray and visually inconsistent.
+
+Change it so:
+
+- background is white / the same neutral background as the Filter button
+- border matches the Filter button
+- text color matches Filter
+- no gray filled appearance when inactive
+- use the SAME star icon style and apparent size as the line-item stars
+
+Inactive:
+
+☆ Starred
+
+When Starred filtering is active, use a subtle active state that fits the
+existing black / white / ivory design. Do not use a heavy gray fill.
+
+Filter and Starred should look like matching secondary controls.
+
+==================================================
+4. PRESERVE EVERYTHING ELSE
+==================================================
+
+Do not change:
+- star persistence
+- new expense-star database structure
+- filters
+- expense ordering
+- card navigation
+- Upcoming/History logic
+- Paid/Unpaid behavior
+- Mark Paid behavior
+- Dashboard
+- existing records
+
+Run the full test suite and build afterward.
+
+When finished, summarize:
+1. layout changes
+2. test result
+3. build result
+
+## Expense-star visual cleanup — verification
+- History amount sits above one payment row; paid and unpaid cards retain equal heights. Card stars are centered vertically with right-side spacing. Starred matches Filter and uses matching star glyphs with a subtle active outline.
+- Signed-in checks verified payment alignment, equal card heights, Mark Paid readback, star persistence, combined filtering, independent transaction navigation and mobile rendering. Temporary QA records removed. No database or starring logic changes.
+- Full suite: 140 tests across 20 files passed. Automatic build: OK.
