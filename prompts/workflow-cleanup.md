@@ -54,3 +54,11 @@ No migrations, no schema changes, no records modified or deleted.
 - `src/test/grocery-validation.test.ts`: rewritten — category tests replaced with "saves without a category" (asserts the validated payload has no `category` key).
 - `src/test/list-filters.test.ts`: "Other category" filter test replaced with "historical category values still load and are ignored by filters".
 - Full suite run with `bunx vitest run`; all tests pass (see final summary in chat).
+
+## Follow-up: Dashboard/Amount Due/chart refinements + grocery Paid/Unpaid wording
+- Dashboard: section heading is now "Summary"; table columns are Category | Amount Due | Last Visit | Next Visit (month abbreviation and current-month Total column removed); "View" link beside Total Amount Due removed; chart title "Household Spending (Last 3 Months)"; calculations unchanged.
+- Chart: `--chart-1..8` tokens in `src/styles.css` changed from grayscale to distinct muted colors (green, terracotta, slate blue, ochre, plum, teal, olive, rust) compatible with the ivory theme; axis logic unchanged.
+- Grocery status: user-facing wording is Paid / Unpaid everywhere (form label "Paid?", list filter "Status", detail "Status", History badges, Amount Due). The `reimbursed` database field is unchanged internally; `groceryStatusLabel` in `src/lib/grocery-status.ts` documents the mapping.
+- Amount Due: sections renamed "Unpaid Maintenance" / "Unpaid Groceries"; every outstanding item has a compact "Mark Paid" button that updates `paid = true` (visits) or `reimbursed = true` (groceries) via `settleUpdate`/`settleTable` in `src/lib/settle.ts`, disables while saving, invalidates all queries (Dashboard totals refresh), and never deletes records.
+- Tests: new `src/test/grocery-status.test.ts` (Paid/Unpaid mapping, no reimbursement wording) and `src/test/settle.test.ts` (settle payloads and tables).
+- No database/schema changes; no records deleted.

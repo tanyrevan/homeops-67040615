@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/components/AppShell";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { monthKey, usd } from "@/lib/dashboard-stats";
 import { chartAxisMax, householdStats, periodTotal, type SpendPeriod } from "@/lib/household-stats";
@@ -55,7 +54,6 @@ function Dashboard() {
   const { user } = Route.useRouteContext();
   const { data } = useSuspenseQuery(dashboardQuery(user.id));
   const today = new Date();
-  const monthAbbr = today.toLocaleDateString("en-US", { month: "short" });
   const [period, setPeriod] = useState<SpendPeriod>("month");
   const stats = householdStats(data.groceries, data.visits, data.providers, today);
   const totalSpend = periodTotal(data.groceries, data.visits, today, period);
@@ -75,19 +73,19 @@ function Dashboard() {
         </div>
         <p className="mt-1 text-2xl font-semibold tabular-nums">{usd(totalSpend)}</p>
       </div>
-      <div><div className="flex flex-wrap items-center gap-x-3"><h2 className="text-sm text-muted-foreground">Total Amount Due</h2><Button asChild variant="link" size="sm" className="h-auto px-0"><Link to="/attention">View</Link></Button></div><p className="mt-1 text-2xl font-semibold tabular-nums">{usd(stats.due)}</p></div>
+      <div><h2 className="text-sm text-muted-foreground">Total Amount Due</h2><p className="mt-1 text-2xl font-semibold tabular-nums">{usd(stats.due)}</p></div>
     </div>
     <section className="mt-6">
-      <h2 className="text-lg font-semibold">Category Summary — {monthAbbr}</h2>
+      <h2 className="text-lg font-semibold">Summary</h2>
       <div className="mt-3 overflow-x-auto" role="region" aria-label="Category summary" tabIndex={0}>
         <table className="w-full min-w-[660px] text-center text-sm">
-          <thead className="border-b border-border bg-muted/50 text-muted-foreground"><tr>{[`Category (${monthAbbr})`, `Total (${monthAbbr})`, "Amount Due", "Last Visit", "Next Visit"].map((label) => <th key={label} scope="col" className="px-3 py-3 text-center font-medium whitespace-nowrap">{label}</th>)}</tr></thead>
-          <tbody>{stats.rows.map((row, i) => <tr key={`${i}-${row.category}`} className="border-b border-border"><th scope="row" className="px-3 py-4 text-center font-medium whitespace-nowrap">{row.category}</th><td className="px-3 py-4 tabular-nums whitespace-nowrap">{usd(row.total)}</td><td className="px-3 py-4 tabular-nums whitespace-nowrap">{usd(row.due)}</td><td className="px-3 py-4 whitespace-nowrap">{dateLabel(row.lastVisit)}</td><td className="px-3 py-4 whitespace-nowrap"><span>{dateLabel(row.nextVisit)}</span>{row.nextVisit && row.nextVisit < localISO(today) && <span className="ml-2 text-xs font-medium text-destructive">Overdue</span>}</td></tr>)}</tbody>
+          <thead className="border-b border-border bg-muted/50 text-muted-foreground"><tr>{["Category", "Amount Due", "Last Visit", "Next Visit"].map((label) => <th key={label} scope="col" className="px-3 py-3 text-center font-medium whitespace-nowrap">{label}</th>)}</tr></thead>
+          <tbody>{stats.rows.map((row, i) => <tr key={`${i}-${row.category}`} className="border-b border-border"><th scope="row" className="px-3 py-4 text-center font-medium whitespace-nowrap">{row.category}</th><td className="px-3 py-4 tabular-nums whitespace-nowrap">{usd(row.due)}</td><td className="px-3 py-4 whitespace-nowrap">{dateLabel(row.lastVisit)}</td><td className="px-3 py-4 whitespace-nowrap"><span>{dateLabel(row.nextVisit)}</span>{row.nextVisit && row.nextVisit < localISO(today) && <span className="ml-2 text-xs font-medium text-destructive">Overdue</span>}</td></tr>)}</tbody>
         </table>
       </div>
     </section>
     <section className="mt-8">
-      <h2 className="text-lg font-semibold">Household Spending — Last 3 Months</h2>
+      <h2 className="text-lg font-semibold">Household Spending (Last 3 Months)</h2>
       {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded in the last three months.</p>}
       <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending for the last three calendar months">
         <ResponsiveContainer width="100%" height="100%"><BarChart data={stats.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>

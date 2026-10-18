@@ -57,11 +57,11 @@ function GroceriesPage() {
           <Field label="Search by store" htmlFor="q" wide>
             <input id="q" type="search" className={ctrl} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Store name" />
           </Field>
-          <Field label="Reimbursement" htmlFor="reimbursed">
+          <Field label="Status" htmlFor="reimbursed">
             <select id="reimbursed" className={ctrl} value={f.reimbursed} onChange={(e) => set("reimbursed", e.target.value as GroceryFilters["reimbursed"])}>
               <option value="">All</option>
-              <option value="yes">Reimbursed</option>
-              <option value="no">Not Reimbursed</option>
+              <option value="yes">Paid</option>
+              <option value="no">Unpaid</option>
             </select>
           </Field>
           <Field label="Start date" htmlFor="from">
@@ -93,7 +93,7 @@ function GroceriesPage() {
                 </div>
                 {(
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                    <StatusBadge ok={g.reimbursed} yes="Reimbursed" no="Not Reimbursed" />
+                    <StatusBadge ok={g.reimbursed} yes="Paid" no="Unpaid" />
                     {g.receipt_url && <span className="font-medium text-primary">📎 Receipt</span>}
                   </div>
                 )}
