@@ -7,6 +7,8 @@ import { providerQuery } from "@/lib/providers-api";
 import { removeReceipt, uploadReceipt } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/visits/new")({
+  validateSearch: (s: Record<string, unknown>): { scheduled?: string } =>
+    typeof s["scheduled"] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s["scheduled"]) ? { scheduled: s["scheduled"] } : {},
   head: () => ({
     meta: [
       { title: "Add Visit — HomeOps" },
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/providers/$id/visits/new")
 
 function NewVisit() {
   const { id } = Route.useParams();
+  const { scheduled } = Route.useSearch();
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -36,7 +39,7 @@ function NewVisit() {
       {!isLoading && !p && <p className="text-foreground">This provider wasn't found.</p>}
       {p && (
         <VisitForm
-          initial={{ visitDate: today, service: "", amount: "", notes: "", nextDate: "", paid: false }}
+          initial={{ visitDate: scheduled ?? today, service: "", amount: "", notes: "", nextDate: "", paid: false }}
           submitLabel="Save Visit"
           onCancel={() => navigate({ to: "/providers/$id", params: { id } })}
           onSubmit={async ({ data, file }) => {

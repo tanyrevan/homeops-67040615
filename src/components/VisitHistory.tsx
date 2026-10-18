@@ -8,17 +8,12 @@ export function VisitHistory({ providerId }: { providerId: string }) {
   const { data, isLoading, error } = useQuery(providerVisitsQuery(providerId));
   return (
     <section className="mt-8">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-xl font-semibold text-foreground">Visit History</h2>
-        <Link to="/providers/$id/visits/new" params={{ id: providerId }} className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
-          Add Visit
-        </Link>
-      </div>
+      <h2 className="mb-4 text-xl font-semibold text-foreground">History</h2>
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {error && <p className="text-destructive">We couldn't load visits. Please refresh.</p>}
       {data && data.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
-          No visits logged yet. Tap "Add Visit" after their next visit.
+          No completed visits yet. Tap "Add Visit" after their next visit.
         </div>
       )}
       {data && data.length > 0 && (
