@@ -104,3 +104,9 @@ No migrations, no schema changes, no records modified or deleted.
 - Added ten regression tests covering mixed-table actual-date ordering, insertion independence, equal-date ties, both payment booleans, future dates/amounts, exact legacy mapping and unchanged inputs, plus Dashboard category/chart grouping. Full suite: 101 tests across 15 files passed.
 - Signed-in read-only checks verified actual ledger order, All / Unpaid / Paid options and filtering (two records each), Air Conditioner Type/Add Expense labels, real Upcoming amount with no status, transaction opening, Dashboard/History/Amount Due terminology, and mobile Upcoming layout. No runtime errors; no records modified; no database/schema changes.
 - No branch creation or switch performed; Lovable's internal edit workspace remains in use for the existing workflow-cleanup work.
+
+## Follow-up: final Aircon terminology
+
+- Changed the shared expense-type display mapping from Air Conditioner to Aircon throughout selectors/forms, Expenses, Type filters, Upcoming, History, Dashboard Summary/chart legends, Amount Due, and all other mapped type labels.
+- Both exact stored `A/C` and `Air Conditioner` values display as `Aircon`; stored values, existing records, database schema, and validation-compatible selector values remain unchanged. No migration.
+- Updated mapping and Dashboard grouping regression expectations. Full suite: 101 tests passed across 15 files; automatic build OK. Signed-in checks confirmed Aircon in Type filters, Add Expense, Upcoming, Dashboard, History, and Amount Due; transaction opening and existing sorting/status behavior preserved. No runtime errors or records modified.
