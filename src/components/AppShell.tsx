@@ -35,12 +35,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">
-        {expensesArea && (
-          <nav aria-label="Expenses navigation" className="mb-6 flex gap-1 border-b border-border pb-3">
-            <Link to="/providers" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Providers</Link>
-            <Link to="/groceries" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Groceries</Link>
-          </nav>
-        )}
         {children}
       </main>
     </div>
