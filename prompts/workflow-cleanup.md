@@ -526,3 +526,9 @@ When finished, summarize:
 1. layout changes
 2. test result
 3. build result
+
+## Final alignment adjustment — verification
+- Centered Mark Paid to the left of the right-aligned amount/status stack. Paid and Unpaid badge placement matches; card height and centered stars preserved.
+- Filter and Starred share identical width, height, padding, border, radius, typography and spacing through one styling constant.
+- Signed-in checks confirmed equal control dimensions, centered actions, equal card heights, settlement readback, star persistence/filtering/navigation and narrow-screen rendering. Temporary QA records removed.
+- Full suite: 140 tests across 20 files passed. Automatic build: OK. No database or business-logic changes; current branch retained.
