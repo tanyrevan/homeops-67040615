@@ -78,7 +78,7 @@ function Dashboard() {
       <div><h2 className="text-sm text-muted-foreground">Total Amount Due</h2><p className="mt-1 text-2xl font-semibold tabular-nums">{usd(stats.due)}</p></div>
     </div>
     <section className="mt-6">
-      <h2 className="text-lg font-semibold">Category Summary — {monthAbbr}</h2>
+      <h2 className="text-lg font-semibold">Summary</h2>
       <div className="mt-3 overflow-x-auto" role="region" aria-label="Category summary" tabIndex={0}>
         <table className="w-full min-w-[660px] text-center text-sm">
           <thead className="border-b border-border bg-muted/50 text-muted-foreground"><tr>{[`Category (${monthAbbr})`, `Total (${monthAbbr})`, "Amount Due", "Last Visit", "Next Visit"].map((label) => <th key={label} scope="col" className="px-3 py-3 text-center font-medium whitespace-nowrap">{label}</th>)}</tr></thead>
