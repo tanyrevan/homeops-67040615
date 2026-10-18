@@ -3,3 +3,4 @@
 - [x] Simplify top navigation and add maintenance secondary navigation.
 - [x] Save prompt and architecture notes; preserve database and budget history.
 - [x] Add calculation tests, run full suite, verify signed-in desktop/mobile flows.
+- [ ] Retire legacy grocery list navigation, preserve CRUD, append follow-up, and verify the full suite and signed-in flow.
