@@ -134,3 +134,194 @@ No migrations, no schema changes, no records modified or deleted.
 - Renamed the Expenses section heading to Upcoming; History and all date, sorting, settlement and filter logic remain unchanged.
 - No database, authentication, business-logic, records or branch changes.
 - Verification: all 112 tests across 15 files passed; automatic build OK. Signed-in checks confirmed selected Dashboard/Expenses states, Upcoming/History headings, gear menu keyboard opening, Escape dismissal and focus return, and successful Log Out to /auth. Navigation controls stayed together at 390px and 320px with no horizontal overflow or runtime errors. No records modified.
+Make one final improvement to the Expenses starring workflow.
+
+The current provider-level starred workflow is no longer intuitive in the final
+unified Expenses design. Change starring so users star INDIVIDUAL EXPENSE
+LINE ITEMS instead.
+
+IMPORTANT
+- Stay on the current branch.
+- Preserve all existing expense records.
+- Preserve authentication and user data isolation.
+- Do not make unrelated UI changes.
+- Append this follow-up to the current prompt log.
+- Run the complete automated test suite and build afterward.
+
+==================================================
+1. STAR INDIVIDUAL EXPENSES
+==================================================
+
+Every expense card in BOTH sections should have a star control:
+
+- Upcoming
+- History
+
+Use:
+
+☆ = not starred
+★ = starred
+
+Place the star on the right side of the expense card near the amount/status,
+without making the layout cluttered.
+
+The star belongs to the individual transaction, NOT the provider.
+
+Examples:
+
+A user may star:
+- one specific Grocery purchase
+- one specific Gardener visit
+- one specific Jacuzzi visit
+- one future Aircon expense
+
+Starring one Gardener expense must NOT automatically star every Gardener
+expense from the same provider.
+
+==================================================
+2. INTERACTION
+==================================================
+
+Clicking an empty star should immediately star that expense.
+
+Clicking a filled star should immediately unstar it.
+
+The state must persist across:
+- page refresh
+- logout/login
+- navigation between Dashboard and Expenses
+
+IMPORTANT:
+Clicking the star must NOT trigger the surrounding expense-card navigation.
+The user should remain on the Expenses page.
+
+The rest of the expense card should continue opening the transaction detail.
+
+==================================================
+3. STARRED FILTER
+==================================================
+
+Remove the current three-dot button beside Add Expense.
+
+That menu currently exists mainly to expose "Starred service providers".
+Remove that provider-level starred UI from the normal workflow.
+
+Instead, place a clear secondary button beside the existing Filter button:
+
+☆ Starred
+
+Clicking it should show ONLY starred individual expense records.
+
+When the Starred filter is active:
+- show starred Upcoming expenses in Upcoming
+- show starred past/today expenses in History
+- preserve the existing date ordering inside each section
+
+Use an active visual state so it is obvious when Starred filtering is enabled.
+
+Clicking Starred again should return to all expenses.
+
+The existing Filter button and filters should continue working.
+
+If Starred and another filter are active at the same time, apply both filters.
+
+==================================================
+4. DATABASE / PERSISTENCE
+==================================================
+
+Inspect the current stars implementation before changing anything.
+
+The final behavior must persist stars at the individual expense-record level
+for BOTH:
+- maintenance/service visits
+- grocery expenses
+
+Do not use localStorage as the source of truth.
+
+Use a proper user-owned database relationship so each user can only see and
+modify their own stars.
+
+Because Grocery and maintenance records live in different underlying tables,
+choose the simplest safe relational implementation.
+
+If the existing provider-level stars table cannot correctly represent
+individual grocery and maintenance transactions, do not force it.
+
+It is acceptable to introduce a small expense-star junction structure if
+needed, but:
+- preserve existing data
+- preserve current tables
+- enforce user ownership/data isolation
+- avoid unrelated schema changes
+
+==================================================
+5. REMOVE OLD PROVIDER STAR UX
+==================================================
+
+The final Expenses page should no longer have:
+
+- three-dot menu beside Add Expense
+- "Starred service providers" menu item
+- provider-level starring as the primary user-facing star workflow
+
+Do not delete provider records.
+
+Do not restore the old provider directory.
+
+==================================================
+6. CARD LAYOUT
+==================================================
+
+Keep the current clean Expenses card design.
+
+History should still show:
+- date
+- expense type
+- amount
+- Paid / Unpaid
+- Mark Paid where applicable
+
+Upcoming should still show:
+- date
+- expense type
+- amount
+
+Add the star without replacing any of those fields.
+
+Do not display provider/company/store names on the top-level expense cards.
+
+==================================================
+7. TESTING
+==================================================
+
+Add/update tests covering at minimum:
+
+- every expense card exposes a star control
+- maintenance expense can be starred/unstarred
+- grocery expense can be starred/unstarred
+- one expense being starred does not star another expense from the same provider
+- starred state persists
+- clicking star does not open detail page
+- Starred button filters to starred expenses only
+- Starred filter works for both Upcoming and History
+- Starred can combine with existing filters
+- removing a star while Starred filter is active removes that item from the visible list
+- users cannot access another user's stars
+- existing required data-isolation test still passes
+- existing Dashboard test still passes
+
+Run the full automated test suite and build.
+
+When finished, summarize:
+1. UI changes
+2. how individual expense stars are stored
+3. whether any database migration was required
+4. tests added/updated
+5. full test-suite result
+6. build result
+
+## Individual expense stars — verification
+- Added public.expense_stars (one visit_id or grocery_id, unique per owner/transaction, owner-only SELECT/INSERT/DELETE policies and foreign-key cleanup). Legacy provider stars and existing expense records preserved.
+- Replaced provider-star menu with per-card stars and a combined Starred toggle beside Filter; optimistic updates roll back on failure.
+- Added 15 tests for persistence calls, transaction independence, owner-scoped queries/deletes, both sections and combined filters, unstar removal, card click separation and database policy/constraint contracts. Full suite: 139 tests across 20 files passed; automatic build OK.
+- Signed-in browser verified both kinds, refresh and Dashboard navigation persistence, sibling independence, combined filters, immediate removal, card navigation and narrow-screen layout. Backend rejected spoofed-owner insertion. Logout/login and full two-user backend checks were not exercised; policy contracts were inspected and tested. All temporary QA records removed.
