@@ -8,7 +8,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const expensesArea = ["/providers", "/groceries"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const expensesArea = ["/providers", "/groceries", "/visits"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -26,9 +26,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-1">
             <Link to="/home" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Dashboard</Link>
             <Link to="/providers" className={`${linkCls} ${expensesArea ? "bg-accent text-foreground" : ""}`}>Expenses</Link>
-            <Link to="/attention" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Amount Due</Link>
-            <Link to="/upcoming" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>Upcoming</Link>
-            <Link to="/maintenance" className={linkCls} activeProps={{ className: "bg-accent text-foreground" }}>History</Link>
             <Button variant="outline" size="sm" onClick={signOut} className="ml-2">
               Log Out
             </Button>

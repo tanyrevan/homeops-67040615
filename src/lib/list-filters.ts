@@ -96,6 +96,14 @@ export function filterHistory(items: HistoryItem[], f: HistoryFilters): HistoryI
   return newestExpenses(out);
 }
 
+/** Status is meaningful only for History; calendar/type filters apply to both sections. */
+export function expenseSections(items: HistoryItem[], today: string, f: HistoryFilters) {
+  return {
+    upcoming: upcomingItems(filterHistory(items, { ...f, status: "" }), today),
+    history: filterHistory(pastItems(items, today), f),
+  };
+}
+
 /** Distinct types (incl. "Grocery" when grocery records exist) and years present in History. */
 export function historyFilterOptions(items: HistoryItem[]): { types: string[]; years: string[] } {
   const types = [...new Set(items.map((h) => h.type))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
