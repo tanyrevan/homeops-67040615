@@ -425,3 +425,104 @@ When finished, summarize:
 - History amount sits above one payment row; paid and unpaid cards retain equal heights. Card stars are centered vertically with right-side spacing. Starred matches Filter and uses matching star glyphs with a subtle active outline.
 - Signed-in checks verified payment alignment, equal card heights, Mark Paid readback, star persistence, combined filtering, independent transaction navigation and mobile rendering. Temporary QA records removed. No database or starring logic changes.
 - Full suite: 140 tests across 20 files passed. Automatic build: OK.
+
+
+Make one final visual alignment adjustment to the Expenses page.
+
+Stay on the current branch.
+Do not change any database logic, filtering logic, star behavior, or payment behavior.
+Append this follow-up to the existing prompt log.
+
+==================================================
+1. UNPAID HISTORY CARD LAYOUT
+==================================================
+
+For unpaid History cards, change the right-side layout.
+
+Current issue:
+Unpaid and Mark Paid are on the same row, which makes the card look different
+from paid items.
+
+Desired layout:
+
+- Amount stays at the top-right.
+- Unpaid badge goes directly BELOW the amount.
+- This should match the positioning of the Paid badge on paid cards.
+- Mark Paid should sit to the LEFT of the amount/status stack.
+- Vertically center Mark Paid within the card.
+
+Conceptually:
+
+[ Mark Paid ]    $60.00     ☆
+                 Unpaid
+
+The amount/status stack should align exactly like the paid cards:
+
+$99.99
+✓ Paid
+
+Do not make the unpaid card taller than necessary.
+
+Keep Mark Paid functionality unchanged.
+
+==================================================
+2. STAR POSITION
+==================================================
+
+Keep the star:
+
+- at the far right
+- vertically centered within the entire card
+- same size/style as the existing expense stars
+
+Do not align it specifically to the amount or status.
+
+==================================================
+3. FILTER + STARRED BUTTON SIZE
+==================================================
+
+Make the Filter and Starred buttons exactly the same dimensions.
+
+They should have matching:
+- height
+- width
+- padding
+- border
+- border radius
+- typography
+- icon spacing
+
+The buttons should visually read as a matched pair.
+
+Keep:
+
+Filter
+☆ Starred
+
+Do not make either button wider or taller than the other.
+
+The Starred button should remain white/neutral when inactive, matching Filter.
+
+==================================================
+4. PRESERVE EVERYTHING ELSE
+==================================================
+
+Do not change:
+- starring logic
+- Starred filtering
+- Filter behavior
+- card navigation
+- Upcoming/History logic
+- expense ordering
+- Paid/Unpaid logic
+- Mark Paid behavior
+- Dashboard
+- existing records
+- database schema
+
+Run the full automated test suite and build afterward.
+
+When finished, summarize:
+1. layout changes
+2. test result
+3. build result
