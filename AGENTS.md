@@ -15,6 +15,7 @@
 - Service provider form rules (service type choices, "Other" custom type, required fields) live in `src/lib/provider-validation.ts`; why: tests and the add/edit form share one source of truth. Provider rows are owner-only via RLS on `user_id`.
 - Visit form rules live in `src/lib/visit-validation.ts`; receipt photos go in the private `receipts` bucket under `<user_id>/...` (storage rules check the first folder); why: owner-only access enforced by the backend.
 - Grocery form rules live in `src/lib/grocery-validation.ts`; grocery receipts share the private `receipts` bucket under `<user_id>/groceries/`; why: one owner-only storage rule covers all receipts.
+- Preserve `/groceries` as a redirect to the unified Expenses ledger; grocery add/detail/delete navigation returns to the ledger and edit save/cancel may return to the current detail; why: old public URLs stay usable without exposing a second list.
 - Payment status: `maintenance_visits.paid` and `grocery_expenses.reimbursed` are explicit booleans (default false), never inferred from amounts; why: a cost can be owed but unpaid.
 - Provider stars are a pin/priority flag in the `stars` junction table (unique per user+provider, insert only for owned providers); list ordering lives in `src/lib/stars.ts`; why: one tested sort rule.
 - Search/filter/sort runs in the browser over rows already limited by RLS, via pure functions in `src/lib/list-filters.ts`; why: ownership stays enforced by the backend and the rules are unit-tested.

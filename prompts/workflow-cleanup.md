@@ -86,3 +86,11 @@ No migrations, no schema changes, no records modified or deleted.
 - Dashboard Last Visit = latest visit_date <= today; Next Visit = earliest visit_date > today; Groceries stay "—".
 - Amount Due unchanged: one combined Outstanding Expenses list with Mark Paid.
 - No database/schema changes. Tests updated (household-stats Last/Next Visit rules, visit-validation without nextDate, new ledger-dates tests); scheduled-visit and due-status tests removed with the retired model.
+
+## Follow-up: retire legacy Grocery navigation
+
+- Grocery transaction detail and add-form back links now say "Back to Expenses" and open the unified Expenses ledger at `/providers`.
+- Adding a grocery purchase returns to Expenses after save or cancel. Editing keeps save/cancel on the current transaction detail; deleting returns to Expenses.
+- The published `/groceries` URL is preserved as a redirect to `/providers`; its standalone list and filter controls are retired. Individual grocery detail/edit URLs and Add Expense → Grocery are preserved.
+- Grocery CRUD, receipt storage, existing records, database schema, and security rules are unchanged.
+- Added a routing regression test for the legacy list redirect. Full automated suite: 91 tests passed across 15 files; build OK. Signed-in checks verified the redirect, Add Expense → Grocery, add back/cancel/save, detail back, edit cancel/save with saved notes, and delete returning to Expenses. Only a temporary test purchase was created/edited/deleted; existing records were preserved and an existing purchase detail was checked without editing. No browser console errors.

@@ -41,12 +41,12 @@ function GroceryDetail() {
     await removeReceipt(g.receipt_url);
     qc.removeQueries({ queryKey: ["groceries", groceryId] });
     await qc.invalidateQueries({ queryKey: ["groceries"] });
-    navigate({ to: "/groceries", search: { deleted: true } });
+    navigate({ to: "/providers" });
   }
 
   return (
     <AppShell>
-      <Link to="/groceries" className="text-sm text-muted-foreground hover:text-foreground">← Back to groceries</Link>
+      <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to Expenses</Link>
       {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
       {!isLoading && !g && <p className="mt-6 text-foreground">This purchase wasn't found.</p>}
       {g && (
