@@ -427,3 +427,9 @@ Stop after completing this feature.
 - Filters simplified to Name / Expense Type / Sort; "Starred first" sort and "Starred only" checkbox removed; default sort is newest first.
 - Starring preserved: star icons remain, and a small "Starred" chip near the Expenses heading toggles the starred view.
 - No database changes; full test suite must pass.
+
+## Follow-up: final Expenses simplification
+
+- Removed the search/filter/sort panel from the Expenses page entirely; the page now shows the heading, a small Starred chip, and Add Expense, with expense items listed immediately below (groceries by purchase date, service expenses newest first).
+- Starred chip still toggles the starred view without any filter box; star icons, stars table, and Add Expense (Grocery + service types) workflows unchanged.
+- History page search/filter/sort untouched; no database changes.
