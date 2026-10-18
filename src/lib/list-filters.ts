@@ -50,27 +50,38 @@ function sortRecords<T>(items: T[], sort: MoneySort, date: (t: T) => string, amo
   });
 }
 
-// ---------- Visits ----------
-export type VisitFilters = { paid: "" | "paid" | "unpaid"; type: string; month: string; year: string };
-export const DEFAULT_VISIT_FILTERS: VisitFilters = { paid: "", type: "", month: "", year: "" };
-type V = { visit_date: string; service_performed: string; amount_paid: number | null; paid: boolean; created_at: string; service_providers: { name: string; service_type: string } | null };
+// ---------- History (completed maintenance visits + grocery purchases) ----------
+export type HistoryItem = {
+  kind: "visit" | "grocery";
+  id: string;
+  date: string; // visit_date or purchase_date
+  type: string; // service type, or "Grocery"
+  title: string; // service performed or store
+  subtitle: string; // provider name or "Grocery"
+  amount: number | null;
+  settled: boolean; // paid (visit) or reimbursed (grocery)
+  receipt_url: string | null;
+  created_at: string;
+};
+export type HistoryFilters = { status: "" | "outstanding" | "settled"; type: string; month: string; year: string };
+export const DEFAULT_HISTORY_FILTERS: HistoryFilters = { status: "", type: "", month: "", year: "" };
 
-export function filterVisits<T extends V>(items: T[], f: VisitFilters): T[] {
+export function filterHistory(items: HistoryItem[], f: HistoryFilters): HistoryItem[] {
   const out = items.filter(
-    (v) =>
-      (!f.paid || (f.paid === "paid" ? v.paid : !v.paid)) &&
-      (!f.type || v.service_providers?.service_type === f.type) &&
-      (!f.month || v.visit_date.slice(5, 7) === f.month) &&
-      (!f.year || v.visit_date.slice(0, 4) === f.year),
+    (h) =>
+      (!f.status || (f.status === "settled" ? h.settled : !h.settled)) &&
+      (!f.type || h.type === f.type) &&
+      (!f.month || h.date.slice(5, 7) === f.month) &&
+      (!f.year || h.date.slice(0, 4) === f.year),
   );
-  // History is always newest first: visit_date desc, then creation time desc.
-  return sortRecords(out, "date-desc", (v) => v.visit_date, (v) => v.amount_paid, (v) => v.created_at);
+  // History is always newest first: record date desc, then creation time desc.
+  return [...out].sort((a, b) => b.date.localeCompare(a.date) || b.created_at.localeCompare(a.created_at));
 }
 
-/** Distinct service types and years present in the user's completed visits, for filter dropdowns. */
-export function visitFilterOptions<T extends V>(items: T[]): { types: string[]; years: string[] } {
-  const types = [...new Set(items.map((v) => v.service_providers?.service_type).filter((t): t is string => !!t))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-  const years = [...new Set(items.map((v) => v.visit_date.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+/** Distinct types (incl. "Grocery" when grocery records exist) and years present in History. */
+export function historyFilterOptions(items: HistoryItem[]): { types: string[]; years: string[] } {
+  const types = [...new Set(items.map((h) => h.type))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  const years = [...new Set(items.map((h) => h.date.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
   return { types, years };
 }
 

@@ -9,9 +9,9 @@ import { providerQuery } from "@/lib/providers-api";
 export const Route = createFileRoute("/_authenticated/providers/$id/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Provider — HomeOps" },
+      { title: "Edit Expense Type — HomeOps" },
       { name: "description", content: "Edit a household service provider." },
-      { property: "og:title", content: "Edit Provider — HomeOps" },
+      { property: "og:title", content: "Edit Expense Type — HomeOps" },
       { property: "og:description", content: "Edit a household service provider." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -28,7 +28,7 @@ function EditProvider() {
 
   return (
     <AppShell>
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">Edit Provider</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">Edit Expense Type</h1>
       {isLoading && <p className="text-muted-foreground">Loading…</p>}
       {!isLoading && !p && <p className="text-foreground">This provider wasn't found.</p>}
       {p && (
