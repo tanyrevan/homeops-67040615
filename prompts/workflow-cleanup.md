@@ -110,3 +110,8 @@ No migrations, no schema changes, no records modified or deleted.
 - Changed the shared expense-type display mapping from Air Conditioner to Aircon throughout selectors/forms, Expenses, Type filters, Upcoming, History, Dashboard Summary/chart legends, Amount Due, and all other mapped type labels.
 - Both exact stored `A/C` and `Air Conditioner` values display as `Aircon`; stored values, existing records, database schema, and validation-compatible selector values remain unchanged. No migration.
 - Updated mapping and Dashboard grouping regression expectations. Full suite: 101 tests passed across 15 files; automatic build OK. Signed-in checks confirmed Aircon in Type filters, Add Expense, Upcoming, Dashboard, History, and Amount Due; transaction opening and existing sorting/status behavior preserved. No runtime errors or records modified.
+
+## Follow-up: blank Name placeholder in the service/provider creation flow
+
+- Removed the `e.g. Maria's Gardening` example placeholder from the Name input in `src/components/ProviderForm.tsx`, so the field renders blank when empty. This is the only place that exact example appeared; the same form is used by both Add Expense → new service provider and provider edit, so the cleanup covers the whole service/provider creation flow.
+- The `Name *` label, required validation, saved values, and all database logic are unchanged; other optional/example hints in unrelated forms were left as they were.
