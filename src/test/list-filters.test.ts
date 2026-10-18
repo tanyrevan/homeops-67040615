@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_GROCERY_FILTERS, DEFAULT_PROVIDER_FILTERS, DEFAULT_VISIT_FILTERS,
+  DEFAULT_GROCERY_FILTERS, DEFAULT_PROVIDER_FILTERS,
   filterGroceries, filterProviders, filterHistory, historyFilterOptions, DEFAULT_HISTORY_FILTERS,
   type HistoryItem,
 } from "@/lib/list-filters";
