@@ -40,7 +40,7 @@ describe("Household dashboard", () => {
   it("combines all-time grocery and maintenance amounts regardless of settlement", () => expect(stats().recorded).toBe(455.5));
   it("includes only unreimbursed groceries and unpaid maintenance in due", () => expect(stats().due).toBe(330.25));
   it("sums category totals for the current month with all-time due", () => {
-    expect(stats().rows.map((r) => [r.category, r.total, r.due])).toEqual([["Groceries", 100.25, 110.25], ["A/C", 0, 0], ["Gardener", 30, 0], ["Plumber", 200, 200]]);
+    expect(stats().rows.map((r) => [r.category, r.total, r.due])).toEqual([["Groceries", 100.25, 110.25], ["Air Conditioner", 0, 0], ["Gardener", 30, 0], ["Plumber", 200, 200]]);
   });
   it("shows no Last Visit for groceries", () => expect(stats().rows[0]?.lastVisit).toBeNull());
   it("shows no Next Visit for groceries", () => expect(stats().rows[0]?.nextVisit).toBeNull());

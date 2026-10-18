@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { settleTable, settleUpdate } from "@/lib/settle";
 import { day, money } from "@/lib/visits-api";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 const unpaidVisitsQuery = queryOptions({
   queryKey: ["visits", "unpaid"],
@@ -87,7 +88,7 @@ function Attention() {
   const items: Outstanding[] = [
     ...(visits.data ?? []).map((v): Outstanding => ({
       kind: "visit", id: v.id, date: v.visit_date,
-      type: v.service_providers?.service_type ?? "Other",
+      type: expenseTypeLabel(v.service_providers?.service_type ?? "Other"),
       name: v.service_providers?.name ?? "Provider", detail: v.service_performed, amount: v.amount_paid,
     })),
     ...(groceries.data ?? []).map((g): Outstanding => ({

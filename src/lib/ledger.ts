@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { HistoryItem } from "@/lib/list-filters";
+import { newestExpenses, type HistoryItem } from "@/lib/list-filters";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 export const expenseVisitsQuery = queryOptions({
   queryKey: ["visits", "all"],
@@ -31,10 +32,10 @@ type GroceryRow = { id: string; purchase_date: string; store: string; amount: nu
 
 /** Maps the two expense tables into one ledger shape (display only; tables stay separate). */
 export function toLedgerItems(visits: VisitRow[], groceries: GroceryRow[]): HistoryItem[] {
-  return [
+  return newestExpenses([
     ...visits.map((v): HistoryItem => ({
       kind: "visit", id: v.id, date: v.visit_date,
-      type: v.service_providers?.service_type ?? "Other",
+      type: expenseTypeLabel(v.service_providers?.service_type ?? "Other"),
       title: v.service_performed, subtitle: v.service_providers?.name ?? "Provider",
       providerId: v.service_provider_id,
       amount: v.amount_paid, settled: v.paid, receipt_url: v.receipt_url, created_at: v.created_at,
@@ -45,5 +46,5 @@ export function toLedgerItems(visits: VisitRow[], groceries: GroceryRow[]): Hist
       providerId: null,
       amount: g.amount, settled: g.reimbursed, receipt_url: g.receipt_url, created_at: g.created_at,
     })),
-  ];
+  ]);
 }

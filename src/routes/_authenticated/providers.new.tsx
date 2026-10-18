@@ -6,6 +6,7 @@ import { ProviderForm } from "@/components/ProviderForm";
 import { supabase } from "@/integrations/supabase/client";
 import { SERVICE_TYPES } from "@/lib/provider-validation";
 import { providersQuery } from "@/lib/providers-api";
+import { expenseTypeLabel } from "@/lib/expense-type";
 
 export const Route = createFileRoute("/_authenticated/providers/new")({
   head: () => ({
@@ -55,8 +56,8 @@ function NewExpense() {
         >
           <option value="">Choose an expense type…</option>
           <option value="Grocery">Grocery</option>
-          {SERVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-          {customTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+          {SERVICE_TYPES.map((t) => <option key={t} value={t}>{expenseTypeLabel(t)}</option>)}
+          {customTypes.map((t) => <option key={t} value={t}>{expenseTypeLabel(t)}</option>)}
         </select>
       </div>
       {expenseType && matching.length > 0 && (
