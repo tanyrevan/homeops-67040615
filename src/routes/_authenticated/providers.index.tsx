@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { StarButton } from "@/components/StarButton";
 import { DEFAULT_PROVIDER_FILTERS, filterProviders } from "@/lib/list-filters";
@@ -30,6 +30,17 @@ function ExpensesPage() {
   const { data, isLoading, error } = useQuery(providersQuery());
   const stars = useQuery(starsQuery());
   const [starredOnly, setStarredOnly] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [menuOpen]);
 
   const filters = { ...DEFAULT_PROVIDER_FILTERS, starredOnly };
   const providers = data && stars.data ? filterProviders(data, stars.data, filters) : [];
@@ -41,16 +52,29 @@ function ExpensesPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-foreground">Expenses</h1>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-pressed={starredOnly}
-            aria-label="Show starred"
-            title="Show starred"
-            onClick={() => setStarredOnly(!starredOnly)}
-            className={`rounded-full border p-2 ${starredOnly ? "border-primary bg-accent text-primary" : "border-border text-muted-foreground hover:bg-accent"}`}
-          >
-            <Star className="h-4 w-4" fill={starredOnly ? "currentColor" : "none"} aria-hidden="true" />
-          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              aria-label="Expense view options"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="rounded-full border border-border p-2 text-muted-foreground hover:bg-accent"
+            >
+              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 z-10 mt-1 w-44 rounded-md border border-border bg-card py-1 shadow-md">
+                <button
+                  type="button"
+                  aria-pressed={starredOnly}
+                  onClick={() => { setStarredOnly(!starredOnly); setMenuOpen(false); }}
+                  className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent"
+                >
+                  {starredOnly ? "✓ " : ""}Show starred only
+                </button>
+              </div>
+            )}
+          </div>
           <Link to="/providers/new" className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90">
             Add Expense Type
           </Link>
@@ -75,7 +99,6 @@ function ExpensesPage() {
             <li>
               <Link to="/groceries" className="block rounded-lg border border-border bg-card p-4 hover:bg-accent">
                 <div className="font-medium text-foreground">Grocery</div>
-                <div className="text-sm text-muted-foreground">Grocery purchases</div>
               </Link>
             </li>
           )}
