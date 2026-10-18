@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ProviderForm } from "@/components/ProviderForm";
 import { supabase } from "@/integrations/supabase/client";
-import { SERVICE_TYPES } from "@/lib/provider-validation";
+import { SERVICE_TYPES, splitServiceType } from "@/lib/provider-validation";
 import { providersQuery } from "@/lib/providers-api";
 import { expenseTypeLabel } from "@/lib/expense-type";
 
@@ -85,10 +85,10 @@ function NewExpense() {
       {expenseType && (matching.length === 0 || providerChoice === "new") && (
         <ProviderForm
           key={expenseType}
+          categorySelected
           initial={{
             name: "",
-            serviceChoice: (SERVICE_TYPES as readonly string[]).includes(expenseType) ? (expenseType as (typeof SERVICE_TYPES)[number]) : "Other",
-            customType: (SERVICE_TYPES as readonly string[]).includes(expenseType) ? "" : expenseType,
+            ...splitServiceType(expenseType === "Other" ? "" : expenseType),
             phone: "",
             notes: "",
           }}
