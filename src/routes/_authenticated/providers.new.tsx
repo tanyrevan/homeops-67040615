@@ -30,7 +30,7 @@ function NewExpense() {
   const [providerChoice, setProviderChoice] = useState("");
 
   // Existing providers matching the chosen service type, plus any custom types already in use.
-  const customTypes = [...new Set((providers.data ?? []).map((p) => p.service_type).filter((t) => t && !SERVICE_TYPES.includes(t)))].sort();
+  const customTypes = [...new Set((providers.data ?? []).map((p) => p.service_type).filter((t) => t && !(SERVICE_TYPES as readonly string[]).includes(t)))].sort();
   const matching = (providers.data ?? []).filter((p) => p.service_type === expenseType);
 
   return (
