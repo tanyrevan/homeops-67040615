@@ -43,7 +43,7 @@ describe("individual expense stars", () => {
     expect(expenseStarsQuery("other").queryKey).not.toEqual(options.queryKey);
   });
   it("starring one visit never stars another visit from the same provider", () => {
-    const stars = updateExpenseStars(new Set(), items[0], true);
+    const stars = updateExpenseStars(new Set(), item("v1", "visit", "2026-10-20"), true);
     expect(filterStarredExpenses(items, stars, true).map((i) => i.id)).toEqual(["v1"]);
   });
   it("filters both sections while preserving their actual-date ordering", () => {
@@ -58,7 +58,7 @@ describe("individual expense stars", () => {
     expect(sections.history.map((i) => i.id)).toEqual(["g2"]);
   });
   it("immediately removes an unstarred item from the starred view and restores all when disabled", () => {
-    const stars = updateExpenseStars(new Set(["visit-v1"]), items[0], false);
+    const stars = updateExpenseStars(new Set(["visit-v1"]), item("v1", "visit", "2026-10-20"), false);
     expect(filterStarredExpenses(items, stars, true)).toEqual([]);
     expect(filterStarredExpenses(items, stars, false)).toEqual(items);
   });

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ExpenseSection } from "@/components/ExpenseSection";
 import type { HistoryItem } from "@/lib/list-filters";
 
-vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: { children: React.ReactNode }) => <a href="/detail">{children}</a> }));
+vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: { children: React.ReactNode }) => <a href="/detail" onClick={(e) => e.preventDefault()}>{children}</a> }));
 vi.mock("@/lib/visits-api", () => ({ day: (d: string) => d, money: (n: number) => `$${n}` }));
 afterEach(cleanup);
 
@@ -18,7 +18,9 @@ describe("expense star interaction", () => {
     fireEvent.click(screen.getByRole("button", { name: "Unstar Grocery expense on 2026-10-18" }));
     expect(onToggleStar.mock.calls).toEqual([[records[0]], [records[1]]]);
     expect(navigate).not.toHaveBeenCalled();
-    fireEvent.click(screen.getAllByRole("link")[0]);
+    const firstLink = screen.getAllByRole("link")[0];
+    if (!firstLink) throw new Error("Missing transaction link");
+    fireEvent.click(firstLink);
     expect(navigate).toHaveBeenCalledTimes(1);
   });
 });
