@@ -55,7 +55,7 @@ export function ProviderForm({
         </select>
         {err(errors.serviceChoice)}
       </div>}
-      {v.serviceChoice === "Other" && (
+      {v.serviceChoice === "Other" && (!categorySelected || !initial.customType) && (
         <div>
           <label htmlFor="customType" className={label}>Custom Expense Type *</label>
           <input id="customType" className={input} value={v.customType} onChange={set("customType")} placeholder="e.g. Plumber, Cleaner, Handyman" />
