@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function ExpenseSection({ upcoming = false, items, settlingKey, saving, onMarkPaid }: Props) {
-  const heading = upcoming ? "Upcoming Expenses" : "History";
+  const heading = upcoming ? "Upcoming" : "History";
   return (
     <section aria-label={heading}>
       <h2 className="mb-3 text-lg font-semibold text-foreground">{heading}</h2>

@@ -126,3 +126,11 @@ No migrations, no schema changes, no records modified or deleted.
 - Shared Paid badges use restrained green tokens, Unpaid stays red; the ivory/black theme and chart remain unchanged. Dashboard keeps Total Amount Due without a View link.
 - No schema changes, migrations, or changes to authentication, isolation, receipt storage, stars, existing CRUD or stored types.
 - Verification: 112 tests across 15 files passed, including new section/filter and legacy redirect regressions; automatic build OK. Signed-in checks confirmed navigation, section order, redirects, future amounts without status, filtering, and both grocery and maintenance Mark Paid persisted through transaction details and refreshed Dashboard due. Only two temporary test transactions were created and removed; pre-existing records were preserved. Desktop/mobile checks showed no horizontal overflow or runtime errors.
+
+## Follow-up: compact navigation controls and Settings menu
+
+- Dashboard and Expenses use compact bordered navigation buttons: inactive ivory with dark text and hover feedback; active charcoal with light text and an accessible current-page indicator. The navigation controls stay together on narrow screens.
+- Replaced the standalone Log Out button with a labeled Settings gear and a keyboard-accessible dropdown containing Log Out, using the unchanged existing sign-out action. The menu closes after selection or Escape.
+- Renamed the Expenses section heading to Upcoming; History and all date, sorting, settlement and filter logic remain unchanged.
+- No database, authentication, business-logic, records or branch changes.
+- Verification: all 112 tests across 15 files passed; automatic build OK. Signed-in checks confirmed selected Dashboard/Expenses states, Upcoming/History headings, gear menu keyboard opening, Escape dismissal and focus return, and successful Log Out to /auth. Navigation controls stayed together at 390px and 320px with no horizontal overflow or runtime errors. No records modified.
