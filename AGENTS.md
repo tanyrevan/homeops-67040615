@@ -26,6 +26,7 @@
 - Monthly grocery budgets: one `budgets` row per user per month (month = first day, unique user+month, owner-only RLS, no delete); math in `src/lib/budget.ts`; why: tested, no division by zero, prior months preserved.
 - Provider list also filters by the signed-in user via `filterOwnedRecords` in `src/lib/ownership.ts` (on top of RLS); why: a unit-tested data-isolation check.
 - Normalize legacy expense-type labels through `src/lib/expense-type.ts` in display models and selectors while keeping stored selector values unchanged; why: consistent terminology without altering records or validation compatibility.
+- Maintenance detail queries include the provider's service type in the existing join; why: detail titles use the same category source as the ledger without another read or changing stored records.
 - Combined transaction lists use `newestExpenses` in `src/lib/list-filters.ts`, including the ledger mapper; why: actual expense dates determine order before creation-time ties on every ledger path.
 
 - Ledger cards are rendered by `ExpenseSection`, with settlement outside transaction links and query refresh after updates; why: Mark Paid never navigates or deletes a record and Dashboard reads the new status.
