@@ -1,4 +1,4 @@
-import { monthKey, monthSummary } from "@/lib/dashboard-stats";
+import { monthKey } from "@/lib/dashboard-stats";
 import { localISO } from "@/lib/due-status";
 import { expenseTypeLabel } from "@/lib/expense-type";
 
