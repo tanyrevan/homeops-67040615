@@ -59,7 +59,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         <input id="amount" type="number" inputMode="decimal" min="0" step="0.01" className={input} value={v.amount} onChange={set("amount")} placeholder="e.g. 54.20" />
         {err(errors.amount)}
       </div>
-      <YesNo label="Paid?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
+      <YesNo label="Paid? *" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
       {err(errors.reimbursed)}
       <div>
         <label htmlFor="notes" className={label}>Notes</label>

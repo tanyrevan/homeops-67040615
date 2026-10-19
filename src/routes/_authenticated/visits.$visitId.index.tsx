@@ -81,7 +81,7 @@ function VisitDetail() {
           </div>
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             <Field label="Provider" value={v.service_providers?.name ?? null} />
-            <Field label="Visit Date" value={day(v.visit_date)} />
+            <Field label="Date" value={day(v.visit_date)} />
             <Field label="Service Performed" value={v.service_performed} />
             <Field label="Amount" value={money(v.amount_paid)} />
             <div><dt className="text-sm text-muted-foreground">Payment Status</dt><dd className="mt-1"><StatusBadge ok={v.paid} yes="Paid" no="Unpaid" /></dd></div>
