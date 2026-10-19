@@ -57,6 +57,13 @@
       "when": 1792300540365,
       "tag": "0007_individual_expense_stars",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792373951828,
+      "tag": "0008_allow_optional_service_performed",
+      "breakpoints": true
     }
   ]
 }

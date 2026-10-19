@@ -1,5 +1,20 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { validateReceipt } from "@/lib/visit-validation";
+
+export class ReceiptUploadError extends Error {
+  constructor(cause: unknown) {
+    super("We couldn't upload the receipt. Your changes weren't saved. Please try again.", { cause });
+    this.name = "ReceiptUploadError";
+  }
+}
+
+export function expenseSaveError(error: unknown, fallback: string): string {
+  const cause = error instanceof ReceiptUploadError ? error.cause : error;
+  const detail = cause && typeof cause === "object" ? cause as { code?: string; message?: string } : {};
+  console.error("Expense save failed", { stage: error instanceof ReceiptUploadError ? "receipt-upload" : "expense-save", code: detail.code, message: detail.message });
+  return error instanceof ReceiptUploadError ? error.message : fallback;
+}
 
 export const RECEIPTS_BUCKET = "receipts";
 
@@ -47,16 +62,26 @@ export const receiptUrlQuery = (path: string | null) =>
 
 /** Uploads into the owner's own folder; storage rules only allow `${userId}/...`. */
 export async function uploadReceipt(userId: string, file: File, folder: "visits" | "groceries" = "visits"): Promise<string> {
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, file.type ? { contentType: file.type } : {});
-  if (error) throw error;
-  return path;
+  try {
+    const validation = validateReceipt(file);
+    if (validation) throw new Error(validation);
+    const types: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", heic: "image/heic", heif: "image/heif" };
+    const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+    const ext = types[extension] ? extension : Object.keys(types).find((key) => types[key] === file.type) ?? "jpg";
+    const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, { contentType: types[ext] ?? "image/jpeg", upsert: false });
+    if (error) throw error;
+    return path;
+  } catch (error) { throw new ReceiptUploadError(error); }
 }
 
 export async function removeReceipt(path: string | null | undefined) {
   if (!path) return;
-  await supabase.storage.from(RECEIPTS_BUCKET).remove([path]);
+  // Cleanup is best-effort: never roll back a committed expense because old-file deletion failed.
+  try {
+    const { error } = await supabase.storage.from(RECEIPTS_BUCKET).remove([path]);
+    if (error) console.error("Receipt cleanup failed", { message: error.message });
+  } catch { console.error("Receipt cleanup request failed"); }
 }
 
 export const money = (n: number | null) =>

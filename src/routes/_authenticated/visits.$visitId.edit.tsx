@@ -5,7 +5,7 @@ import { VisitForm } from "@/components/VisitForm";
 import { providerQuery } from "@/lib/providers-api";
 import { saveServiceExpense } from "@/lib/service-expense";
 import { expenseTypeLabel } from "@/lib/expense-type";
-import { visitQuery } from "@/lib/visits-api";
+import { expenseSaveError, visitQuery } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/visits/$visitId/edit")({
   head: () => ({
@@ -61,7 +61,7 @@ function EditVisit() {
               await Promise.all([qc.invalidateQueries({ queryKey: ["visits"] }), qc.invalidateQueries({ queryKey: ["providers"] })]);
               navigate({ to: "/visits/$visitId", params: { visitId } });
               return null;
-            } catch { return "We couldn't save your changes. Please try again."; }
+            } catch (error) { return expenseSaveError(error, "We couldn't save your changes. Please try again."); }
           }}
         />
         </>

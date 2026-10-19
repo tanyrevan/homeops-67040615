@@ -2,9 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { GroceryForm } from "@/components/GroceryForm";
-import { supabase } from "@/integrations/supabase/client";
-import { groceryQuery } from "@/lib/groceries-api";
-import { removeReceipt, uploadReceipt } from "@/lib/visits-api";
+import { groceryQuery, saveGroceryExpense } from "@/lib/groceries-api";
+import { expenseSaveError } from "@/lib/visits-api";
 
 export const Route = createFileRoute("/_authenticated/groceries/$groceryId/edit")({
   head: () => ({
@@ -37,17 +36,13 @@ function EditGrocery() {
           hasReceipt={!!g.receipt_url}
           submitLabel="Save Changes"
           onCancel={() => navigate({ to: "/groceries/$groceryId", params: { groceryId } })}
-          onSubmit={async ({ data, file, removeReceipt: drop }) => {
-            let path = g.receipt_url;
-            if (file) {
-              try { path = await uploadReceipt(user.id, file, "groceries"); } catch { return "We couldn't upload the receipt. Please try again."; }
-            } else if (drop) path = null;
-            const { error } = await supabase.from("grocery_expenses").update({ ...data, receipt_url: path }).eq("id", groceryId);
-            if (error) { if (file) await removeReceipt(path); return "We couldn't save your changes. Please try again."; }
-            if (path !== g.receipt_url) await removeReceipt(g.receipt_url);
-            await qc.invalidateQueries({ queryKey: ["groceries"] });
-            navigate({ to: "/groceries/$groceryId", params: { groceryId } });
-            return null;
+          onSubmit={async (submission) => {
+            try {
+              await saveGroceryExpense(user.id, submission, g);
+              await qc.invalidateQueries({ queryKey: ["groceries"] });
+              navigate({ to: "/groceries/$groceryId", params: { groceryId } });
+              return null;
+            } catch (error) { return expenseSaveError(error, "We couldn't save your changes. Please try again."); }
           }}
         />
       )}

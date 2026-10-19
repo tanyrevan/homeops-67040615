@@ -1,4 +1,5 @@
 # Dashboard and navigation simplification
+- [x] Receipt regression: obsolete nonempty-service CHECK removed; safe receipt errors/cleanup preserved; four signed-in save flows, replace/remove and foreign-folder denial verified; 212 tests passed, automatic build OK; temporary QA data removed.
 - [x] Simplify service Add Expense and editing; deliberate payment choice, wording and receipts preserved; 152 tests passed, build OK, signed-in create/reuse/edit/receipt/delete verified, QA records removed.
 - [x] Replace dashboard with all-time summaries, category table, and three-month stacks.
 - [x] Simplify top navigation and add maintenance secondary navigation.
