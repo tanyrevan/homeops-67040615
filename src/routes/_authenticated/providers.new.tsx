@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { ProviderForm } from "@/components/ProviderForm";
-import { supabase } from "@/integrations/supabase/client";
-import { SERVICE_TYPES, splitServiceType } from "@/lib/provider-validation";
+import { VisitForm } from "@/components/VisitForm";
+import { saveServiceExpense } from "@/lib/service-expense";
+import { SERVICE_TYPES } from "@/lib/provider-validation";
 import { providersQuery } from "@/lib/providers-api";
 import { expenseTypeLabel } from "@/lib/expense-type";
 
@@ -28,11 +28,11 @@ function NewExpense() {
   const qc = useQueryClient();
   const providers = useQuery(providersQuery());
   const [expenseType, setExpenseType] = useState("");
-  const [providerChoice, setProviderChoice] = useState("");
+
 
   // Existing providers matching the chosen service type, plus any custom types already in use.
   const customTypes = [...new Set((providers.data ?? []).map((p) => p.service_type).filter((t) => t && !(SERVICE_TYPES as readonly string[]).includes(t)))].sort();
-  const matching = (providers.data ?? []).filter((p) => p.service_type === expenseType);
+
 
   return (
     <AppShell>
@@ -51,7 +51,6 @@ function NewExpense() {
               return;
             }
             setExpenseType(v);
-            setProviderChoice("");
           }}
         >
           <option value="">Choose an expense type…</option>
@@ -60,46 +59,22 @@ function NewExpense() {
           {customTypes.map((t) => <option key={t} value={t}>{expenseTypeLabel(t)}</option>)}
         </select>
       </div>
-      {expenseType && matching.length > 0 && (
-        <div className="mb-5">
-          <label htmlFor="provider" className="mb-1 block text-sm font-medium text-foreground">Provider</label>
-          <select
-            id="provider"
-            className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            value={providerChoice}
-            onChange={(e) => {
-              const v = e.target.value;
-              setProviderChoice(v);
-              if (v && v !== "new") {
-                // Existing provider: record the visit through the existing maintenance workflow.
-                navigate({ to: "/providers/$id/visits/new", params: { id: v } });
-              }
-            }}
-          >
-            <option value="">Choose a provider…</option>
-            {matching.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            <option value="new">New provider…</option>
-          </select>
-        </div>
-      )}
-      {expenseType && (matching.length === 0 || providerChoice === "new") && (
-        <ProviderForm
+      {expenseType && (
+        <VisitForm
           key={expenseType}
-          categorySelected
-          initial={{
-            name: "",
-            ...splitServiceType(expenseType === "Other" ? "" : expenseType),
-            phone: "",
-            notes: "",
-          }}
-          submitLabel="Save Provider"
+          expenseType={expenseType}
+          providerInitial={{ name: "", phone: "", customType: "" }}
+          initial={{ visitDate: new Date().toLocaleDateString("en-CA"), service: "", amount: "", notes: "", paid: null }}
+          submitLabel="Save Expense"
           onCancel={() => navigate({ to: "/providers" })}
-          onSubmit={async (d) => {
-            const { data, error } = await supabase.from("service_providers").insert({ ...d, user_id: user.id }).select("id").single();
-            if (error) return "We couldn't save this provider. Please try again.";
-            await qc.invalidateQueries({ queryKey: ["providers"] });
-            navigate({ to: "/providers/$id/visits/new", params: { id: data.id } });
-            return null;
+          onSubmit={async (submission) => {
+            if (!submission.provider) return "Please enter the name.";
+            try {
+              const id = await saveServiceExpense(user.id, submission, submission.provider);
+              await Promise.all([qc.invalidateQueries({ queryKey: ["providers"] }), qc.invalidateQueries({ queryKey: ["visits"] })]);
+              navigate({ to: "/visits/$visitId", params: { visitId: id } });
+              return null;
+            } catch { return "We couldn't save this expense. Please try again."; }
           }}
         />
       )}
