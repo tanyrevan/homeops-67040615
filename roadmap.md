@@ -1,4 +1,5 @@
 # Dashboard and navigation simplification
+- [ ] Simplify service Add Expense and editing; require new expense payment choice, update wording, preserve records, save prompt, run full tests and verify signed-in flow.
 - [x] Replace dashboard with all-time summaries, category table, and three-month stacks.
 - [x] Simplify top navigation and add maintenance secondary navigation.
 - [x] Save prompt and architecture notes; preserve database and budget history.
