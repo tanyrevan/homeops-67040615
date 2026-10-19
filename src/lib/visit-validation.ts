@@ -1,6 +1,21 @@
+import { expenseTypeLabel } from "@/lib/expense-type";
+
 export const RECEIPT_ACCEPT = "image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif";
 const RECEIPT_EXT = ["jpg", "jpeg", "png", "heic", "heif"];
 export const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
+
+/** Category-specific Service Performed placeholder examples; Other and unknown types get none. */
+const SERVICE_EXAMPLES: Record<string, string> = {
+  Gardener: "e.g. Trimmed hedges, mowed lawn",
+  Jacuzzi: "e.g. Cleaned filters, balanced chemicals",
+  Aircon: "e.g. Serviced unit, cleaned filters",
+  Electrician: "e.g. Replaced outlet, fixed lighting",
+  "House Painting": "e.g. Painted bedroom, touched up walls",
+};
+export function serviceExample(expenseType: string | undefined): string | undefined {
+  if (!expenseType) return undefined;
+  return SERVICE_EXAMPLES[expenseTypeLabel(expenseType)];
+}
 
 export type VisitFormValues = {
   visitDate: string;
@@ -18,7 +33,6 @@ export function validateVisit(v: VisitFormValues):
   if (typeof v.paid !== "boolean") errors.paid = "Please choose Yes or No for Paid.";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.visitDate)) errors.visitDate = "Please choose the visit date.";
   const service = v.service.trim();
-  if (!service) errors.service = "Please describe the service performed.";
   let amount: number | null = null;
   const raw = v.amount.trim();
   if (raw) {

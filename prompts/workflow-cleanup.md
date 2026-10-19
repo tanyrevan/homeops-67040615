@@ -554,3 +554,15 @@ Spec: Add two final refinements to the current Issue #43 / PR #44 work.
 - Upcoming expense cards now show the saved Paid / Unpaid status with the same badge treatment as History (green "✓ Paid" / red "Unpaid"), on the right under the amount; records without an amount keep the "—" dash and still show status. No Mark Paid on Upcoming; Upcoming definition (future-dated) unchanged.
 - Household Spending y-axis no longer has a fixed $1,000 maximum. chartAxisMax now picks the smallest "nice" number (1/1.2/1.5/2/2.5/3/4/5/6/8 × 10^n) strictly above the highest stacked monthly total, with a $100 floor for empty data; ticks are 5 evenly spaced currency labels from $0. Recalculates whenever the chart period changes; works for This Month, Last 3 Months, calendar years and All Time.
 - Tests: new src/test/expense-section-status.test.tsx (5 tests: Upcoming Paid/Unpaid badges, status with missing amount, no Mark Paid on Upcoming, History unchanged); updated the chartAxisMax block in household-stats.test.ts (no fixed max, clean ceilings, never clips). Full suite: 173 tests across 24 files passed; build OK. Verified signed-in: Upcoming badges render, All Time axis scaled to $1,200 for a ~$1,000 tallest month.
+
+---
+
+## Follow-up: Add Expense form cleanup (Oct 19, 2026)
+
+Spec: Add one more form cleanup to the current Issue #43 / PR #44 work.
+
+- Paid is now labeled "Paid? *" on both service and grocery forms; still no default selection, and saving without a deliberate Yes/No shows "Please choose Yes or No for Paid." Storage logic unchanged; edits still show the saved value.
+- Service Performed is no longer required (label without "*", validation removed); blank saves as an empty string. Existing values untouched.
+- Labels simplified: "Phone or contact" → "Phone", "Visit Date *" → "Date *" (forms), and the service detail page now shows "Date". Database columns unchanged.
+- Service Performed placeholder is category-specific via serviceExample() in src/lib/visit-validation.ts (normalized through expenseTypeLabel, so legacy A/C maps to the Aircon example): Gardener "e.g. Trimmed hedges, mowed lawn", Jacuzzi "e.g. Cleaned filters, balanced chemicals", Aircon "e.g. Serviced unit, cleaned filters", Electrician "e.g. Replaced outlet, fixed lighting", House Painting "e.g. Painted bedroom, touched up walls"; Other/unknown get no placeholder. Updates immediately with the Expense Type; placeholder text is never stored.
+- Tests: visit-validation.test.ts now asserts blank service is allowed; expense-entry.test.tsx gained a "service form cleanup" block (11 tests: Paid? * labels, Phone/Date labels, optional Service Performed saving blank, per-category placeholders, Other none, A/C mapping, placeholder switch on type change, placeholder never stored). Full suite: 185 tests across 24 files passed; build OK. Verified signed-in: labels, Gardener placeholder, and the Paid validation message all render on /providers/new.

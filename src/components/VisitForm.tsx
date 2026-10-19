@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { ExpenseProvider } from "@/lib/service-expense";
 import { YesNo } from "@/components/StatusBadge";
-import { RECEIPT_ACCEPT, validateReceipt, validateVisit, type VisitErrors, type VisitFormValues } from "@/lib/visit-validation";
+import { RECEIPT_ACCEPT, serviceExample, validateReceipt, validateVisit, type VisitErrors, type VisitFormValues } from "@/lib/visit-validation";
 
 export type VisitSubmit = {
   data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; paid: boolean };
@@ -79,18 +79,18 @@ export function VisitForm({
           {err(providerErrors.name)}
         </div>
         <div>
-          <label htmlFor="phone" className={label}>Phone or contact</label>
+          <label htmlFor="phone" className={label}>Phone</label>
           <input id="phone" className={input} value={provider.phone} onChange={(e) => setProvider({ ...provider, phone: e.target.value })} />
         </div>
       </>}
       <div>
-        <label htmlFor="visitDate" className={label}>Visit Date *</label>
+        <label htmlFor="visitDate" className={label}>Date *</label>
         <input id="visitDate" type="date" className={input} value={v.visitDate} onChange={set("visitDate")} />
         {err(errors.visitDate)}
       </div>
       <div>
-        <label htmlFor="service" className={label}>Service Performed *</label>
-        <input id="service" className={input} value={v.service} onChange={set("service")} placeholder="e.g. Trimmed hedges, cleaned filters" />
+        <label htmlFor="service" className={label}>Service Performed</label>
+        <input id="service" className={input} value={v.service} onChange={set("service")} placeholder={serviceExample(expenseType)} />
         {err(errors.service)}
       </div>
       <div>
@@ -98,7 +98,7 @@ export function VisitForm({
         <input id="amount" type="number" inputMode="decimal" min="0" step="0.01" className={input} value={v.amount} onChange={set("amount")} placeholder="e.g. 75.00" />
         {err(errors.amount)}
       </div>
-      <YesNo label="Paid?" name="paid" value={v.paid} onChange={(paid) => setV({ ...v, paid })} />
+      <YesNo label="Paid? *" name="paid" value={v.paid} onChange={(paid) => setV({ ...v, paid })} />
       {err(errors.paid)}
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
