@@ -92,16 +92,6 @@ export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdV
     }),
   ];
   const months = Array.from({ length: 3 }, (_, i) => new Date(today.getFullYear(), today.getMonth() - 2 + i, 1));
-  const keys = new Set(months.map(monthKey));
-  const chartCategories = categories.filter((category) => visits.some((v) => types.get(v.service_provider_id) === category && keys.has(v.visit_date.slice(0, 7)) && cents(v.amount_paid) !== 0));
-  const series = ["Groceries", ...chartCategories].map((name, i) => ({ name, key: `spend${i}` }));
-  const chart = months.map((month) => {
-    const key = monthKey(month);
-    const values: Record<string, number> = { spend0: monthSummary(groceries, [], month).groceryTotal };
-    chartCategories.forEach((category, i) => {
-      values[`spend${i + 1}`] = sum(visits.filter((v) => types.get(v.service_provider_id) === category && v.visit_date.slice(0, 7) === key), (v) => v.amount_paid);
-    });
-    return { key, label: month.toLocaleDateString("en-US", { month: "short", year: "numeric" }), spend0: values["spend0"] ?? 0, ...values };
-  });
+  const { chart, series } = spendingChart(groceries, visits, providers, months);
   return { recorded: (cents(sum(groceries, (g) => g.amount)) + cents(sum(visits, (v) => v.amount_paid))) / 100, due: (cents(groceryDue) + cents(sum(visits.filter((v) => v.paid === false), (v) => v.amount_paid))) / 100, rows, chart, series };
 }
