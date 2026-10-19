@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { monthKey, usd } from "@/lib/dashboard-stats";
-import { chartAxisMax, householdStats, periodTotal, type SpendPeriod } from "@/lib/household-stats";
+import { availableYears, chartAxisMax, householdStats, periodMonths, periodTotal, spendingChart, type SpendPeriod } from "@/lib/household-stats";
 import { filterOwnedRecords } from "@/lib/ownership";
 
 // Paginate so the all-time totals aren't truncated by the backend row limit.
@@ -44,9 +44,10 @@ export const Route = createFileRoute("/_authenticated/home")({
 });
 const dateLabel = (date: string | null) => date ? new Date(`${date}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 const chartColors = ["var(--chart-2)", "var(--chart-1)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)", "var(--chart-6)", "var(--chart-7)", "var(--chart-8)"];
-const periodOptions: { value: SpendPeriod; label: string }[] = [
+const periodOptions = (years: number[]): { value: SpendPeriod; label: string }[] => [
   { value: "month", label: "This Month" },
   { value: "last3", label: "Last 3 Months" },
+  ...years.map((y) => ({ value: `year:${y}` as const, label: String(y) })),
   { value: "all", label: "All Time" },
 ];
 function Dashboard() {
