@@ -577,3 +577,198 @@ Spec: One small browser-title visual change on the current branch.
 - Login page title stays exactly "16 Olive Road"; the `__root.tsx` default title stays "16 Olive Road".
 - No favicon, in-app branding, routes, functionality, database behavior, or test changes; no test asserted a title, so none needed updating.
 - Full suite: 185 tests across 24 files passed; build OK. Verified signed-in in the browser: /auth "16 Olive Road", /home "Dashboard | 16 Olive Road", /providers "Expenses | 16 Olive Road", /providers/new "Add Expense | 16 Olive Road", /groceries (redirect) "Expenses | 16 Olive Road".
+
+
+## Receipt regression (Oct 19, 2026)
+
+There is a receipt-upload regression on the current Issue #43 / PR #44 branch.
+
+Stay on the current branch and fix this before merging.
+
+CURRENT PROBLEM
+
+When I create an expense and attach a receipt image, the file is selected
+successfully in the browser, but saving can fail with:
+
+"We couldn't save this expense. Please try again."
+
+Receipt uploads worked previously.
+
+Please diagnose the ACTUAL cause rather than hiding the error or disabling
+receipt uploads.
+
+==================================================
+1. REPRODUCE FIRST
+==================================================
+
+Test the signed-in flow with an actual image file.
+
+Test at minimum:
+
+- service expense with no receipt
+- service expense with a PNG/JPG receipt
+- Grocery with no receipt
+- Grocery with a PNG/JPG receipt
+
+Determine whether the failure occurs:
+- during storage upload
+- while creating/reusing the provider
+- while inserting the expense/visit
+- while saving the receipt path/URL
+- because of ownership/RLS
+- because of file naming/MIME handling
+- because the new one-step workflow changed operation ordering
+
+Log/inspect the real underlying error.
+
+Do not rely only on the generic user-facing error message.
+
+==================================================
+2. FIX THE TRANSACTION ORDER SAFELY
+==================================================
+
+The simplified one-page service flow now creates/reuses a provider and creates
+the expense in one action.
+
+Make sure receipt upload works correctly with that flow.
+
+Use a safe order such as:
+
+1. validate the form
+2. resolve/create the provider where applicable
+3. create the grocery expense or maintenance visit
+4. upload the receipt to the existing private receipt bucket
+5. associate the uploaded receipt path with the newly created expense
+
+OR use the existing project pattern if it safely handles cleanup and ownership.
+
+Do not create orphaned database records or receipt files when a later step
+fails where reasonably avoidable.
+
+If an upload fails:
+- show a useful user-facing error
+- do not corrupt the expense record
+- do not expose internal error details to the user
+
+==================================================
+3. PRESERVE EXISTING STORAGE DESIGN
+==================================================
+
+Do NOT create a new storage bucket unless absolutely necessary.
+
+Inspect and preserve the existing receipt storage setup:
+- private receipt bucket
+- existing file-size limit
+- existing supported image types
+- existing ownership/storage policies
+- existing receipt URL/path fields
+
+Do not weaken RLS or storage security to make uploads pass.
+
+==================================================
+4. FILE HANDLING
+==================================================
+
+Ensure normal receipt images work, including at minimum:
+
+- JPG / JPEG
+- PNG
+- HEIC if the app already supports it
+
+Keep the existing upload-size restriction.
+
+Use safe unique filenames/paths so two users or two expenses cannot overwrite
+each other's receipts.
+
+Filename spaces or screenshot-style names such as:
+
+Screenshot 2026-10-15 140854.png
+
+must not cause the upload to fail.
+
+==================================================
+5. GROCERY + SERVICE SUPPORT
+==================================================
+
+Receipt uploads must work for BOTH:
+
+- Grocery expenses
+- service/maintenance expenses
+
+The new simplified provider workflow must not break service receipt uploads.
+
+Editing an existing expense and replacing/removing a receipt should continue
+working if that functionality already exists.
+
+Existing receipt records must remain accessible.
+
+==================================================
+6. ERROR HANDLING
+==================================================
+
+The current generic message:
+
+"We couldn't save this expense. Please try again."
+
+can remain as a fallback, but where useful distinguish a receipt-upload failure
+from a general expense-save failure.
+
+For example:
+
+"We saved your expense, but couldn't upload the receipt."
+
+ONLY use wording like that if the implementation actually preserves the saved
+expense safely.
+
+Do not claim an expense was saved if it was rolled back or never created.
+
+==================================================
+7. DO NOT CHANGE
+==================================================
+
+Do not change:
+- the new one-page Add Expense workflow
+- provider reuse/creation behavior except where needed to fix ordering
+- Paid validation
+- Dashboard
+- Upcoming / History
+- stars
+- filters
+- existing records
+- database schema unless investigation proves a schema change is genuinely
+  required
+
+Avoid a migration if the existing receipt structure can support this correctly.
+
+==================================================
+8. TESTING
+==================================================
+
+Add/update tests for:
+
+- service expense saves with no receipt
+- service expense saves with a receipt
+- Grocery saves with no receipt
+- Grocery saves with a receipt
+- receipt path is associated with the correct expense
+- filename with spaces works
+- upload failure is handled safely
+- one user's receipt cannot be accessed/modified as another user
+- existing receipt behavior remains intact
+- existing Dashboard test still passes
+- existing data-isolation test still passes
+
+Also perform a signed-in browser test with a real PNG or JPG file.
+
+Run the full test suite and build afterward.
+
+When finished, tell me:
+1. exact root cause of the failure
+2. what code was changed
+3. whether the bug came from the new simplified Add Expense flow
+4. whether any database/storage migration was needed
+5. result of a real signed-in receipt upload
+6. total test result
+7. build result
+
+Diagnosis: storage upload succeeded, but blank Service Performed failed the maintenance_visits_service_performed_check constraint (23514), with or without a receipt. Removed only that obsolete CHECK; NOT NULL, records, grants, RLS, private receipts bucket and 10 MiB limit unchanged. Preserve upload-before-write with compensating cleanup. Shared grocery save function now covers creation/editing; typed receipt failures and sanitized diagnostic logging distinguish upload from expense errors.

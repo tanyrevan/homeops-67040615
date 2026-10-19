@@ -32,3 +32,6 @@
 - Ledger cards are rendered by `ExpenseSection`, using a stretched transaction link with sibling settlement controls and an independent star button; query refresh follows settlement updates; why: card navigation stays available while Mark Paid and stars never navigate, and Dashboard reads the new status.
 - Filter and Starred share `secondaryFilterControl` from `FilterControls`; why: identical control dimensions and styling stay synchronized without changing filter behavior.
 - Dashboard period logic (availableYears, periodMonths, spendingChart, periodTotal) lives in `src/lib/household-stats.ts`; SpendPeriod includes `year:<YYYY>`; why: Total Spend and the Household Spending chart interpret periods consistently while staying independent.
+
+- Service Performed accepts empty strings in both validation and the database; why: optional form input must not fail the expense insert.
+- Service and grocery receipt saves upload before committing the path, clean up new files on failed writes, and delete old receipts only after success; why: failed saves preserve existing records and private owner-folder storage.

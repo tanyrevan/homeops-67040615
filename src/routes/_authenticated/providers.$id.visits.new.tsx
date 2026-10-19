@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { VisitForm } from "@/components/VisitForm";
 import { providerQuery } from "@/lib/providers-api";
+import { expenseSaveError } from "@/lib/visits-api";
 import { saveServiceExpense } from "@/lib/service-expense";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/visits/new")({
@@ -47,7 +48,7 @@ function NewVisit() {
               await Promise.all([qc.invalidateQueries({ queryKey: ["visits"] }), qc.invalidateQueries({ queryKey: ["providers"] })]);
               navigate({ to: "/visits/$visitId", params: { visitId } });
               return null;
-            } catch { return "We couldn't save this expense. Please try again."; }
+            } catch (error) { return expenseSaveError(error, "We couldn't save this expense. Please try again."); }
           }}
         />
       )}
