@@ -532,3 +532,15 @@ When finished, summarize:
 - Filter and Starred share identical width, height, padding, border, radius, typography and spacing through one styling constant.
 - Signed-in checks confirmed equal control dimensions, centered actions, equal card heights, settlement readback, star persistence/filtering/navigation and narrow-screen rendering. Temporary QA records removed.
 - Full suite: 140 tests across 20 files passed. Automatic build: OK. No database or business-logic changes; current branch retained.
+
+---
+
+## Follow-up: Dashboard period options (Oct 19, 2026)
+
+Spec: Add one more improvement to the current branch before the PR is merged.
+
+- Total Spend dropdown now offers This Month, Last 3 Months, dynamic calendar years (current year plus years present in the signed-in user's data, newest first, never future years), All Time. Year labels are explicit (e.g. "2026").
+- Chart title changed from "Household Spending (Last 3 Months)" to "Household Spending", with its own independent period dropdown using the same options and order; default This Month.
+- Chart behavior: This Month = current month; Last 3 Months = current plus previous two calendar months; a calendar year = Jan–Dec of that year, zero-filled; All Time = all months in the data chronologically. Labels always include the year.
+- Shared logic in src/lib/household-stats.ts: availableYears, periodMonths, spendingChart, and periodTotal extended with year:<YYYY> periods. Total Amount Due, Summary table, Last/Next Visit, Expenses workflow, Paid/Unpaid, stars, filters, records and schema unchanged.
+- Tests: new src/test/dashboard-periods.test.ts (15 tests) covering dynamic years, 2027 rollover, newest-first ordering, year filtering, year-boundary Last 3 Months, zero-filled calendar years, All Time span and labels. Full suite: 167 tests across 23 files passed; build OK.

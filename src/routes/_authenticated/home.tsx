@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { monthKey, usd } from "@/lib/dashboard-stats";
-import { chartAxisMax, householdStats, periodTotal, type SpendPeriod } from "@/lib/household-stats";
+import { availableYears, chartAxisMax, householdStats, periodMonths, periodTotal, spendingChart, type SpendPeriod } from "@/lib/household-stats";
 import { filterOwnedRecords } from "@/lib/ownership";
 
 // Paginate so the all-time totals aren't truncated by the backend row limit.
@@ -44,9 +44,10 @@ export const Route = createFileRoute("/_authenticated/home")({
 });
 const dateLabel = (date: string | null) => date ? new Date(`${date}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 const chartColors = ["var(--chart-2)", "var(--chart-1)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)", "var(--chart-6)", "var(--chart-7)", "var(--chart-8)"];
-const periodOptions: { value: SpendPeriod; label: string }[] = [
+const periodOptions = (years: number[]): { value: SpendPeriod; label: string }[] => [
   { value: "month", label: "This Month" },
   { value: "last3", label: "Last 3 Months" },
+  ...years.map((y) => ({ value: `year:${y}` as const, label: String(y) })),
   { value: "all", label: "All Time" },
 ];
 function Dashboard() {
@@ -54,10 +55,14 @@ function Dashboard() {
   const { data } = useSuspenseQuery(dashboardQuery(user.id));
   const today = new Date();
   const [period, setPeriod] = useState<SpendPeriod>("month");
+  const [chartPeriod, setChartPeriod] = useState<SpendPeriod>("month");
   const stats = householdStats(data.groceries, data.visits, data.providers, today);
+  const years = availableYears(data.groceries, data.visits, today);
+  const options = periodOptions(years);
   const totalSpend = periodTotal(data.groceries, data.visits, today, period);
-  const hasSpending = stats.chart.some((month) => stats.series.some((s) => Number(month[s.key as keyof typeof month]) > 0));
-  const highestMonth = Math.max(0, ...stats.chart.map((month) => stats.series.reduce((total, s) => total + Number(month[s.key as keyof typeof month] ?? 0), 0)));
+  const chartData = spendingChart(data.groceries, data.visits, data.providers, periodMonths(chartPeriod, today, data.groceries, data.visits));
+  const hasSpending = chartData.chart.some((month) => chartData.series.some((s) => Number(month[s.key as keyof typeof month]) > 0));
+  const highestMonth = Math.max(0, ...chartData.chart.map((month) => chartData.series.reduce((total, s) => total + Number(month[s.key as keyof typeof month] ?? 0), 0)));
   const yMax = chartAxisMax(highestMonth);
   const yTicks = Array.from({ length: yMax / 200 + 1 }, (_, i) => i * 200);
   return <AppShell>
@@ -67,7 +72,7 @@ function Dashboard() {
         <div className="flex flex-wrap items-center gap-x-3">
           <h2 className="text-sm text-muted-foreground">Total Spend</h2>
           <select aria-label="Total Spend period" value={period} onChange={(e) => setPeriod(e.target.value as SpendPeriod)} className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground">
-            {periodOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <p className="mt-1 text-2xl font-semibold tabular-nums">{usd(totalSpend)}</p>
@@ -84,16 +89,21 @@ function Dashboard() {
       </div>
     </section>
     <section className="mt-8">
-      <h2 className="text-lg font-semibold">Household Spending (Last 3 Months)</h2>
-      {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded in the last three months.</p>}
-      <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending for the last three calendar months">
-        <ResponsiveContainer width="100%" height="100%"><BarChart data={stats.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
+      <div className="flex flex-wrap items-center gap-x-3">
+        <h2 className="text-lg font-semibold">Household Spending</h2>
+        <select aria-label="Household Spending period" value={chartPeriod} onChange={(e) => setChartPeriod(e.target.value as SpendPeriod)} className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground">
+          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded for this period.</p>}
+      <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending by month for the selected period">
+        <ResponsiveContainer width="100%" height="100%"><BarChart data={chartData.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
           <CartesianGrid vertical={false} stroke="var(--border)" />
           <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} interval={0} />
           <YAxis width={64} tickLine={false} axisLine={false} domain={[0, yMax]} ticks={yTicks} tickFormatter={(n: number) => `$${n.toLocaleString("en-US")}`} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
           <Tooltip cursor={{ fill: "var(--accent)" }} formatter={(n: number) => usd(n)} contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--foreground)" }} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          {stats.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} stackId="household" fill={chartColors[i % chartColors.length]} maxBarSize={80} />)}
+          {chartData.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} stackId="household" fill={chartColors[i % chartColors.length]} maxBarSize={80} />)}
         </BarChart></ResponsiveContainer>
       </div>
     </section>
