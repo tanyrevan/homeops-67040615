@@ -1,0 +1,1 @@
+ALTER TABLE public.maintenance_visits DROP CONSTRAINT maintenance_visits_service_performed_check;

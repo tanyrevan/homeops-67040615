@@ -1,4 +1,5 @@
 # Dashboard and navigation simplification
+- [ ] Reproduce receipt regression, fix optional-service database mismatch and receipt errors, verify safe cleanup/ownership and all four signed-in flows, run full tests/build.
 - [x] Simplify service Add Expense and editing; deliberate payment choice, wording and receipts preserved; 152 tests passed, build OK, signed-in create/reuse/edit/receipt/delete verified, QA records removed.
 - [x] Replace dashboard with all-time summaries, category table, and three-month stacks.
 - [x] Simplify top navigation and add maintenance secondary navigation.
