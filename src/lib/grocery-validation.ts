@@ -3,14 +3,15 @@ export type GroceryFormValues = {
   store: string;
   amount: string;
   notes: string;
-  reimbursed: boolean;
+  reimbursed: boolean | null;
 };
-export type GroceryErrors = Partial<Record<"purchaseDate" | "store" | "amount" | "receipt", string>>;
+export type GroceryErrors = Partial<Record<"purchaseDate" | "store" | "amount" | "receipt" | "reimbursed", string>>;
 
 export function validateGrocery(v: GroceryFormValues):
   | { ok: true; data: { purchase_date: string; store: string; amount: number; notes: string | null; reimbursed: boolean } }
   | { ok: false; errors: GroceryErrors } {
   const errors: GroceryErrors = {};
+  if (typeof v.reimbursed !== "boolean") errors.reimbursed = "Please choose Yes or No for Paid.";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.purchaseDate)) errors.purchaseDate = "Please choose the purchase date.";
   const store = v.store.trim();
   if (!store) errors.store = "Please enter the store name.";

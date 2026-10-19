@@ -7,14 +7,15 @@ export type VisitFormValues = {
   service: string;
   amount: string;
   notes: string;
-  paid: boolean;
+  paid: boolean | null;
 };
-export type VisitErrors = Partial<Record<"visitDate" | "service" | "amount" | "receipt", string>>;
+export type VisitErrors = Partial<Record<"visitDate" | "service" | "amount" | "receipt" | "paid", string>>;
 
 export function validateVisit(v: VisitFormValues):
   | { ok: true; data: { visit_date: string; service_performed: string; amount_paid: number | null; notes: string | null; paid: boolean } }
   | { ok: false; errors: VisitErrors } {
   const errors: VisitErrors = {};
+  if (typeof v.paid !== "boolean") errors.paid = "Please choose Yes or No for Paid.";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.visitDate)) errors.visitDate = "Please choose the visit date.";
   const service = v.service.trim();
   if (!service) errors.service = "Please describe the service performed.";
@@ -23,7 +24,7 @@ export function validateVisit(v: VisitFormValues):
   if (raw) {
     const n = Number(raw);
     if (!Number.isFinite(n)) errors.amount = "Please enter a number, like 75 or 75.50.";
-    else if (n < 0) errors.amount = "Amount paid can't be negative.";
+    else if (n < 0) errors.amount = "Amount can't be negative.";
     else amount = Math.round(n * 100) / 100;
   }
   if (Object.keys(errors).length) return { ok: false, errors };

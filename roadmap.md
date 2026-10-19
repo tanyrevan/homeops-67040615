@@ -1,4 +1,5 @@
 # Dashboard and navigation simplification
+- [x] Simplify service Add Expense and editing; deliberate payment choice, wording and receipts preserved; 152 tests passed, build OK, signed-in create/reuse/edit/receipt/delete verified, QA records removed.
 - [x] Replace dashboard with all-time summaries, category table, and three-month stacks.
 - [x] Simplify top navigation and add maintenance secondary navigation.
 - [x] Save prompt and architecture notes; preserve database and budget history.
@@ -9,7 +10,7 @@
 - [x] Consolidate navigation and Expenses sections, add History settlement, green Paid badges and legacy redirects; preserve records, document and verify full tests/build and signed-in flow.
 - [x] Refine compact selected navigation, settings/logout menu and Upcoming heading; document and verify signed-in/mobile behavior and tests/build.
 - [x] Standardize service/Grocery detail headings and labeled fields, preserve receipt and menu actions, save prompt, and run full tests/build.
-- [ ] Verify signed-in existing-record detail, edit, receipt and delete-confirmation flows; blocked until the user signs in (no matching account available for automatic session).
+- [x] Verify signed-in saved-record detail, edit, receipt and delete-confirmation flows; authenticated checks passed on temporary saved transactions with receipt preservation and cleanup.
 - [x] Update final README and PLAN Section 8 only, verify live schema documentation, save final prompt, and confirm application files are unchanged.
 - [x] Remove the duplicate provider category selector, preserve selected/stored types and editing, save prompt, run full tests and verify signed-in Add Expense (124 tests; build OK; saved/read back Electrician and removed temporary QA provider).
 - [x] Add owner-only individual expense stars, replace provider-star UI with combined Starred filtering, append prompt and verify persistence/isolation, full tests and build.
