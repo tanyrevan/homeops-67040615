@@ -73,7 +73,7 @@ export function chartAxisMax(highestMonthTotal: number) {
   if (!(highestMonthTotal > 0)) return 100;
   const magnitude = 10 ** Math.floor(Math.log10(highestMonthTotal));
   const scaled = highestMonthTotal / magnitude;
-  const step = NICE_STEPS.find((s) => s >= scaled) ?? 10;
+  const step = NICE_STEPS.find((s) => s > scaled) ?? 10;
   return step * magnitude;
 }
 
