@@ -10,9 +10,9 @@ import { visitQuery } from "@/lib/visits-api";
 export const Route = createFileRoute("/_authenticated/visits/$visitId/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Service Expense — 16 Olive Road" },
+      { title: "Edit Service Expense | 16 Olive Road" },
       { name: "description", content: "Edit a service expense." },
-      { property: "og:title", content: "Edit Service Expense — 16 Olive Road" },
+      { property: "og:title", content: "Edit Service Expense | 16 Olive Road" },
       { property: "og:description", content: "Edit a service expense." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

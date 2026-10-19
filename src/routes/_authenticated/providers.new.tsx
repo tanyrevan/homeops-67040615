@@ -11,9 +11,9 @@ import { expenseTypeLabel } from "@/lib/expense-type";
 export const Route = createFileRoute("/_authenticated/providers/new")({
   head: () => ({
     meta: [
-      { title: "Add Expense — 16 Olive Road" },
+      { title: "Add Expense | 16 Olive Road" },
       { name: "description", content: "Record a household expense: a grocery purchase or a service visit." },
-      { property: "og:title", content: "Add Expense — 16 Olive Road" },
+      { property: "og:title", content: "Add Expense | 16 Olive Road" },
       { property: "og:description", content: "Record a household expense: a grocery purchase or a service visit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

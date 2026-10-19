@@ -566,3 +566,14 @@ Spec: Add one more form cleanup to the current Issue #43 / PR #44 work.
 - Labels simplified: "Phone or contact" → "Phone", "Visit Date *" → "Date *" (forms), and the service detail page now shows "Date". Database columns unchanged.
 - Service Performed placeholder is category-specific via serviceExample() in src/lib/visit-validation.ts (normalized through expenseTypeLabel, so legacy A/C maps to the Aircon example): Gardener "e.g. Trimmed hedges, mowed lawn", Jacuzzi "e.g. Cleaned filters, balanced chemicals", Aircon "e.g. Serviced unit, cleaned filters", Electrician "e.g. Replaced outlet, fixed lighting", House Painting "e.g. Painted bedroom, touched up walls"; Other/unknown get no placeholder. Updates immediately with the Expense Type; placeholder text is never stored.
 - Tests: visit-validation.test.ts now asserts blank service is allowed; expense-entry.test.tsx gained a "service form cleanup" block (11 tests: Paid? * labels, Phone/Date labels, optional Service Performed saving blank, per-category placeholders, Other none, A/C mapping, placeholder switch on type change, placeholder never stored). Full suite: 185 tests across 24 files passed; build OK. Verified signed-in: labels, Gardener placeholder, and the Paid validation message all render on /providers/new.
+
+---
+
+## Follow-up: Browser-title separator (Oct 19, 2026)
+
+Spec: One small browser-title visual change on the current branch.
+
+- All route-specific browser titles now use a vertical bar instead of an em dash: "Dashboard | 16 Olive Road", "Expenses | 16 Olive Road", etc. Applied to the `title` and mirroring `og:title` meta in every route `head()` (16 files), including the index title "16 Olive Road | Household operations tracker".
+- Login page title stays exactly "16 Olive Road"; the `__root.tsx` default title stays "16 Olive Road".
+- No favicon, in-app branding, routes, functionality, database behavior, or test changes; no test asserted a title, so none needed updating.
+- Full suite: 185 tests across 24 files passed; build OK. Verified signed-in in the browser: /auth "16 Olive Road", /home "Dashboard | 16 Olive Road", /providers "Expenses | 16 Olive Road", /providers/new "Add Expense | 16 Olive Road", /groceries (redirect) "Expenses | 16 Olive Road".
