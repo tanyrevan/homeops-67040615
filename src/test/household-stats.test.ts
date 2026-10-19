@@ -71,12 +71,18 @@ describe("Household dashboard", () => {
 });
 
 describe("Chart Y-axis scale", () => {
-  it("is at least $1,000 in $200 increments", () => {
-    expect(chartAxisMax(0)).toBe(1000);
-    expect(chartAxisMax(925)).toBe(1000);
+  it("has no fixed $1,000 maximum and uses a small default for empty data", () => {
+    expect(chartAxisMax(0)).toBe(100);
+    expect(chartAxisMax(-5)).toBe(100);
   });
-  it("expands above $1,000 to the next $200 increment", () => {
-    expect(chartAxisMax(1050)).toBe(1200);
-    expect(chartAxisMax(1320)).toBe(1400);
+  it("scales to a clean ceiling above the data without clipping", () => {
+    expect(chartAxisMax(300)).toBe(400);
+    expect(chartAxisMax(925)).toBe(1000);
+    expect(chartAxisMax(1000)).toBe(1200);
+    expect(chartAxisMax(2350)).toBe(2500);
+    expect(chartAxisMax(1320)).toBe(1500);
+  });
+  it("never returns a maximum below the highest total", () => {
+    for (const n of [1, 77, 250, 999, 1001, 4800, 12345]) expect(chartAxisMax(n)).toBeGreaterThanOrEqual(n);
   });
 });

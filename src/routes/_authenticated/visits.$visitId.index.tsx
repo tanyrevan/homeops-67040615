@@ -19,9 +19,9 @@ import { day, money, receiptUrlQuery, removeReceipt, visitQuery } from "@/lib/vi
 export const Route = createFileRoute("/_authenticated/visits/$visitId/")({
   head: () => ({
     meta: [
-      { title: "Expense details — 16 Olive Road" },
+      { title: "Expense details | 16 Olive Road" },
       { name: "description", content: "Details of a service expense." },
-      { property: "og:title", content: "Expense details — 16 Olive Road" },
+      { property: "og:title", content: "Expense details | 16 Olive Road" },
       { property: "og:description", content: "Details of a service expense." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -81,9 +81,9 @@ function VisitDetail() {
           </div>
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             <Field label="Provider" value={v.service_providers?.name ?? null} />
-            <Field label="Visit Date" value={day(v.visit_date)} />
+            <Field label="Date" value={day(v.visit_date)} />
             <Field label="Service Performed" value={v.service_performed} />
-            <Field label="Amount Paid" value={money(v.amount_paid)} />
+            <Field label="Amount" value={money(v.amount_paid)} />
             <div><dt className="text-sm text-muted-foreground">Payment Status</dt><dd className="mt-1"><StatusBadge ok={v.paid} yes="Paid" no="Unpaid" /></dd></div>
             <div className="sm:col-span-2"><Field label="Notes" value={v.notes} /></div>
           </dl>

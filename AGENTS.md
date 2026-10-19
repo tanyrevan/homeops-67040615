@@ -11,12 +11,11 @@
 
 - Signed-in pages live under `src/routes/_authenticated/` (client-only gate redirecting to `/auth`); why: the session is in browser storage, so the server can't check it.
 - `public.users` rows are created only by the `handle_new_user` trigger on signup; why: guarantees exactly one row per account.
-- Password validation and password-error classification live in `src/lib/password-validation.ts`; why: boundary tests exercise the same rules the authentication form uses, without mistaking strength errors for length errors.
-- Service provider form rules live in `src/lib/provider-validation.ts`; Add Expense passes its category through `splitServiceType` and hides the duplicate selector via `ProviderForm.categorySelected`, while editing keeps one Expense Type selector; why: add/edit preserve internal and legacy service types with shared validation. Provider rows are owner-only via RLS on `user_id`.
-- Visit form rules live in `src/lib/visit-validation.ts`; receipt photos go in the private `receipts` bucket under `<user_id>/...` (storage rules check the first folder); why: owner-only access enforced by the backend.
-- Grocery form rules live in `src/lib/grocery-validation.ts`; grocery receipts share the private `receipts` bucket under `<user_id>/groceries/`; why: one owner-only storage rule covers all receipts.
+- Password validation/error classification use `src/lib/password-validation.ts`; why: form and boundary tests share rules and distinguish strength from length errors.
+- Service Add Expense and visit editing share `VisitForm` identity fields; `src/lib/service-expense.ts` resolves owner-owned providers by normalized name, equivalent category and matching contact, then saves the linked visit with compensating cleanup on failure; why: one user action preserves shared provider history without schema or RLS changes. Standalone provider editing retains `provider-validation.ts`.
+- Visit/grocery rules use `src/lib/visit-validation.ts` and `src/lib/grocery-validation.ts`; receipts use private `receipts` paths `<user_id>/...` (groceries: `<user_id>/groceries/`); why: first-folder ownership secures both.
 - Preserve `/groceries` as a redirect to the unified Expenses ledger; grocery add/detail/delete navigation returns to the ledger and edit save/cancel may return to the current detail; why: old public URLs stay usable without exposing a second list.
-- Payment status: `maintenance_visits.paid` and `grocery_expenses.reimbursed` are explicit booleans (default false), never inferred from amounts; why: a cost can be owed but unpaid.
+- Payment status: `maintenance_visits.paid` and `grocery_expenses.reimbursed` are explicit stored booleans; new forms require a deliberate choice from an unselected state, never inferred from amounts; why: a cost can be owed but unpaid.
 - Individual expense stars use `expense_stars` with exactly one visit/grocery foreign key, unique per user+transaction and owner-validated RLS; `src/lib/expense-stars.ts` handles user-keyed paginated reads, optimistic updates and filtering before section splitting; why: transaction independence, durable isolation and unchanged ordering. Legacy provider `stars` data/modules are retained but absent from the Expenses UI.
 - Search/filter/sort runs in the browser over rows already limited by RLS, via pure functions in `src/lib/list-filters.ts`; why: ownership stays enforced by the backend and the rules are unit-tested.
 - Household dashboard calculations live in `src/lib/household-stats.ts`, reusing legacy monthly math in `src/lib/dashboard-stats.ts`; why: cent-based calculations and record-date rules stay deterministic and shared with tests.
@@ -31,3 +30,7 @@
 
 - Ledger cards are rendered by `ExpenseSection`, using a stretched transaction link with sibling settlement controls and an independent star button; query refresh follows settlement updates; why: card navigation stays available while Mark Paid and stars never navigate, and Dashboard reads the new status.
 - Filter and Starred share `secondaryFilterControl` from `FilterControls`; why: identical control dimensions and styling stay synchronized without changing filter behavior.
+- Dashboard periods use availableYears, periodMonths, spendingChart and periodTotal in `src/lib/household-stats.ts`, with `year:<YYYY>`; why: independent spend/chart selectors share period semantics.
+
+- Service Performed accepts empty strings in both validation and the database; why: optional form input must not fail the expense insert.
+- Service and grocery receipt saves upload before committing the path, clean up new files on failed writes, and delete old receipts only after success; why: failed saves preserve existing records and private owner-folder storage.

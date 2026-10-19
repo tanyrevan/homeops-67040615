@@ -6,7 +6,7 @@ export function StatusBadge({ ok, yes, no }: { ok: boolean; yes: string; no: str
   );
 }
 
-export function YesNo({ label, name, value, onChange }: { label: string; name: string; value: boolean; onChange: (v: boolean) => void }) {
+export function YesNo({ label, name, value, onChange }: { label: string; name: string; value: boolean | null; onChange: (v: boolean) => void }) {
   const opt = (v: boolean, text: string) => (
     <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 font-medium ${value === v ? "border-primary bg-primary/10 text-foreground" : "border-input text-muted-foreground"}`}>
       <input type="radio" name={name} value={text} checked={value === v} onChange={() => onChange(v)} className="accent-primary" />

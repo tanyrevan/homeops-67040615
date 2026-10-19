@@ -24,9 +24,9 @@ export const Route = createFileRoute("/_authenticated/providers/")({
     s["deleted"] === true || s["deleted"] === "1" || s["deleted"] === 1 ? { deleted: true } : {},
   head: () => ({
     meta: [
-      { title: "Expenses — 16 Olive Road" },
+      { title: "Expenses | 16 Olive Road" },
       { name: "description", content: "Every household expense: groceries and service visits." },
-      { property: "og:title", content: "Expenses — 16 Olive Road" },
+      { property: "og:title", content: "Expenses | 16 Olive Road" },
       { property: "og:description", content: "Every household expense: groceries and service visits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

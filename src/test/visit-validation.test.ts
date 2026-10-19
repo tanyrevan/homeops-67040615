@@ -8,9 +8,9 @@ describe("visit validation", () => {
     const r = validateVisit({ ...base, visitDate: "" });
     expect(!r.ok && r.errors.visitDate).toBeTruthy();
   });
-  it("requires service performed", () => {
+  it("allows a blank service performed", () => {
     const r = validateVisit({ ...base, service: "  " });
-    expect(!r.ok && r.errors.service).toBeTruthy();
+    expect(r.ok && r.data.service_performed).toBe("");
   });
   it("rejects a negative amount", () => {
     const r = validateVisit({ ...base, amount: "-1" });

@@ -8,9 +8,9 @@ export const Route = createFileRoute("/_authenticated/providers/$id/")({
   },
   head: () => ({
     meta: [
-      { title: "Expenses — 16 Olive Road" },
+      { title: "Legacy Provider | 16 Olive Road" },
       { name: "description", content: "Every household expense: groceries and service visits." },
-      { property: "og:title", content: "Expenses — 16 Olive Road" },
+      { property: "og:title", content: "Legacy Provider | 16 Olive Road" },
       { property: "og:description", content: "Every household expense: groceries and service visits." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

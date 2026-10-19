@@ -532,3 +532,245 @@ When finished, summarize:
 - Filter and Starred share identical width, height, padding, border, radius, typography and spacing through one styling constant.
 - Signed-in checks confirmed equal control dimensions, centered actions, equal card heights, settlement readback, star persistence/filtering/navigation and narrow-screen rendering. Temporary QA records removed.
 - Full suite: 140 tests across 20 files passed. Automatic build: OK. No database or business-logic changes; current branch retained.
+
+---
+
+## Follow-up: Dashboard period options (Oct 19, 2026)
+
+Spec: Add one more improvement to the current branch before the PR is merged.
+
+- Total Spend dropdown now offers This Month, Last 3 Months, dynamic calendar years (current year plus years present in the signed-in user's data, newest first, never future years), All Time. Year labels are explicit (e.g. "2026").
+- Chart title changed from "Household Spending (Last 3 Months)" to "Household Spending", with its own independent period dropdown using the same options and order; default This Month.
+- Chart behavior: This Month = current month; Last 3 Months = current plus previous two calendar months; a calendar year = Jan–Dec of that year, zero-filled; All Time = all months in the data chronologically. Labels always include the year.
+- Shared logic in src/lib/household-stats.ts: availableYears, periodMonths, spendingChart, and periodTotal extended with year:<YYYY> periods. Total Amount Due, Summary table, Last/Next Visit, Expenses workflow, Paid/Unpaid, stars, filters, records and schema unchanged.
+- Tests: new src/test/dashboard-periods.test.ts (15 tests) covering dynamic years, 2027 rollover, newest-first ordering, year filtering, year-boundary Last 3 Months, zero-filled calendar years, All Time span and labels. Full suite: 167 tests across 23 files passed; build OK.
+
+---
+
+## Follow-up: Upcoming status badges + dynamic chart y-axis (Oct 19, 2026)
+
+Spec: Add two final refinements to the current Issue #43 / PR #44 work.
+
+- Upcoming expense cards now show the saved Paid / Unpaid status with the same badge treatment as History (green "✓ Paid" / red "Unpaid"), on the right under the amount; records without an amount keep the "—" dash and still show status. No Mark Paid on Upcoming; Upcoming definition (future-dated) unchanged.
+- Household Spending y-axis no longer has a fixed $1,000 maximum. chartAxisMax now picks the smallest "nice" number (1/1.2/1.5/2/2.5/3/4/5/6/8 × 10^n) strictly above the highest stacked monthly total, with a $100 floor for empty data; ticks are 5 evenly spaced currency labels from $0. Recalculates whenever the chart period changes; works for This Month, Last 3 Months, calendar years and All Time.
+- Tests: new src/test/expense-section-status.test.tsx (5 tests: Upcoming Paid/Unpaid badges, status with missing amount, no Mark Paid on Upcoming, History unchanged); updated the chartAxisMax block in household-stats.test.ts (no fixed max, clean ceilings, never clips). Full suite: 173 tests across 24 files passed; build OK. Verified signed-in: Upcoming badges render, All Time axis scaled to $1,200 for a ~$1,000 tallest month.
+
+---
+
+## Follow-up: Add Expense form cleanup (Oct 19, 2026)
+
+Spec: Add one more form cleanup to the current Issue #43 / PR #44 work.
+
+- Paid is now labeled "Paid? *" on both service and grocery forms; still no default selection, and saving without a deliberate Yes/No shows "Please choose Yes or No for Paid." Storage logic unchanged; edits still show the saved value.
+- Service Performed is no longer required (label without "*", validation removed); blank saves as an empty string. Existing values untouched.
+- Labels simplified: "Phone or contact" → "Phone", "Visit Date *" → "Date *" (forms), and the service detail page now shows "Date". Database columns unchanged.
+- Service Performed placeholder is category-specific via serviceExample() in src/lib/visit-validation.ts (normalized through expenseTypeLabel, so legacy A/C maps to the Aircon example): Gardener "e.g. Trimmed hedges, mowed lawn", Jacuzzi "e.g. Cleaned filters, balanced chemicals", Aircon "e.g. Serviced unit, cleaned filters", Electrician "e.g. Replaced outlet, fixed lighting", House Painting "e.g. Painted bedroom, touched up walls"; Other/unknown get no placeholder. Updates immediately with the Expense Type; placeholder text is never stored.
+- Tests: visit-validation.test.ts now asserts blank service is allowed; expense-entry.test.tsx gained a "service form cleanup" block (11 tests: Paid? * labels, Phone/Date labels, optional Service Performed saving blank, per-category placeholders, Other none, A/C mapping, placeholder switch on type change, placeholder never stored). Full suite: 185 tests across 24 files passed; build OK. Verified signed-in: labels, Gardener placeholder, and the Paid validation message all render on /providers/new.
+
+---
+
+## Follow-up: Browser-title separator (Oct 19, 2026)
+
+Spec: One small browser-title visual change on the current branch.
+
+- All route-specific browser titles now use a vertical bar instead of an em dash: "Dashboard | 16 Olive Road", "Expenses | 16 Olive Road", etc. Applied to the `title` and mirroring `og:title` meta in every route `head()` (16 files), including the index title "16 Olive Road | Household operations tracker".
+- Login page title stays exactly "16 Olive Road"; the `__root.tsx` default title stays "16 Olive Road".
+- No favicon, in-app branding, routes, functionality, database behavior, or test changes; no test asserted a title, so none needed updating.
+- Full suite: 185 tests across 24 files passed; build OK. Verified signed-in in the browser: /auth "16 Olive Road", /home "Dashboard | 16 Olive Road", /providers "Expenses | 16 Olive Road", /providers/new "Add Expense | 16 Olive Road", /groceries (redirect) "Expenses | 16 Olive Road".
+
+
+## Receipt regression (Oct 19, 2026)
+
+There is a receipt-upload regression on the current Issue #43 / PR #44 branch.
+
+Stay on the current branch and fix this before merging.
+
+CURRENT PROBLEM
+
+When I create an expense and attach a receipt image, the file is selected
+successfully in the browser, but saving can fail with:
+
+"We couldn't save this expense. Please try again."
+
+Receipt uploads worked previously.
+
+Please diagnose the ACTUAL cause rather than hiding the error or disabling
+receipt uploads.
+
+==================================================
+1. REPRODUCE FIRST
+==================================================
+
+Test the signed-in flow with an actual image file.
+
+Test at minimum:
+
+- service expense with no receipt
+- service expense with a PNG/JPG receipt
+- Grocery with no receipt
+- Grocery with a PNG/JPG receipt
+
+Determine whether the failure occurs:
+- during storage upload
+- while creating/reusing the provider
+- while inserting the expense/visit
+- while saving the receipt path/URL
+- because of ownership/RLS
+- because of file naming/MIME handling
+- because the new one-step workflow changed operation ordering
+
+Log/inspect the real underlying error.
+
+Do not rely only on the generic user-facing error message.
+
+==================================================
+2. FIX THE TRANSACTION ORDER SAFELY
+==================================================
+
+The simplified one-page service flow now creates/reuses a provider and creates
+the expense in one action.
+
+Make sure receipt upload works correctly with that flow.
+
+Use a safe order such as:
+
+1. validate the form
+2. resolve/create the provider where applicable
+3. create the grocery expense or maintenance visit
+4. upload the receipt to the existing private receipt bucket
+5. associate the uploaded receipt path with the newly created expense
+
+OR use the existing project pattern if it safely handles cleanup and ownership.
+
+Do not create orphaned database records or receipt files when a later step
+fails where reasonably avoidable.
+
+If an upload fails:
+- show a useful user-facing error
+- do not corrupt the expense record
+- do not expose internal error details to the user
+
+==================================================
+3. PRESERVE EXISTING STORAGE DESIGN
+==================================================
+
+Do NOT create a new storage bucket unless absolutely necessary.
+
+Inspect and preserve the existing receipt storage setup:
+- private receipt bucket
+- existing file-size limit
+- existing supported image types
+- existing ownership/storage policies
+- existing receipt URL/path fields
+
+Do not weaken RLS or storage security to make uploads pass.
+
+==================================================
+4. FILE HANDLING
+==================================================
+
+Ensure normal receipt images work, including at minimum:
+
+- JPG / JPEG
+- PNG
+- HEIC if the app already supports it
+
+Keep the existing upload-size restriction.
+
+Use safe unique filenames/paths so two users or two expenses cannot overwrite
+each other's receipts.
+
+Filename spaces or screenshot-style names such as:
+
+Screenshot 2026-10-15 140854.png
+
+must not cause the upload to fail.
+
+==================================================
+5. GROCERY + SERVICE SUPPORT
+==================================================
+
+Receipt uploads must work for BOTH:
+
+- Grocery expenses
+- service/maintenance expenses
+
+The new simplified provider workflow must not break service receipt uploads.
+
+Editing an existing expense and replacing/removing a receipt should continue
+working if that functionality already exists.
+
+Existing receipt records must remain accessible.
+
+==================================================
+6. ERROR HANDLING
+==================================================
+
+The current generic message:
+
+"We couldn't save this expense. Please try again."
+
+can remain as a fallback, but where useful distinguish a receipt-upload failure
+from a general expense-save failure.
+
+For example:
+
+"We saved your expense, but couldn't upload the receipt."
+
+ONLY use wording like that if the implementation actually preserves the saved
+expense safely.
+
+Do not claim an expense was saved if it was rolled back or never created.
+
+==================================================
+7. DO NOT CHANGE
+==================================================
+
+Do not change:
+- the new one-page Add Expense workflow
+- provider reuse/creation behavior except where needed to fix ordering
+- Paid validation
+- Dashboard
+- Upcoming / History
+- stars
+- filters
+- existing records
+- database schema unless investigation proves a schema change is genuinely
+  required
+
+Avoid a migration if the existing receipt structure can support this correctly.
+
+==================================================
+8. TESTING
+==================================================
+
+Add/update tests for:
+
+- service expense saves with no receipt
+- service expense saves with a receipt
+- Grocery saves with no receipt
+- Grocery saves with a receipt
+- receipt path is associated with the correct expense
+- filename with spaces works
+- upload failure is handled safely
+- one user's receipt cannot be accessed/modified as another user
+- existing receipt behavior remains intact
+- existing Dashboard test still passes
+- existing data-isolation test still passes
+
+Also perform a signed-in browser test with a real PNG or JPG file.
+
+Run the full test suite and build afterward.
+
+When finished, tell me:
+1. exact root cause of the failure
+2. what code was changed
+3. whether the bug came from the new simplified Add Expense flow
+4. whether any database/storage migration was needed
+5. result of a real signed-in receipt upload
+6. total test result
+7. build result
+
+Diagnosis: storage upload succeeded, but blank Service Performed failed the maintenance_visits_service_performed_check constraint (23514), with or without a receipt. Removed only that obsolete CHECK; NOT NULL, records, grants, RLS, private receipts bucket and 10 MiB limit unchanged. Preserve upload-before-write with compensating cleanup. Shared grocery save function now covers creation/editing; typed receipt failures and sanitized diagnostic logging distinguish upload from expense errors.
+
+Verification: service/Grocery with and without a real PNG all save; saved PNG renders through signed URLs; both replacement and removal work. Simulated storage failures show truthful upload-specific errors and leave no new provider/grocery rows. Foreign-folder read/upload/update denied with the signed-in user; policy tests cover delete ownership. No second-account end-to-end session was used. All 212 tests across 26 files pass, including required Dashboard and data-isolation tests; automatic build OK. Temporary QA records/files removed.

@@ -2,16 +2,16 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { VisitForm } from "@/components/VisitForm";
-import { supabase } from "@/integrations/supabase/client";
 import { providerQuery } from "@/lib/providers-api";
-import { removeReceipt, uploadReceipt } from "@/lib/visits-api";
+import { expenseSaveError } from "@/lib/visits-api";
+import { saveServiceExpense } from "@/lib/service-expense";
 
 export const Route = createFileRoute("/_authenticated/providers/$id/visits/new")({
   head: () => ({
     meta: [
-      { title: "Add Expense — 16 Olive Road" },
+      { title: "Add Service Expense | 16 Olive Road" },
       { name: "description", content: "Record a service expense." },
-      { property: "og:title", content: "Add Expense — 16 Olive Road" },
+      { property: "og:title", content: "Add Service Expense | 16 Olive Road" },
       { property: "og:description", content: "Record a service expense." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -36,22 +36,19 @@ function NewVisit() {
       {!isLoading && !p && <p className="text-foreground">This provider wasn't found.</p>}
       {p && (
         <VisitForm
-          initial={{ visitDate: today, service: "", amount: "", notes: "", paid: false }}
+          initial={{ visitDate: today, service: "", amount: "", notes: "", paid: null }}
+          expenseType={p.service_type}
+          providerInitial={{ name: p.name, phone: p.phone_or_contact ?? "" }}
           submitLabel="Save Expense"
           onCancel={() => navigate({ to: "/providers" })}
-          onSubmit={async ({ data, file }) => {
-            let path: string | null = null;
-            if (file) {
-              try { path = await uploadReceipt(user.id, file); } catch { return "We couldn't upload the receipt. Please try again."; }
-            }
-            const { data: row, error } = await supabase
-              .from("maintenance_visits")
-              .insert({ ...data, receipt_url: path, service_provider_id: id, user_id: user.id })
-              .select("id").single();
-            if (error) { await removeReceipt(path); return "We couldn't save this expense. Please try again."; }
-            await qc.invalidateQueries({ queryKey: ["visits"] });
-            navigate({ to: "/visits/$visitId", params: { visitId: row.id } });
-            return null;
+          onSubmit={async (submission) => {
+            if (!submission.provider) return "Please enter the name.";
+            try {
+              const visitId = await saveServiceExpense(user.id, submission, submission.provider);
+              await Promise.all([qc.invalidateQueries({ queryKey: ["visits"] }), qc.invalidateQueries({ queryKey: ["providers"] })]);
+              navigate({ to: "/visits/$visitId", params: { visitId } });
+              return null;
+            } catch (error) { return expenseSaveError(error, "We couldn't save this expense. Please try again."); }
           }}
         />
       )}
