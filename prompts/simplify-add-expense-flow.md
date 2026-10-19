@@ -276,3 +276,16 @@ When finished, summarize:
 5. tests added/updated
 6. full test result
 7. build result
+
+## Implementation and verification
+
+- Service Add Expense now contains the category and all provider/visit fields on one page, with one Save Expense action and no Provider selector or Save Provider step.
+- Internally, provider reuse requires the same owner, case-insensitive trimmed name, equivalent displayed category, and matching contact. Conflicting identities create a separate provider rather than changing shared historical data. Unchanged edits retain the existing provider ID. The visit is saved with the resolved provider ID. Failed saves attempt cleanup of only newly created provider/receipt records.
+- New service and grocery payment choices begin null and require explicit Yes/No; stored values remain booleans, edits preserve saved status, and database defaults remain unchanged.
+- Amount labels/placeholders and the Cold Storage grocery example updated. Receipt helper prose removed; validation, file control, replacement/removal and private storage retained.
+- Files: src/components/VisitForm.tsx, GroceryForm.tsx, StatusBadge.tsx; src/lib/service-expense.ts, visit-validation.ts, grocery-validation.ts; src/routes/_authenticated/providers.new.tsx, providers.$id.visits.new.tsx, visits.$visitId.edit.tsx, visits.$visitId.index.tsx, groceries.new.tsx, providers.$id.index.tsx (unique legacy metadata only); src/test/service-expense.test.ts, expense-entry.test.tsx; AGENTS.md, roadmap.md, this prompt.
+- No database migration, schema, ownership policy, or existing-record conversion was needed.
+- Added 12 automated tests for linked provider creation/reuse, ownership/contact/category isolation, legacy matching, unchanged edits, failure cleanup, deliberate service/grocery choices, combined submission with receipt, and saved edit status. Copy/styling checks were verified through the browser rather than brittle automated text assertions.
+- Full suite: 152 tests across 22 files passed, including required data-isolation and Dashboard grocery-total tests. Latest automatic build: build OK.
+- Signed-in browser checks: one-page service save/readback, missing-Paid validation, Amount wording, no provider selector, edit/readback, two visits reusing exactly one provider, grocery Cold Storage/unselected defaults/helper removal, actual receipt upload/display/edit preservation, confirmed deletion. No console errors. Temporary QA visits, receipt and provider removed; pre-existing household records unchanged.
+- Workspace reports internal branch edit/edt-a24d2d62-e686-4d22-bfea-71109d19da7a. No branch switch or commit was attempted; the requested external branch name could not be verified here.
