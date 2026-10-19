@@ -16,3 +16,4 @@
 - [x] Add owner-only individual expense stars, replace provider-star UI with combined Starred filtering, append prompt and verify persistence/isolation, full tests and build.
 - [x] Align History payment controls, center card stars, match Starred to Filter, append follow-up and verify full tests/build and signed-in layout (140 tests; build OK; equal card heights and aligned controls verified).
 - [x] Center Mark Paid left of the amount/status stack, make Filter and Starred identical dimensions, append prompt and verify tests/build and signed-in layout (140 tests; build OK; signed-in dimensions and payment readback verified).- [x] Dashboard period dropdowns: dynamic calendar years (current + data years, newest first), independent Household Spending chart period, shared logic in household-stats.ts
+- [x] Upcoming cards show Paid/Unpaid badges; Household Spending y-axis scales dynamically (nice-number ceiling, $100 floor)

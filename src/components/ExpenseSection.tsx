@@ -47,9 +47,9 @@ export function ExpenseSection({ upcoming = false, items, settlingKey, saving, o
                   </Button>}
                   <div className="pointer-events-none relative shrink-0 text-right">
                     <div className="font-semibold tabular-nums text-foreground">{money(item.amount) ?? "—"}</div>
-                    {!upcoming && <div className="mt-1 flex h-8 items-center justify-end">
+                    <div className="mt-1 flex h-8 items-center justify-end">
                       <StatusBadge ok={item.settled} yes="Paid" no="Unpaid" />
-                    </div>}
+                    </div>
                   </div>
               </div>
               <Button

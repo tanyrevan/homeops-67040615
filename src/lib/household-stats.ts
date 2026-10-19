@@ -64,9 +64,17 @@ export function spendingChart(groceries: HouseholdGrocery[], visits: HouseholdVi
   return { chart, series };
 }
 
-/** Y-axis max for the stacked chart: at least $1,000, in $200 increments. */
+/**
+ * Y-axis max for the stacked chart: the smallest "nice" number (1/1.2/1.5/2/2.5/3/4/5/6/8 × 10^n)
+ * at or above the highest stacked monthly total, with a $100 floor for empty data.
+ */
+const NICE_STEPS = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 export function chartAxisMax(highestMonthTotal: number) {
-  return Math.max(1000, Math.ceil(highestMonthTotal / 200) * 200);
+  if (!(highestMonthTotal > 0)) return 100;
+  const magnitude = 10 ** Math.floor(Math.log10(highestMonthTotal));
+  const scaled = highestMonthTotal / magnitude;
+  const step = NICE_STEPS.find((s) => s > scaled) ?? 10;
+  return step * magnitude;
 }
 
 export function householdStats(groceries: HouseholdGrocery[], visits: HouseholdVisit[], providers: HouseholdProvider[], today: Date) {

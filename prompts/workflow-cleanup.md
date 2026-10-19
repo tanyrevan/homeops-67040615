@@ -544,3 +544,13 @@ Spec: Add one more improvement to the current branch before the PR is merged.
 - Chart behavior: This Month = current month; Last 3 Months = current plus previous two calendar months; a calendar year = Jan–Dec of that year, zero-filled; All Time = all months in the data chronologically. Labels always include the year.
 - Shared logic in src/lib/household-stats.ts: availableYears, periodMonths, spendingChart, and periodTotal extended with year:<YYYY> periods. Total Amount Due, Summary table, Last/Next Visit, Expenses workflow, Paid/Unpaid, stars, filters, records and schema unchanged.
 - Tests: new src/test/dashboard-periods.test.ts (15 tests) covering dynamic years, 2027 rollover, newest-first ordering, year filtering, year-boundary Last 3 Months, zero-filled calendar years, All Time span and labels. Full suite: 167 tests across 23 files passed; build OK.
+
+---
+
+## Follow-up: Upcoming status badges + dynamic chart y-axis (Oct 19, 2026)
+
+Spec: Add two final refinements to the current Issue #43 / PR #44 work.
+
+- Upcoming expense cards now show the saved Paid / Unpaid status with the same badge treatment as History (green "✓ Paid" / red "Unpaid"), on the right under the amount; records without an amount keep the "—" dash and still show status. No Mark Paid on Upcoming; Upcoming definition (future-dated) unchanged.
+- Household Spending y-axis no longer has a fixed $1,000 maximum. chartAxisMax now picks the smallest "nice" number (1/1.2/1.5/2/2.5/3/4/5/6/8 × 10^n) strictly above the highest stacked monthly total, with a $100 floor for empty data; ticks are 5 evenly spaced currency labels from $0. Recalculates whenever the chart period changes; works for This Month, Last 3 Months, calendar years and All Time.
+- Tests: new src/test/expense-section-status.test.tsx (5 tests: Upcoming Paid/Unpaid badges, status with missing amount, no Mark Paid on Upcoming, History unchanged); updated the chartAxisMax block in household-stats.test.ts (no fixed max, clean ceilings, never clips). Full suite: 173 tests across 24 files passed; build OK. Verified signed-in: Upcoming badges render, All Time axis scaled to $1,200 for a ~$1,000 tallest month.
