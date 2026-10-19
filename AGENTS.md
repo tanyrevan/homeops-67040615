@@ -31,3 +31,4 @@
 
 - Ledger cards are rendered by `ExpenseSection`, using a stretched transaction link with sibling settlement controls and an independent star button; query refresh follows settlement updates; why: card navigation stays available while Mark Paid and stars never navigate, and Dashboard reads the new status.
 - Filter and Starred share `secondaryFilterControl` from `FilterControls`; why: identical control dimensions and styling stay synchronized without changing filter behavior.
+- Dashboard period logic (availableYears, periodMonths, spendingChart, periodTotal) lives in `src/lib/household-stats.ts`; SpendPeriod includes `year:<YYYY>`; why: Total Spend and the Household Spending chart interpret periods consistently while staying independent.
