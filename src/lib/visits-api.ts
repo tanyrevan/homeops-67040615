@@ -69,7 +69,7 @@ export async function uploadReceipt(userId: string, file: File, folder: "visits"
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
     const ext = types[extension] ? extension : Object.keys(types).find((key) => types[key] === file.type) ?? "jpg";
     const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, { contentType: types[ext], upsert: false });
+    const { error } = await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, { contentType: types[ext] ?? "image/jpeg", upsert: false });
     if (error) throw error;
     return path;
   } catch (error) { throw new ReceiptUploadError(error); }

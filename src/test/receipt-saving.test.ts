@@ -10,10 +10,12 @@ import { uploadReceipt, receiptUrlQuery, ReceiptUploadError } from "@/lib/visits
 import { MAX_RECEIPT_BYTES } from "@/lib/visit-validation";
 
 function query(data: unknown, error: unknown = null) {
-  const q: Record<string, ReturnType<typeof vi.fn>> = {};
-  for (const key of ["select", "eq", "order", "range", "insert", "update", "delete"]) q[key] = vi.fn(() => q);
-  q.single = vi.fn().mockResolvedValue({ data, error });
-  q.then = vi.fn((resolve) => Promise.resolve({ data, error }).then(resolve));
+  const q = {
+    select: vi.fn(), eq: vi.fn(), order: vi.fn(), range: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn(),
+    single: vi.fn().mockResolvedValue({ data, error }),
+    then: vi.fn((resolve) => Promise.resolve({ data, error }).then(resolve)),
+  };
+  for (const key of ["select", "eq", "order", "range", "insert", "update", "delete"] as const) q[key].mockImplementation(() => q);
   return q;
 }
 const provider = { id: "provider", user_id: "owner", name: "QA", service_type: "Electrician", phone_or_contact: null };
@@ -37,12 +39,12 @@ describe("receipt save contracts", () => {
           ? await saveServiceExpense("owner", { ...service, file }, provider)
           : await saveGroceryExpense("owner", { ...grocery, file });
         expect(id).toBe(`${kind}-id`);
-        const path = receipt ? mocks.upload.mock.calls[0][0] : null;
+        const path = receipt ? mocks.upload.mock.calls[0]?.[0] : null;
         expect(row.insert).toHaveBeenCalledWith(expect.objectContaining({ receipt_url: path, user_id: "owner" }));
         if (receipt) {
           expect(path).toMatch(new RegExp(`^owner/${kind === "service" ? "visits" : "groceries"}/[a-f0-9-]+\\.png$`));
           expect(mocks.upload).toHaveBeenCalledWith(path, file, { contentType: "image/png", upsert: false });
-          expect(mocks.upload.mock.invocationCallOrder[0]).toBeLessThan(row.insert.mock.invocationCallOrder[0]);
+          expect(mocks.upload.mock.invocationCallOrder[0] ?? Infinity).toBeLessThan(row.insert.mock.invocationCallOrder[0] ?? -Infinity);
         } else expect(mocks.upload).not.toHaveBeenCalled();
         if (kind === "service") expect(row.insert).toHaveBeenCalledWith(expect.objectContaining({ service_performed: "" }));
       });
@@ -64,7 +66,7 @@ describe("receipt save contracts", () => {
         ? saveServiceExpense("owner", { ...service, file: photo() }, provider, existing)
         : saveGroceryExpense("owner", { ...grocery, file: photo() }, existing);
       await expect(save).rejects.toThrow("write failed");
-      expect(mocks.remove).toHaveBeenCalledExactlyOnceWith([mocks.upload.mock.calls[0][0]]);
+      expect(mocks.remove).toHaveBeenCalledExactlyOnceWith([mocks.upload.mock.calls[0]?.[0]]);
     });
     for (const action of ["keep", "replace", "remove"] as const) {
       it(`${kind} edits ${action} existing receipt only after successful owner-filtered write`, async () => {
@@ -75,12 +77,12 @@ describe("receipt save contracts", () => {
         else await saveGroceryExpense("owner", { ...grocery, ...changes }, existing);
         expect(row.eq).toHaveBeenCalledWith("user_id", "owner");
         expect(row.eq).toHaveBeenCalledWith("id", "existing");
-        const path = action === "keep" ? existing.receipt_url : action === "remove" ? null : mocks.upload.mock.calls[0][0];
+        const path = action === "keep" ? existing.receipt_url : action === "remove" ? null : mocks.upload.mock.calls[0]?.[0];
         expect(row.update).toHaveBeenCalledWith(expect.objectContaining({ receipt_url: path }));
         if (action === "keep") expect(mocks.remove).not.toHaveBeenCalled();
         else {
           expect(mocks.remove).toHaveBeenCalledWith([existing.receipt_url]);
-          expect(row.single.mock.invocationCallOrder[0]).toBeLessThan(mocks.remove.mock.invocationCallOrder[0]);
+          expect(row.single.mock.invocationCallOrder[0] ?? Infinity).toBeLessThan(mocks.remove.mock.invocationCallOrder[0] ?? -Infinity);
         }
       });
     }
