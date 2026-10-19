@@ -72,7 +72,7 @@ function Dashboard() {
         <div className="flex flex-wrap items-center gap-x-3">
           <h2 className="text-sm text-muted-foreground">Total Spend</h2>
           <select aria-label="Total Spend period" value={period} onChange={(e) => setPeriod(e.target.value as SpendPeriod)} className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground">
-            {periodOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <p className="mt-1 text-2xl font-semibold tabular-nums">{usd(totalSpend)}</p>
@@ -89,10 +89,15 @@ function Dashboard() {
       </div>
     </section>
     <section className="mt-8">
-      <h2 className="text-lg font-semibold">Household Spending (Last 3 Months)</h2>
-      {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded in the last three months.</p>}
-      <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending for the last three calendar months">
-        <ResponsiveContainer width="100%" height="100%"><BarChart data={stats.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
+      <div className="flex flex-wrap items-center gap-x-3">
+        <h2 className="text-lg font-semibold">Household Spending</h2>
+        <select aria-label="Household Spending period" value={chartPeriod} onChange={(e) => setChartPeriod(e.target.value as SpendPeriod)} className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground">
+          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      {!hasSpending && <p className="mt-1 text-sm text-muted-foreground">No spending recorded for this period.</p>}
+      <div className="mt-4 h-80 w-full" role="img" aria-label="Stacked household spending by month for the selected period">
+        <ResponsiveContainer width="100%" height="100%"><BarChart data={chartData.chart} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
           <CartesianGrid vertical={false} stroke="var(--border)" />
           <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} interval={0} />
           <YAxis width={64} tickLine={false} axisLine={false} domain={[0, yMax]} ticks={yTicks} tickFormatter={(n: number) => `$${n.toLocaleString("en-US")}`} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
