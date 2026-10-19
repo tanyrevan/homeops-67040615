@@ -772,3 +772,5 @@ When finished, tell me:
 7. build result
 
 Diagnosis: storage upload succeeded, but blank Service Performed failed the maintenance_visits_service_performed_check constraint (23514), with or without a receipt. Removed only that obsolete CHECK; NOT NULL, records, grants, RLS, private receipts bucket and 10 MiB limit unchanged. Preserve upload-before-write with compensating cleanup. Shared grocery save function now covers creation/editing; typed receipt failures and sanitized diagnostic logging distinguish upload from expense errors.
+
+Verification: service/Grocery with and without a real PNG all save; saved PNG renders through signed URLs; both replacement and removal work. Simulated storage failures show truthful upload-specific errors and leave no new provider/grocery rows. Foreign-folder read/upload/update denied with the signed-in user; policy tests cover delete ownership. No second-account end-to-end session was used. All 212 tests across 26 files pass, including required Dashboard and data-isolation tests; automatic build OK. Temporary QA records/files removed.
