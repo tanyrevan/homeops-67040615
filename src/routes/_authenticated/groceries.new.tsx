@@ -29,7 +29,7 @@ function NewGrocery() {
       <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">← Back to Expenses</Link>
       <h1 className="mb-6 mt-3 text-2xl font-semibold text-foreground">Add Grocery Purchase</h1>
       <GroceryForm
-        initial={{ purchaseDate: today, store: "", amount: "", notes: "", reimbursed: false }}
+        initial={{ purchaseDate: today, store: "", amount: "", notes: "", reimbursed: null }}
         submitLabel="Save Purchase"
         onCancel={() => navigate({ to: "/providers" })}
         onSubmit={async ({ data, file }) => {

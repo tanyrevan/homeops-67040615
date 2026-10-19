@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { validateGrocery, type GroceryErrors, type GroceryFormValues } from "@/lib/grocery-validation";
 import { YesNo } from "@/components/StatusBadge";
@@ -50,7 +51,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
       </div>
       <div>
         <label htmlFor="store" className={label}>Store *</label>
-        <input id="store" className={input} value={v.store} onChange={set("store")} placeholder="e.g. Trader Joe's" />
+        <input id="store" className={input} value={v.store} onChange={set("store")} placeholder="e.g. Cold Storage" />
         {err(errors.store)}
       </div>
       <div>
@@ -59,6 +60,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         {err(errors.amount)}
       </div>
       <YesNo label="Paid?" name="reimbursed" value={v.reimbursed} onChange={(reimbursed) => setV({ ...v, reimbursed })} />
+      {err(errors.reimbursed)}
       <div>
         <label htmlFor="notes" className={label}>Notes</label>
         <textarea id="notes" rows={3} className={input} value={v.notes} onChange={set("notes")} placeholder="Optional" />
@@ -68,22 +70,21 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         {hasReceipt && !file && (
           <div className="mb-2 flex items-center gap-3 text-sm">
             <span className="text-muted-foreground">{removeExisting ? "Receipt will be removed." : "A receipt is already saved."}</span>
-            <button type="button" onClick={() => setRemoveExisting(!removeExisting)} className="font-medium text-primary underline">
+            <Button type="button" onClick={() => setRemoveExisting(!removeExisting)} className="font-medium text-primary underline">
               {removeExisting ? "Keep it" : "Remove receipt"}
-            </button>
+            </Button>
           </div>
         )}
         <input id="receipt" type="file" accept={RECEIPT_ACCEPT} onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-4 file:py-2 file:font-medium file:text-foreground" />
-        <p className="mt-1 text-xs text-muted-foreground">Optional photo of the receipt (JPG, PNG, HEIC — up to 10 MB).{hasReceipt ? " Choosing a new photo replaces the saved one." : ""}</p>
         {err(errors.receipt)}
       </div>
       {formError && <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{formError}</p>}
       <div className="flex flex-col gap-3 sm:flex-row">
-        <button type="submit" disabled={busy} className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+        <Button type="submit" disabled={busy} className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
           {busy ? "Saving…" : submitLabel}
-        </button>
-        <button type="button" onClick={onCancel} className="rounded-md border border-input px-5 py-3 font-medium text-foreground hover:bg-accent">Cancel</button>
+        </Button>
+        <Button type="button" onClick={onCancel} className="rounded-md border border-input px-5 py-3 font-medium text-foreground hover:bg-accent">Cancel</Button>
       </div>
     </form>
   );
