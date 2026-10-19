@@ -10,8 +10,8 @@ const submission = { data: { visit_date: "2026-10-19", service_performed: "Repai
 function query(data: unknown, error: unknown = null) {
   const q: Record<string, ReturnType<typeof vi.fn>> = {};
   for (const key of ["select", "eq", "order", "range", "insert", "update", "delete"]) q[key] = vi.fn(() => q);
-  q.single = vi.fn().mockResolvedValue({ data, error });
-  q.then = vi.fn((resolve) => Promise.resolve({ data, error }).then(resolve));
+  q["single"] = vi.fn().mockResolvedValue({ data, error });
+  q["then"] = vi.fn((resolve) => Promise.resolve({ data, error }).then(resolve));
   return q;
 }
 beforeEach(() => vi.clearAllMocks());
@@ -20,15 +20,15 @@ describe("combined service expense saving", () => {
     const list = query([]), create = query({ id: "new-provider" }), visit = query({ id: "new-visit" });
     mocks.from.mockReturnValueOnce(list).mockReturnValueOnce(create).mockReturnValueOnce(visit);
     expect(await saveServiceExpense("owner", submission, requested)).toBe("new-visit");
-    expect(create.insert).toHaveBeenCalledWith({ ...requested, user_id: "owner" });
-    expect(visit.insert).toHaveBeenCalledWith({ ...submission.data, service_provider_id: "new-provider", receipt_url: null, user_id: "owner" });
+    expect(create["insert"]).toHaveBeenCalledWith({ ...requested, user_id: "owner" });
+    expect(visit["insert"]).toHaveBeenCalledWith({ ...submission.data, service_provider_id: "new-provider", receipt_url: null, user_id: "owner" });
   });
   it("reuses a suitable owned provider instead of inserting a duplicate", async () => {
     const list = query([provider]), visit = query({ id: "visit" });
     mocks.from.mockReturnValueOnce(list).mockReturnValueOnce(visit);
     await saveServiceExpense("owner", submission, requested);
-    expect(list.eq).toHaveBeenCalledWith("user_id", "owner");
-    expect(visit.insert).toHaveBeenCalledWith(expect.objectContaining({ service_provider_id: "provider-1" }));
+    expect(list["eq"]).toHaveBeenCalledWith("user_id", "owner");
+    expect(visit["insert"]).toHaveBeenCalledWith(expect.objectContaining({ service_provider_id: "provider-1" }));
     expect(mocks.from.mock.calls.map(([table]) => table)).toEqual(["service_providers", "maintenance_visits"]);
   });
   it("never reuses another owner's provider or one with conflicting contact/category", () => {
@@ -45,9 +45,9 @@ describe("combined service expense saving", () => {
     await saveServiceExpense("owner", submission, requested, { id: "existing-visit", receipt_url: null, provider });
     expect(mocks.from).toHaveBeenCalledTimes(1);
     expect(mocks.from).toHaveBeenCalledWith("maintenance_visits");
-    expect(visit.update).toHaveBeenCalledWith(expect.objectContaining({ service_provider_id: "provider-1", paid: false }));
-    expect(visit.eq).toHaveBeenCalledWith("id", "existing-visit");
-    expect(visit.eq).toHaveBeenCalledWith("user_id", "owner");
+    expect(visit["update"]).toHaveBeenCalledWith(expect.objectContaining({ service_provider_id: "provider-1", paid: false }));
+    expect(visit["eq"]).toHaveBeenCalledWith("id", "existing-visit");
+    expect(visit["eq"]).toHaveBeenCalledWith("user_id", "owner");
   });
   it("removes only newly created provider and receipt when visit saving fails", async () => {
     const list = query([]), create = query({ id: "new-provider" }), visit = query(null, new Error("save failed")), cleanup = query(null);
@@ -55,7 +55,7 @@ describe("combined service expense saving", () => {
     mocks.upload.mockResolvedValue("owner/visits/new.jpg");
     await expect(saveServiceExpense("owner", { ...submission, file: new File(["photo"], "new.jpg", { type: "image/jpeg" }) }, requested)).rejects.toThrow("save failed");
     expect(mocks.remove).toHaveBeenCalledWith("owner/visits/new.jpg");
-    expect(cleanup.delete).toHaveBeenCalled();
-    expect(cleanup.eq).toHaveBeenCalledWith("id", "new-provider");
+    expect(cleanup["delete"]).toHaveBeenCalled();
+    expect(cleanup["eq"]).toHaveBeenCalledWith("id", "new-provider");
   });
 });

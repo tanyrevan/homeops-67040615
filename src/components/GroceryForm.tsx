@@ -70,7 +70,7 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
         {hasReceipt && !file && (
           <div className="mb-2 flex items-center gap-3 text-sm">
             <span className="text-muted-foreground">{removeExisting ? "Receipt will be removed." : "A receipt is already saved."}</span>
-            <Button type="button" onClick={() => setRemoveExisting(!removeExisting)} className="font-medium text-primary underline">
+            <Button variant="link" type="button" onClick={() => setRemoveExisting(!removeExisting)} className="font-medium text-primary underline">
               {removeExisting ? "Keep it" : "Remove receipt"}
             </Button>
           </div>
@@ -81,10 +81,10 @@ export function GroceryForm({ initial, hasReceipt = false, submitLabel, onSubmit
       </div>
       {formError && <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{formError}</p>}
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" disabled={busy} className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+        <Button type="submit" disabled={busy} className="h-auto px-5 py-3">
           {busy ? "Saving…" : submitLabel}
         </Button>
-        <Button type="button" onClick={onCancel} className="rounded-md border border-input px-5 py-3 font-medium text-foreground hover:bg-accent">Cancel</Button>
+        <Button type="button" variant="outline" onClick={onCancel} className="h-auto px-5 py-3">Cancel</Button>
       </div>
     </form>
   );
