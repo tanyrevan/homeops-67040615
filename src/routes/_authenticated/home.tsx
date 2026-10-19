@@ -103,7 +103,7 @@ function Dashboard() {
           <YAxis width={64} tickLine={false} axisLine={false} domain={[0, yMax]} ticks={yTicks} tickFormatter={(n: number) => `$${n.toLocaleString("en-US")}`} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
           <Tooltip cursor={{ fill: "var(--accent)" }} formatter={(n: number) => usd(n)} contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--foreground)" }} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          {stats.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} stackId="household" fill={chartColors[i % chartColors.length]} maxBarSize={80} />)}
+          {chartData.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} stackId="household" fill={chartColors[i % chartColors.length]} maxBarSize={80} />)}
         </BarChart></ResponsiveContainer>
       </div>
     </section>
