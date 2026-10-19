@@ -19,9 +19,9 @@ import { day, money, receiptUrlQuery, removeReceipt } from "@/lib/visits-api";
 export const Route = createFileRoute("/_authenticated/groceries/$groceryId/")({
   head: () => ({
     meta: [
-      { title: "Grocery purchase — 16 Olive Road" },
+      { title: "Grocery purchase | 16 Olive Road" },
       { name: "description", content: "Details of a grocery purchase." },
-      { property: "og:title", content: "Grocery purchase — 16 Olive Road" },
+      { property: "og:title", content: "Grocery purchase | 16 Olive Road" },
       { property: "og:description", content: "Details of a grocery purchase." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

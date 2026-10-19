@@ -8,9 +8,9 @@ import { removeReceipt, uploadReceipt } from "@/lib/visits-api";
 export const Route = createFileRoute("/_authenticated/groceries/new")({
   head: () => ({
     meta: [
-      { title: "Add Grocery Purchase — 16 Olive Road" },
+      { title: "Add Grocery Purchase | 16 Olive Road" },
       { name: "description", content: "Log a grocery purchase." },
-      { property: "og:title", content: "Add Grocery Purchase — 16 Olive Road" },
+      { property: "og:title", content: "Add Grocery Purchase | 16 Olive Road" },
       { property: "og:description", content: "Log a grocery purchase." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

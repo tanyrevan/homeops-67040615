@@ -5,9 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "16 Olive Road — Household operations tracker" },
+      { title: "16 Olive Road | Household operations tracker" },
       { name: "description", content: "Keep your household running smoothly with 16 Olive Road." },
-      { property: "og:title", content: "16 Olive Road — Household operations tracker" },
+      { property: "og:title", content: "16 Olive Road | Household operations tracker" },
       { property: "og:description", content: "Keep your household running smoothly with 16 Olive Road." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
