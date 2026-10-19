@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { VisitForm } from "@/components/VisitForm";
 import { GroceryForm } from "@/components/GroceryForm";
-import { validateVisit } from "@/lib/visit-validation";
+import { serviceExample, validateVisit } from "@/lib/visit-validation";
 import { validateGrocery } from "@/lib/grocery-validation";
 afterEach(cleanup);
 const visit = { visitDate: "2026-10-19", service: "Repair", amount: "75", notes: "", paid: null };
