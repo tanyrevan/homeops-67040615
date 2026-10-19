@@ -55,10 +55,14 @@ function Dashboard() {
   const { data } = useSuspenseQuery(dashboardQuery(user.id));
   const today = new Date();
   const [period, setPeriod] = useState<SpendPeriod>("month");
+  const [chartPeriod, setChartPeriod] = useState<SpendPeriod>("month");
   const stats = householdStats(data.groceries, data.visits, data.providers, today);
+  const years = availableYears(data.groceries, data.visits, today);
+  const options = periodOptions(years);
   const totalSpend = periodTotal(data.groceries, data.visits, today, period);
-  const hasSpending = stats.chart.some((month) => stats.series.some((s) => Number(month[s.key as keyof typeof month]) > 0));
-  const highestMonth = Math.max(0, ...stats.chart.map((month) => stats.series.reduce((total, s) => total + Number(month[s.key as keyof typeof month] ?? 0), 0)));
+  const chartData = spendingChart(data.groceries, data.visits, data.providers, periodMonths(chartPeriod, today, data.groceries, data.visits));
+  const hasSpending = chartData.chart.some((month) => chartData.series.some((s) => Number(month[s.key as keyof typeof month]) > 0));
+  const highestMonth = Math.max(0, ...chartData.chart.map((month) => chartData.series.reduce((total, s) => total + Number(month[s.key as keyof typeof month] ?? 0), 0)));
   const yMax = chartAxisMax(highestMonth);
   const yTicks = Array.from({ length: yMax / 200 + 1 }, (_, i) => i * 200);
   return <AppShell>
